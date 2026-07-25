@@ -38,9 +38,8 @@
 :HL["/assets/icons/ic-proc-sparkles.png","image"]
 :HL["/assets/icons/ic-proc-check.png","image"]
 :HL["/assets/icons/ic-proc-ringbox.png","image"]
-:HL["/assets/icons/gallery-arrows.svg","image"]
 :HL["/assets/icons/info-location.svg","image"]
 :HL["/assets/icons/info-email.svg","image"]
 :HL["/assets/icons/info-hours.svg","image"]
 :HL["/assets/icons/social-row.svg","image"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"figma-live","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"obaZ3f5QfcytgOcNjpgzY"}
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"figma-live","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"72Vq9XWM5b9w2G650GVKr"}
