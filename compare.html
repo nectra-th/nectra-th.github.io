@@ -115,10 +115,26 @@ const guide = document.getElementById("guide");
 const guideLbl = document.getElementById("guideLbl");
 const guideToggle = document.getElementById("guideToggle");
 
+// Hide the live build's own scrollbar so it doesn't eat ~15px of width and
+// throw the mobile comparison off against the (scrollbar-free) Figma image.
+function hideLiveScrollbar() {
+  try {
+    const d = live.contentDocument;
+    if (!d || d.getElementById("cmp-noscroll")) return;
+    const st = d.createElement("style");
+    st.id = "cmp-noscroll";
+    st.textContent =
+      "html,body{scrollbar-width:none!important;-ms-overflow-style:none!important}" +
+      "html::-webkit-scrollbar,body::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}";
+    (d.head || d.documentElement).appendChild(st);
+  } catch (e) { /* same-origin expected */ }
+}
+
 function measureLive() {
   try {
     const d = live.contentDocument;
     if (d && d.body) liveH = Math.max(d.body.scrollHeight, d.documentElement.scrollHeight);
+    hideLiveScrollbar();
   } catch (e) { /* same-origin expected */ }
 }
 
