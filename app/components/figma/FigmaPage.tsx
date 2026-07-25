@@ -1,12 +1,16 @@
 import type { ReactNode } from "react";
 import iconsMap from "@/app/generated/icons.map.json";
+import imagesMap from "@/app/generated/images.map.json";
 import FigmaSection, { type FigSection } from "./FigmaSection";
 import BookingWidget from "./BookingWidget";
 import FeaturedGallery from "./FeaturedGallery";
 import FindUsTabs from "./FindUsTabs";
+import ServicesCarousel, { type SvcCard } from "./ServicesCarousel";
 import { Instagram, Facebook } from "../icons";
 
 const ICONS = iconsMap as { byName: Record<string, string>; byId: Record<string, string> };
+const IMAP = imagesMap as Record<string, string>;
+type FigN = FigSection["nodes"][number];
 
 type Layout = { width: number; height: number; sections: FigSection[] };
 
@@ -163,12 +167,53 @@ function findUsGeom(layout: Layout) {
   };
 }
 
+// Mobile services carousel geometry. Only fires when the 6 service cards sit in
+// one wide horizontal row (the mobile layout); returns the card data + the ids
+// of the transpiled card nodes to hide (they're replaced by <ServicesCarousel>).
+const SERVICE_TITLES = ["Custom Jewellery", "Engagement & Wedding Rings", "Jewellery Repairs", "Valuations", "Antique Jewellery", "Watch Services"];
+function servicesCarouselGeom(layout: Layout) {
+  const nodes = layout.sections.flatMap((s) => s.nodes) as FigN[];
+  const titles = SERVICE_TITLES
+    .map((tt) => nodes.find((n) => n.render === "text" && n.text && n.text.characters.trim() === tt))
+    .filter(Boolean) as FigN[];
+  if (titles.length < 6) return null;
+  const ys = titles.map((t) => t.yAbs), xs = titles.map((t) => t.x);
+  // mobile only: the cards form one row wider than the viewport
+  if (Math.max(...ys) - Math.min(...ys) > 30 || Math.max(...xs) - Math.min(...xs) < layout.width) return null;
+
+  const titleY = Math.min(...ys);
+  const imgs = nodes
+    .filter((n) => n.render === "image" && n.w > 220 && n.w < 340 && n.h > 180 && n.yAbs > titleY - 10 && n.yAbs < titleY + 200)
+    .sort((a, b) => a.x - b.x);
+  if (imgs.length < 6) return null;
+
+  const hide = new Set<string>();
+  const cards: SvcCard[] = [];
+  for (const img of imgs.slice(0, 6)) {
+    const cx = img.x + img.w / 2;
+    const near = (n: FigN) => Math.abs(n.x + n.w / 2 - cx) < 150;
+    const icon = nodes.find((n) => n.render === "vector" && n.w > 10 && n.h > 10 && n.yAbs < titleY + 10 && near(n));
+    const title = nodes.find((n) => n.render === "text" && n.text && Math.abs(n.yAbs - titleY) < 12 && near(n));
+    const ul = nodes.find((n) => n.render === "vector" && n.h <= 1 && near(n) && n.yAbs > titleY && n.yAbs < titleY + 60);
+    const desc = nodes.find((n) => n.render === "text" && n.text && n.yAbs > img.yAbs + img.h - 12 && near(n));
+    [icon, title, ul, desc, img].forEach((n) => n && hide.add(n.id));
+    cards.push({
+      icon: icon ? (ICONS.byId[icon.id] || `/assets/figma/${icon.id.replace(/[:;]/g, "_")}.svg`) : "",
+      title: title?.text?.characters ?? "",
+      img: IMAP[img.image?.imageRef ?? ""] ?? "",
+      desc: desc?.text?.characters ?? "",
+    });
+  }
+  return { cards, x: 0, y: titleY - 64, viewportW: layout.width, hide };
+}
+
 export default function FigmaPage({ layout, background = "#ede5d7" }: { layout: Layout; background?: string }) {
   const islands = buildIslands();
   const bookY = anchorY(layout, /Book A Design Consultation|Every Meaningful/i);
   const findusY = anchorY(layout, /^Find Us$/i);
   const findUs = findUsGeom(layout);
-  const hidden = findUs?.hide ?? new Set<string>();
+  const svc = servicesCarouselGeom(layout);
+  const hidden = new Set<string>([...(findUs?.hide ?? []), ...(svc?.hide ?? [])]);
   return (
     <div style={{ width: layout.width, margin: "0 auto", position: "relative", background, overflow: "visible" }}>
       {layout.sections.map((s) => (
@@ -176,6 +221,7 @@ export default function FigmaPage({ layout, background = "#ede5d7" }: { layout: 
       ))}
       {bookY != null && <div id="book" style={{ position: "absolute", top: bookY - 120, left: 0, width: 1, height: 1, scrollMarginTop: 100 }} />}
       {findusY != null && <div id="findus" style={{ position: "absolute", top: findusY - 120, left: 0, width: 1, height: 1, scrollMarginTop: 100 }} />}
+      {svc && <ServicesCarousel cards={svc.cards} x={svc.x} y={svc.y} viewportW={svc.viewportW} />}
       {findUs && <FindUsTabs tabs={findUs.tabs} image={findUs.image} labels={findUs.labels} underline={findUs.underline} />}
       {buildLinkOverlays(layout)}
     </div>

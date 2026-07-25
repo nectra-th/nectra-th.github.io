@@ -194,3 +194,7 @@
     transform: none !important;
   }
 }
+
+/* Mobile services carousel — hide the native scrollbar (swipe still works) */
+.svc-carousel-track { scrollbar-width: none; -ms-overflow-style: none; }
+.svc-carousel-track::-webkit-scrollbar { display: none; }
