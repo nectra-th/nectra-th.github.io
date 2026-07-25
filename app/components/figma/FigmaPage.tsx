@@ -6,6 +6,7 @@ import BookingWidget from "./BookingWidget";
 import FeaturedGallery from "./FeaturedGallery";
 import FindUsTabs from "./FindUsTabs";
 import ServicesCarousel, { type SvcCard } from "./ServicesCarousel";
+import ReviewsCarousel, { type Review } from "./ReviewsCarousel";
 import { Instagram, Facebook } from "../icons";
 
 const ICONS = iconsMap as { byName: Record<string, string>; byId: Record<string, string> };
@@ -207,13 +208,42 @@ function servicesCarouselGeom(layout: Layout) {
   return { cards, x: 0, y: titleY - 64, viewportW: layout.width, hide };
 }
 
+// Mobile reviews carousel — the 3 identical testimonial cards sit in one wide
+// row on mobile; replace them with <ReviewsCarousel>.
+function reviewsCarouselGeom(layout: Layout) {
+  const nodes = layout.sections.flatMap((s) => s.nodes) as FigN[];
+  const bodies = nodes.filter((n) => n.render === "text" && n.text && n.text.characters.startsWith("We had our wedding"));
+  if (bodies.length < 2) return null;
+  const ys = bodies.map((b) => b.yAbs), xs = bodies.map((b) => b.x);
+  if (Math.max(...ys) - Math.min(...ys) > 30 || Math.max(...xs) - Math.min(...xs) < layout.width) return null; // mobile only
+  const rowY = Math.min(...ys) - 24; // card rect top ≈ body top − 24
+  const rects = nodes
+    .filter((n) => n.render === "rect" && Math.abs(n.w - 296) < 30 && n.h > 180 && Math.abs(n.yAbs - rowY) < 24)
+    .sort((a, b) => a.x - b.x);
+  if (rects.length < 2) return null;
+
+  const hide = new Set<string>();
+  const reviews: Review[] = [];
+  for (const rect of rects) {
+    const cx = rect.x + rect.w / 2;
+    const near = (n: FigN) => Math.abs(n.x + n.w / 2 - cx) < 160;
+    const quote = nodes.find((n) => n.render === "text" && n.text && n.text.characters.trim().length <= 2 && n.yAbs > rect.yAbs - 4 && n.yAbs < rect.yAbs + 40 && near(n));
+    const body = nodes.find((n) => n.render === "text" && n.text && n.text.characters.startsWith("We had our") && near(n));
+    const author = nodes.find((n) => n.render === "text" && n.text && n.text.characters.includes("Michael & Laura") && near(n));
+    [rect, quote, body, author].forEach((n) => n && hide.add(n.id));
+    reviews.push({ text: body?.text?.characters ?? "", author: author?.text?.characters ?? "" });
+  }
+  return { reviews, x: 0, y: rects[0].yAbs, viewportW: layout.width, hide };
+}
+
 export default function FigmaPage({ layout, background = "#ede5d7" }: { layout: Layout; background?: string }) {
   const islands = buildIslands();
   const bookY = anchorY(layout, /Book A Design Consultation|Every Meaningful/i);
   const findusY = anchorY(layout, /^Find Us$/i);
   const findUs = findUsGeom(layout);
   const svc = servicesCarouselGeom(layout);
-  const hidden = new Set<string>([...(findUs?.hide ?? []), ...(svc?.hide ?? [])]);
+  const rev = reviewsCarouselGeom(layout);
+  const hidden = new Set<string>([...(findUs?.hide ?? []), ...(svc?.hide ?? []), ...(rev?.hide ?? [])]);
   return (
     <div style={{ width: layout.width, margin: "0 auto", position: "relative", background, overflow: "visible" }}>
       {layout.sections.map((s) => (
@@ -222,6 +252,7 @@ export default function FigmaPage({ layout, background = "#ede5d7" }: { layout: 
       {bookY != null && <div id="book" style={{ position: "absolute", top: bookY - 120, left: 0, width: 1, height: 1, scrollMarginTop: 100 }} />}
       {findusY != null && <div id="findus" style={{ position: "absolute", top: findusY - 120, left: 0, width: 1, height: 1, scrollMarginTop: 100 }} />}
       {svc && <ServicesCarousel cards={svc.cards} x={svc.x} y={svc.y} viewportW={svc.viewportW} />}
+      {rev && <ReviewsCarousel reviews={rev.reviews} x={rev.x} y={rev.y} viewportW={rev.viewportW} />}
       {findUs && <FindUsTabs tabs={findUs.tabs} image={findUs.image} labels={findUs.labels} underline={findUs.underline} />}
       {buildLinkOverlays(layout)}
     </div>

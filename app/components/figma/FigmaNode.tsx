@@ -196,18 +196,25 @@ export default function FigmaNode({ node, island, frameW = 1920 }: { node: FigNo
     // The "David-Sketch-Alpha-Grey02" backdrop is mirrored horizontally in Figma.
     const flipX = /David-Sketch-Alpha-Grey02/i.test(node.name);
     const imgTransform = [blur ? "scale(1.08)" : "", flipX ? "scaleX(-1)" : ""].filter(Boolean).join(" ") || undefined;
+    // Image borders (e.g. the store photo's #d8cbb7 outline) as box-shadow so
+    // they don't resize the box — same rule as rects.
+    let imgShadow: string | undefined;
+    if (node.stroke) {
+      const w = node.stroke.weight, c = node.stroke.hex, al = node.stroke.align || "CENTER";
+      imgShadow = al === "INSIDE" ? `inset 0 0 0 ${w}px ${c}` : al === "OUTSIDE" ? `0 0 0 ${w}px ${c}` : `inset 0 0 0 ${w / 2}px ${c}, 0 0 0 ${w / 2}px ${c}`;
+    }
     // Layer: scrim (base fill) + image (bg-image so the transform applies, plus
     // blur/opacity) + optional gradient fade overlay.
-    if (node.fill || node.gradient || imgOpacity < 1 || blur || hasT || flipX) {
+    if (node.fill || node.gradient || imgOpacity < 1 || blur || hasT || flipX || imgShadow) {
       return (
-        <div style={{ ...base, transform: undefined, background: node.fill?.hex, borderRadius: radiusStyle(node), overflow: "hidden" }} {...common}>
+        <div style={{ ...base, transform: undefined, background: node.fill?.hex, borderRadius: radiusStyle(node), overflow: "hidden", boxShadow: imgShadow }} {...common}>
           <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${src})`, backgroundSize: bgSize, backgroundPosition: bgPos, backgroundRepeat: "no-repeat", opacity: imgOpacity, filter: blur ? `blur(${blur}px)` : undefined, transform: imgTransform }} />
           {node.gradient && <div style={{ position: "absolute", inset: 0, background: gradientCss(node.gradient) }} />}
         </div>
       );
     }
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={src} alt={node.name} style={{ ...base, transform: undefined, objectFit, borderRadius: radiusStyle(node) }} {...common} />;
+    return <img src={src} alt={node.name} style={{ ...base, transform: undefined, objectFit, borderRadius: radiusStyle(node), boxShadow: imgShadow }} {...common} />;
   }
 
   if (node.render === "rect" || node.render === "ellipse") {

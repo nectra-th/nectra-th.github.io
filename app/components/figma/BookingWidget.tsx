@@ -131,9 +131,9 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
       <p style={SUB}>Everything you need before we meet.</p>
       <ul style={{ marginTop: 48, display: "flex", flexDirection: "column", gap: 24 }}>
         {CHECKLIST.map((c) => (
-          <li key={c} style={{ display: "flex", alignItems: "center", gap: 12, height: 24 }}>
-            <Check style={{ width: 22, height: 22, flex: "0 0 auto", color: "var(--color-gold)" }} />
-            <span style={{ fontFamily: FONT, fontSize: 16, color: "var(--color-ink-text)", whiteSpace: stacked ? "normal" : "nowrap" }}>{c}</span>
+          <li key={c} style={{ display: "flex", alignItems: "center", gap: 8, height: 24 }}>
+            <Check style={{ width: 24, height: 24, flex: "0 0 auto", color: "var(--color-gold)" }} />
+            <span style={{ fontFamily: FONT, fontSize: 16, fontWeight: 500, color: "var(--color-ink-text)", whiteSpace: stacked ? "normal" : "nowrap" }}>{c}</span>
           </li>
         ))}
       </ul>

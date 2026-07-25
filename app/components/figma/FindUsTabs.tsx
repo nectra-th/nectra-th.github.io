@@ -82,9 +82,20 @@ export default function FindUsTabs({ tabs, image, labels = [], underline }: { ta
       {active === 1 && (
         <img src="/assets/figma-img/shopping-centre-map.png" alt="Shopping centre map" style={{ ...slot, objectFit: "cover" }} />
       )}
-      {/* 2 = GOOGLE MAPS → live embed */}
+      {/* 2 = GOOGLE MAPS → live embed. A placeholder (card-colour fill + centred
+         maps pin) sits under the iframe so the store photo never flashes while
+         the map tiles load. */}
       {active === 2 && (
-        <iframe title="Store location map" src={GOOGLE_EMBED} loading="lazy" style={{ ...slot, border: 0 }} />
+        <>
+          <div style={{ ...slot, zIndex: 8399, background: "#f8f3ea", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span aria-hidden style={{
+              width: 52, height: 52, backgroundColor: "rgba(64,59,55,0.35)",
+              WebkitMaskImage: "url(/assets/icons/tab-pin.svg)", maskImage: "url(/assets/icons/tab-pin.svg)",
+              WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskPosition: "center", maskPosition: "center",
+            }} />
+          </div>
+          <iframe title="Store location map" src={GOOGLE_EMBED} loading="lazy" style={{ ...slot, border: 0, background: "transparent" }} />
+        </>
       )}
     </>
   );
