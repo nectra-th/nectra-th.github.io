@@ -12,7 +12,6 @@
 :HL["/assets/icons/ic-anvil.png","image"]
 :HL["/assets/icons/ic-magnifier.png","image"]
 :HL["/assets/icons/ic-hand.png","image"]
-:HL["/assets/icons/ring-icon.svg","image"]
 :HL["/assets/icons/ic-rings.png","image"]
 :HL["/assets/icons/ic-pendant.png","image"]
 :HL["/assets/icons/ic-watch.png","image"]
@@ -31,6 +30,7 @@
 :HL["/assets/figma/1_4136.svg","image"]
 :HL["/assets/figma/1_4141.svg","image"]
 :HL["/assets/figma-img/a15446604381559e8dde90720667fc5fa3dcb262.png","image"]
+:HL["/assets/icons/menu.svg","image"]
 :HL["/assets/icons/ic-proc-pliers.png","image"]
 :HL["/assets/icons/ic-proc-pencil.png","image"]
 :HL["/assets/icons/ic-proc-diamond.png","image"]
@@ -43,4 +43,4 @@
 :HL["/assets/icons/info-email.svg","image"]
 :HL["/assets/icons/info-hours.svg","image"]
 :HL["/assets/icons/social-row.svg","image"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"figma-live","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"Tnro6CgWdCPdQLzB_hvi4"}
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"figma-live","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"obaZ3f5QfcytgOcNjpgzY"}
