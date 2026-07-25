@@ -193,12 +193,15 @@ export default function FigmaNode({ node, island, frameW = 1920 }: { node: FigNo
       bgPos = `${r2(px)}% ${r2(py)}%`;
     }
 
+    // The "David-Sketch-Alpha-Grey02" backdrop is mirrored horizontally in Figma.
+    const flipX = /David-Sketch-Alpha-Grey02/i.test(node.name);
+    const imgTransform = [blur ? "scale(1.08)" : "", flipX ? "scaleX(-1)" : ""].filter(Boolean).join(" ") || undefined;
     // Layer: scrim (base fill) + image (bg-image so the transform applies, plus
     // blur/opacity) + optional gradient fade overlay.
-    if (node.fill || node.gradient || imgOpacity < 1 || blur || hasT) {
+    if (node.fill || node.gradient || imgOpacity < 1 || blur || hasT || flipX) {
       return (
         <div style={{ ...base, transform: undefined, background: node.fill?.hex, borderRadius: radiusStyle(node), overflow: "hidden" }} {...common}>
-          <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${src})`, backgroundSize: bgSize, backgroundPosition: bgPos, backgroundRepeat: "no-repeat", opacity: imgOpacity, filter: blur ? `blur(${blur}px)` : undefined, transform: blur ? "scale(1.08)" : undefined }} />
+          <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${src})`, backgroundSize: bgSize, backgroundPosition: bgPos, backgroundRepeat: "no-repeat", opacity: imgOpacity, filter: blur ? `blur(${blur}px)` : undefined, transform: imgTransform }} />
           {node.gradient && <div style={{ position: "absolute", inset: 0, background: gradientCss(node.gradient) }} />}
         </div>
       );
