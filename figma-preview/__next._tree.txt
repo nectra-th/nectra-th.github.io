@@ -31,4 +31,4 @@
 :HL["/assets/figma/1_4136.svg","image"]
 :HL["/assets/figma/1_4141.svg","image"]
 :HL["/assets/figma-img/a15446604381559e8dde90720667fc5fa3dcb262.png","image"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"figma-preview","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"PKgflwQ45oF3U0VCickP2"}
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"figma-preview","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"ng1bmR2c_3xOuwfGcPtI-"}
