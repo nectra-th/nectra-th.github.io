@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Figma raw fetch data (regenerable via scripts/fetch-*) — not needed to build
+/figma-data/
+/.server-routes-holding/
+*.log

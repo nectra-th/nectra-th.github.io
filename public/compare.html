@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Grech Jewellers — Figma vs Build compare</title>
+<style>
+  :root { --bar: 52px; --gold: #b58a47; --ink: #141312; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #1b1a19; color: #eee;
+    font-family: -apple-system, Segoe UI, Roboto, sans-serif; }
+  /* Top bar */
+  #bar { position: fixed; inset: 0 0 auto 0; height: var(--bar); z-index: 50;
+    display: flex; align-items: center; gap: 14px; padding: 0 16px;
+    background: #232120; border-bottom: 1px solid #3a3735; }
+  #bar .title { font-weight: 700; letter-spacing: .04em; color: var(--gold); font-size: 14px; }
+  #bar .seg { display: flex; gap: 4px; background: #171615; border: 1px solid #3a3735; border-radius: 6px; padding: 3px; }
+  #bar .seg button { background: transparent; color: #cfcac4; border: 0; padding: 6px 12px;
+    font-size: 12px; font-weight: 600; border-radius: 4px; cursor: pointer; }
+  #bar .seg button.on { background: var(--gold); color: #1b1a19; }
+  #bar .meta { margin-left: auto; font-size: 12px; color: #9c968e; font-variant-numeric: tabular-nums; }
+  #bar label { font-size: 12px; color: #cfcac4; display: flex; align-items: center; gap: 6px; }
+  /* Stage */
+  #stage { position: fixed; inset: var(--bar) 0 0 0; z-index: 10; overflow: hidden; }
+  .col { position: absolute; top: 0; bottom: 0; width: 50%; overflow: hidden; }
+  .col.left { left: 0; border-right: 2px solid var(--gold); }
+  .col.right { right: 0; }
+  .col .cap { position: absolute; top: 8px; z-index: 5; font-size: 11px; font-weight: 700;
+    letter-spacing: .08em; padding: 3px 9px; border-radius: 4px; background: rgba(20,19,18,.72);
+    color: var(--gold); backdrop-filter: blur(2px); }
+  .col.left .cap { left: 10px; }
+  .col.right .cap { right: 10px; }
+  .track { position: absolute; top: 0; left: 50%; transform-origin: top center; }
+  .track img { display: block; }
+  .track iframe { display: block; border: 0; background: #fff; }
+  /* center reference guide */
+  #guide { position: fixed; left: 0; right: 0; z-index: 40; height: 0; pointer-events: none; }
+  #guide .line { position: absolute; left: 0; right: 0; border-top: 1px dashed rgba(181,138,71,.85); }
+  #guide .lbl { position: absolute; right: 50%; transform: translateY(-50%); margin-right: 6px;
+    background: var(--gold); color: #1b1a19; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; }
+  /* scroll driver */
+  #spacer { width: 1px; }
+  #hint { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 45;
+    font-size: 11px; color: #8a857e; background: rgba(20,19,18,.6); padding: 4px 10px; border-radius: 20px; }
+  /* Overlay mode: both halves fill the width and stack on top of each other.
+     pointer-events:none stops the stacked live iframe from swallowing the wheel
+     (which scrolled it internally and left the Figma layer frozen) — now the
+     wheel always drives window scroll, which syncs both layers together. */
+  body.overlay .col { width: 100%; left: 0; right: 0; border: 0; pointer-events: none; }
+  body.overlay .col.left { z-index: 10; }
+  body.overlay .col.right { z-index: 11; opacity: var(--ov, .5); }
+  body.overlay .col .cap { display: none; }
+  body.overlay.diff .col.right { mix-blend-mode: difference; opacity: 1; }
+  body.overlay.diff .col.left { filter: none; }
+  body.overlay.diff #stage { background: #000; }
+</style>
+</head>
+<body>
+  <div id="bar">
+    <span class="title">GRECH · Figma ↔ Build</span>
+    <div class="seg" id="seg">
+      <button data-dev="desktop" class="on">Desktop 1920</button>
+      <button data-dev="ipad">iPad 834</button>
+      <button data-dev="iphone">iPhone 390</button>
+    </div>
+    <label><input type="checkbox" id="guideToggle" checked /> guide line</label>
+    <div class="seg" id="viewSeg">
+      <button data-view="split" class="on">side&#8209;by&#8209;side</button>
+      <button data-view="overlay">overlay</button>
+    </div>
+    <label id="opacityCtl" style="display:none">overlay <input type="range" id="opacity" min="0" max="100" value="50" style="width:96px" /> <span id="opacityVal">50%</span></label>
+    <label id="diffCtl" style="display:none"><input type="checkbox" id="diffToggle" /> diff</label>
+    <div class="seg" id="syncSeg">
+      <button data-sync="px" class="on">sync: same&nbsp;px</button>
+      <button data-sync="pct">sync: %</button>
+    </div>
+    <span class="meta" id="meta"></span>
+  </div>
+
+  <div id="stage">
+    <div class="col left"><span class="cap">FIGMA DESIGN</span>
+      <div class="track" id="ltrack"><img id="fimg" alt="Figma" /></div>
+    </div>
+    <div class="col right"><span class="cap">LIVE BUILD</span>
+      <div class="track" id="rtrack"><iframe id="live" src="/" title="Live build"></iframe></div>
+    </div>
+  </div>
+
+  <div id="guide"><div class="line"></div><div class="lbl" id="guideLbl">0px</div></div>
+  <div id="hint">เลื่อนเมาส์ / trackpad เพื่อเลื่อนพร้อมกันทั้งสองฝั่ง</div>
+  <div id="spacer"></div>
+
+<script>
+const DEVICES = {
+  desktop: { w: 1920, img: "/compare/figma-desktop.jpg", figmaH: 11088 },
+  ipad:    { w: 834,  img: "/compare/figma-ipad.jpg",    figmaH: 7779  },
+  iphone:  { w: 390,  img: "/compare/figma-iphone.jpg",  figmaH: 14249 },
+};
+const GUTTER = 24;      // px padding inside each half
+let dev = "desktop";
+let mode = "split";     // "split" = side-by-side · "overlay" = stacked
+let s = 1;             // scale factor (display px per device px)
+let liveH = 0;         // measured live full content height (device px)
+let colH = 0;          // display height of a column
+let vpDev = 0;         // device px height visible in a column
+
+const stage = document.getElementById("stage");
+const ltrack = document.getElementById("ltrack");
+const rtrack = document.getElementById("rtrack");
+const fimg = document.getElementById("fimg");
+const live = document.getElementById("live");
+const spacer = document.getElementById("spacer");
+const meta = document.getElementById("meta");
+const guide = document.getElementById("guide");
+const guideLbl = document.getElementById("guideLbl");
+const guideToggle = document.getElementById("guideToggle");
+
+function measureLive() {
+  try {
+    const d = live.contentDocument;
+    if (d && d.body) liveH = Math.max(d.body.scrollHeight, d.documentElement.scrollHeight);
+  } catch (e) { /* same-origin expected */ }
+}
+
+function layout() {
+  const cfg = DEVICES[dev];
+  const half = mode === "overlay" ? window.innerWidth : window.innerWidth / 2;
+  colH = window.innerHeight - 52;
+  s = Math.min(1, (half - GUTTER) / cfg.w);
+  vpDev = colH / s;
+
+  // left image
+  fimg.src = cfg.img;
+  fimg.style.width = cfg.w + "px";
+  ltrack.style.width = cfg.w + "px";
+  ltrack.style.marginLeft = (-cfg.w / 2) + "px"; // because left:50%
+  ltrack.style.transformOrigin = "top center";
+
+  // right iframe — layout width = device width, height = one viewport (device px)
+  live.style.width = cfg.w + "px";
+  live.style.height = Math.ceil(vpDev) + "px";
+  rtrack.style.width = cfg.w + "px";
+  rtrack.style.marginLeft = (-cfg.w / 2) + "px";
+  rtrack.style.transformOrigin = "top center";
+  rtrack.style.transform = "scale(" + s + ")"; // right scroll handled internally
+
+  measureLive();
+  const maxContentH = Math.max(cfg.figmaH, liveH || cfg.figmaH);
+  spacer.style.height = (maxContentH * s + 2) + "px";
+
+  onScroll();
+  updateMeta();
+}
+
+let syncMode = "px"; // "px" = scroll both equally · "pct" = align by % of each height
+
+function onScroll() {
+  const cfg = DEVICES[dev];
+  const pos = Math.max(0, window.scrollY / s); // device px scrolled
+  const leftMax = Math.max(0, cfg.figmaH - vpDev);
+  const rightMax = Math.max(0, (liveH || cfg.figmaH) - vpDev);
+  let lPos, rPos;
+  if (syncMode === "pct") {
+    const globalMax = Math.max(leftMax, rightMax) || 1;
+    const frac = Math.min(1, pos / globalMax);
+    lPos = frac * leftMax;
+    rPos = frac * rightMax;
+  } else {
+    lPos = Math.min(pos, leftMax);
+    rPos = Math.min(pos, rightMax);
+  }
+  // left: translate the image up, scaled
+  ltrack.style.transform = "translateY(" + (-lPos * s) + "px) scale(" + s + ")";
+  // right: scroll inside the live iframe
+  try { live.contentWindow.scrollTo(0, rPos); } catch (e) {}
+  updateMeta(pos);
+}
+
+function updateMeta(pos) {
+  const cfg = DEVICES[dev];
+  const p = pos == null ? Math.max(0, window.scrollY / s) : pos;
+  meta.textContent =
+    dev.toUpperCase() + " · " + cfg.w + "px wide  |  Figma " + cfg.figmaH +
+    "px · Build " + (liveH || "…") + "px (" +
+    (liveH ? Math.round(liveH / cfg.figmaH * 100) : "…") + "%)  |  scroll " + Math.round(p) + "px";
+}
+
+// center guide line
+function placeGuide() {
+  const y = 52 + colH / 2;
+  guide.querySelector(".line").style.top = y + "px";
+  guideLbl.style.top = y + "px";
+}
+function updateGuideLbl() {
+  const pos = Math.max(0, window.scrollY / s);
+  guideLbl.textContent = Math.round(pos + vpDev / 2) + "px";
+}
+
+document.getElementById("seg").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  [...e.currentTarget.children].forEach((x) => x.classList.remove("on"));
+  b.classList.add("on");
+  dev = b.dataset.dev;
+  window.scrollTo(0, 0);
+  // reload iframe at new width so responsive layout + height re-measure cleanly
+  live.src = "/";
+  layout();
+});
+
+guideToggle.addEventListener("change", () => {
+  guide.style.display = guideToggle.checked ? "block" : "none";
+});
+
+document.getElementById("syncSeg").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  [...e.currentTarget.children].forEach((x) => x.classList.remove("on"));
+  b.classList.add("on");
+  syncMode = b.dataset.sync;
+  onScroll();
+});
+
+// view: side-by-side vs overlay
+document.getElementById("viewSeg").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  [...e.currentTarget.children].forEach((x) => x.classList.remove("on"));
+  b.classList.add("on");
+  mode = b.dataset.view;
+  document.body.classList.toggle("overlay", mode === "overlay");
+  document.getElementById("opacityCtl").style.display = mode === "overlay" ? "flex" : "none";
+  document.getElementById("diffCtl").style.display = mode === "overlay" ? "flex" : "none";
+  layout(); placeGuide();
+});
+const opacity = document.getElementById("opacity");
+opacity.addEventListener("input", () => {
+  document.documentElement.style.setProperty("--ov", opacity.value / 100);
+  document.getElementById("opacityVal").textContent = opacity.value + "%";
+});
+document.documentElement.style.setProperty("--ov", 0.5);
+document.getElementById("diffToggle").addEventListener("change", (e) => {
+  document.body.classList.toggle("diff", e.target.checked);
+});
+
+window.addEventListener("scroll", () => { onScroll(); updateGuideLbl(); }, { passive: true });
+window.addEventListener("resize", () => { layout(); placeGuide(); });
+
+live.addEventListener("load", () => {
+  // remeasure a few times as images/reveal settle
+  let n = 0;
+  const iv = setInterval(() => {
+    measureLive();
+    const cfg = DEVICES[dev];
+    const maxContentH = Math.max(cfg.figmaH, liveH || cfg.figmaH);
+    spacer.style.height = (maxContentH * s + 2) + "px";
+    updateMeta();
+    if (++n > 6) clearInterval(iv);
+  }, 500);
+});
+
+// init
+fimg.addEventListener("load", () => { onScroll(); });
+window.addEventListener("DOMContentLoaded", () => { layout(); placeGuide(); });
+layout(); placeGuide();
+</script>
+</body>
+</html>

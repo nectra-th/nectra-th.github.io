@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Grech Jewellers — Website
 
-## Getting Started
+A pixel-faithful build of the Grech Jewellers Figma design: a premium single-page
+landing site for an Adelaide manufacturing jeweller, plus a working **booking
+system** (calendar + time picker) with a file-backed backend and an admin view.
 
-First, run the development server:
+Built with **Next.js 16 (App Router) + React 19 + Tailwind CSS v4**.
+Fonts: Cormorant Garamond (display) + Manrope (body), self-hosted via `next/font`.
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd site
+npm install          # first time only
+npm run dev          # dev server → http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Production:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm run start        # → http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project structure
 
-## Learn More
+```
+site/
+├─ app/
+│  ├─ layout.tsx            # fonts + metadata
+│  ├─ globals.css           # design tokens (brand colours, fonts)
+│  ├─ page.tsx              # composes all sections
+│  ├─ components/           # one file per section (Hero, WhyGrech, … Footer)
+│  │  ├─ Booking.tsx        # calendar + time picker + contact form (client)
+│  │  ├─ icons.tsx          # inline SVG icons
+│  │  └─ ui.tsx             # Container / Button / Eyebrow helpers
+│  ├─ (auth)/               # split-screen /signup + /login (UI only, stubbed submit)
+│  │  ├─ layout.tsx         # image panel + member benefits
+│  │  ├─ signup/page.tsx · login/page.tsx
+│  ├─ components/auth/      # AuthField, PasswordMeter, SocialAuth, AuthTabs
+│  ├─ components/Reveal.tsx # IntersectionObserver scroll-reveal (reduced-motion aware)
+│  ├─ api/bookings/route.ts # GET (taken slots) + POST (create booking)
+│  └─ admin/page.tsx        # bookings dashboard (key-protected)
+├─ lib/bookings.ts          # data access (reads/writes data/bookings.json)
+├─ data/bookings.json       # booking store (created on first booking)
+└─ public/assets/           # images exported from Figma (optimised)
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Booking system
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Customer flow:** pick a date → pick an available time → fill name / email /
+  phone → confirm. Sundays are disabled; Saturdays only offer 9am–1pm slots;
+  past dates/times are disabled; already-booked slots are greyed out.
+- **Backend:** `POST /api/bookings` validates input, rejects double-bookings
+  (HTTP 409) and past/closed dates (HTTP 400), and appends to
+  `data/bookings.json`. `GET /api/bookings` returns taken slots so the UI can
+  disable them.
+- **Admin:** view all bookings at **`/admin?key=grech1978`**.
+  Change the key by setting the `ADMIN_KEY` environment variable.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+> The booking store is a JSON file (no database), chosen because this machine's
+> Application Control policy blocks native binaries (SQLite/Prisma engines).
+> To move to a real database later, only `lib/bookings.ts` needs to change.
 
-## Deploy on Vercel
+## Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `next.config.ts` sets `images.unoptimized` because the native image-optimisation
+  codec is blocked on this machine; assets in `public/assets/` are pre-sized and
+  compressed instead (~5 MB total).
+- Visual/responsive checks were done with Playwright (a dev dependency) capturing
+  full-page screenshots at 390 / 834 / 1440 / 1920 px, matched against the Figma
+  desktop/iPad/iPhone artboards (desktop ~98%, mobile ~102%, tablet ~117% of the
+  Figma heights; the iPad artboard is a bespoke ultra-compact design).
+- **Sign up / Sign in** live at `/signup` and `/login` (UI only — the submit is a
+  stubbed `fakeAuth` that shows a success state; no auth backend yet).
+- **Motion system** (`app/globals.css` + `Reveal.tsx`): one easing curve, gold
+  accent, hover lifts/zooms, animated underlines, scroll-reveal, `focus-visible`
+  rings, all disabled under `prefers-reduced-motion`. A `<noscript>` fallback keeps
+  reveal content visible without JS.
