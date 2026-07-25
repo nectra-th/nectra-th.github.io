@@ -12,6 +12,7 @@
 :HL["/assets/icons/ic-anvil.png","image"]
 :HL["/assets/icons/ic-magnifier.png","image"]
 :HL["/assets/icons/ic-hand.png","image"]
+:HL["/assets/icons/ic-custom.png","image"]
 :HL["/assets/icons/ic-rings.png","image"]
 :HL["/assets/icons/ic-pendant.png","image"]
 :HL["/assets/icons/ic-watch.png","image"]
@@ -42,4 +43,4 @@
 :HL["/assets/icons/info-email.svg","image"]
 :HL["/assets/icons/info-hours.svg","image"]
 :HL["/assets/icons/social-row.svg","image"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"figma-live","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"8mTPibLIZYiQWxPiKCyD9"}
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"figma-live","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"jddX18--opEuZGt8LoBky"}
