@@ -16,11 +16,39 @@ const manrope = Manrope({
   display: "swap",
 });
 
+const SITE_URL = "https://grech-jewellers.vercel.app";
+const TITLE = "Grech Jewellers | Expert Craftsmanship, Personally Made — Since 1978";
+const DESCRIPTION =
+  "Adelaide's trusted manufacturing jeweller since 1978. Custom jewellery, engagement & wedding rings, repairs, valuations and more — personally designed and precision manufactured on site.";
+
 export const metadata: Metadata = {
-  title:
-    "Grech Jewellers | Expert Craftsmanship, Personally Made — Since 1978",
-  description:
-    "Adelaide's trusted manufacturing jeweller since 1978. Custom jewellery, engagement & wedding rings, repairs, valuations and more — personally designed and precision manufactured on site.",
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  keywords: [
+    "jeweller Adelaide", "custom jewellery", "engagement rings Adelaide",
+    "wedding rings", "manufacturing jeweller", "jewellery repairs", "valuations",
+    "Grech Jewellers", "Fulham Gardens",
+  ],
+  applicationName: "Grech Jewellers",
+  authors: [{ name: "Grech Jewellers" }],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: "Grech Jewellers",
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    locale: "en_AU",
+    images: [{ url: "/assets/grech-hero-poster.jpg", width: 1920, height: 1080, alt: "Grech Jewellers — custom jewellery, handcrafted in Adelaide" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/assets/grech-hero-poster.jpg"],
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({

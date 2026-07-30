@@ -5,11 +5,15 @@ import type { NextConfig } from "next";
 const isExport = process.env.STATIC_EXPORT === "1";
 
 const nextConfig: NextConfig = {
-  // Native image-optimization codecs are blocked by this machine's Application
-  // Control policy (and unavailable on a static host), so serve the already
-  // correctly-sized static assets directly.
+  // next/image optimization runs on Vercel's infrastructure at request time, so
+  // enable it there (WebP/AVIF + responsive resizing). Locally the machine's
+  // Application Control blocks the native codecs, and a static export has no
+  // optimizer, so those serve the original assets unoptimized. Either way
+  // next/image still gives us explicit dimensions (no CLS) + lazy loading.
   images: {
-    unoptimized: true,
+    // export has no optimizer (must be unoptimized); otherwise optimize only on
+    // Vercel, where the codecs are available at request time.
+    unoptimized: isExport || !process.env.VERCEL,
   },
   ...(isExport
     ? {

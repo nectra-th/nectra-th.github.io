@@ -140,6 +140,9 @@ const OVERRIDES = {
   "1:4607": "/assets/icons/info-location.svg",
   "1:4617": "/assets/icons/info-email.svg",
   "1:4621": "/assets/icons/info-hours.svg",
+  // Custom Jewellery uses the solitaire-ring icon (design-system "Custom-Jewellery")
+  "1:4421": "/assets/icons/ic-custom.png", // mobile
+  "1:4978": "/assets/icons/ic-custom.png", // tablet
 };
 Object.assign(map.byId, OVERRIDES);
 

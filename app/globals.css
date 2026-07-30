@@ -15,7 +15,8 @@
   --color-cream-card: #f3eddf;
   --color-cream-alt: #efe6d6;
 
-  --color-gold: #b58a47;
+  /* Primary interaction gold — matches the .gj-* classes + Figma shadow tokens */
+  --color-gold: #b88c46;
   --color-gold-dark: #9c7430;
   --color-gold-light: #c0985a;
   /* Section-boundary rule color (from Figma "Line 14/15/17/18/19/20/21"), distinct from --color-gold */
@@ -31,11 +32,15 @@
 
   /* Motion */
   --ease-lux: cubic-bezier(0.22, 1, 0.36, 1);
+  /* symmetric ease-in-out for hover lifts (smooth in + out) */
+  --ease-smooth: cubic-bezier(0.45, 0, 0.55, 1);
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
+    /* offset anchor jumps so section tops clear the fixed header */
+    scroll-padding-top: 84px;
   }
   body {
     font-family: var(--font-sans);
@@ -48,6 +53,21 @@
   }
 }
 
+/* Figma measures text spacing (gaps, margins) against CAP-HEIGHT-TRIMMED text
+   boxes (leadingTrim: CAP_HEIGHT on every text layer) — tight to the glyphs,
+   with no half-leading above the cap or below the baseline. A plain HTML text
+   element keeps its full CSS line-height, so a margin copied straight from
+   Figma (box-edge to box-edge) renders visually looser than the design, even
+   though the number itself is correct. This trims the box to match Figma's
+   model in browsers that support it (Chromium 133+, Safari 18.2+); elsewhere
+   it's a no-op and the (still-correct) margin values just read slightly
+   looser, matching today's behaviour exactly. Apply to any text element whose
+   spacing is derived from Figma gaps. */
+.fig-trim {
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
 @layer components {
   /* Small-caps serif eyebrow label, e.g. "WHY GRECH" */
   .eyebrow {
@@ -58,12 +78,6 @@
     font-size: 0.9rem;
     color: var(--color-gold);
   }
-  .eyebrow-lg {
-    font-family: var(--font-serif);
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-  }
   /* Gold underline accent */
   .rule-gold::after {
     content: "";
@@ -73,30 +87,7 @@
     background: var(--color-gold);
     margin-top: 1.25rem;
   }
-  .rule-gold-center::after {
-    margin-left: auto;
-    margin-right: auto;
-  }
 }
-
-/* ============================================================
-   FIGMA PIXEL-PERFECT LAYER  (Method C — absolute transpiler)
-   Figma text boxes use leadingTrim: "CAP_HEIGHT" (trimmed to the
-   cap-height / baseline). Browsers add half-leading above & below
-   every line, so text renders lower + taller than Figma. text-box
-   trim removes exactly that half-leading so the first line's cap
-   top and last line's baseline land where Figma places them.
-   ============================================================ */
-.fig-text {
-  text-box-trim: trim-both;
-  text-box-edge: cap alphabetic;
-  /* progressive-enhancement fallback names for older Chromium */
-  -webkit-text-box-trim: trim-both;
-  -webkit-text-box-edge: cap alphabetic;
-}
-/* Absolutely-positioned Figma node (coords injected inline). Kept as a
-   marker class so verify.mjs / debugging can target [data-fig] nodes. */
-.fig-abs { position: absolute; }
 
 /* Hide scrollbars on horizontal scrollers but keep functionality */
 .no-scrollbar::-webkit-scrollbar {
@@ -126,9 +117,7 @@
   100% { opacity: 1; transform: scale(1); }
 }
 
-/* Optional keyframe-driven entrance (used by galleries etc.) */
-.animate-fade-up { animation: fade-up 700ms var(--ease-lux) both; }
-.animate-img-fade { animation: img-fade 500ms var(--ease-lux) both; }
+/* Optional keyframe-driven entrance */
 .animate-pop-in  { animation: pop-in 420ms var(--ease-lux) both; }
 
 /* Scroll-reveal (driven by the <Reveal> component) ---------- */
@@ -146,7 +135,11 @@
   transform: none;
 }
 
-/* Animated gold underline for text links -------------------- */
+/* Animated underline for nav links — Figma "Navigation Link / Desktop"
+   component: Gold Line (#c8b08a) in every visible state, 1px on Hover, 2px on
+   Press, 1px on Active (current section). Active is a persisted state (set by
+   scroll-spy, not a live pointer state) and must NOT be affected by hovering
+   or pressing an already-active link — the last two rules pin that. */
 @layer components {
   .link-underline {
     position: relative;
@@ -156,18 +149,32 @@
     position: absolute;
     left: 0;
     bottom: -2px;
-    height: 1.5px;
+    height: 1px;
     width: 100%;
-    background: var(--color-gold);
+    background: #c8b08a;
     transform: scaleX(0);
     transform-origin: left center;
-    transition: transform 260ms var(--ease-lux);
+    transition: transform 260ms var(--ease-lux), height 120ms var(--ease-lux);
   }
   .link-underline:hover::after,
-  .link-underline:focus-visible::after,
+  .link-underline:focus-visible::after {
+    transform: scaleX(1);
+    height: 1px;
+  }
+  .link-underline:active::after {
+    transform: scaleX(1);
+    height: 2px;
+  }
   .link-underline[aria-current="page"]::after,
   .link-underline[data-active="true"]::after {
     transform: scaleX(1);
+    height: 1px;
+  }
+  .link-underline[aria-current="page"]:hover::after,
+  .link-underline[aria-current="page"]:active::after,
+  .link-underline[data-active="true"]:hover::after,
+  .link-underline[data-active="true"]:active::after {
+    height: 1px;
   }
 }
 
@@ -195,6 +202,69 @@
   }
 }
 
-/* Mobile services carousel — hide the native scrollbar (swipe still works) */
-.svc-carousel-track { scrollbar-width: none; -ms-overflow-style: none; }
-.svc-carousel-track::-webkit-scrollbar { display: none; }
+/* ============================================================
+   INTERACTION STATES  (Design System v1.0 — Buttons & Nav)
+   Primary  gold  #b88c46 → hover #9c7430 → pressed #8e682a
+   Outline        → hover fills #211f1c → pressed #1b1917
+   Nav link       → hover: gold underline slides in + text brightens
+   ============================================================ */
+.gj-primary { transition: transform 0.5s var(--ease-smooth), background-color 0.5s var(--ease-smooth), color 0.5s var(--ease-smooth); }
+.gj-primary:hover:not(:disabled) { background-color: #9c7430 !important; transform: translateY(-2px); }
+.gj-primary:active:not(:disabled) { background-color: #8e682a !important; transform: none; }
+
+.gj-outline { transition: transform 0.5s var(--ease-smooth), background-color 0.5s var(--ease-smooth), color 0.5s var(--ease-smooth), border-color 0.5s var(--ease-smooth); }
+.gj-outline:hover:not(:disabled) { background-color: #211f1c !important; transform: translateY(-2px); }
+.gj-outline:active:not(:disabled) { background-color: #1b1917 !important; transform: none; }
+
+/* nav link — hover brightens the text; the underline itself comes from the
+   .link-underline utility already applied alongside this class. No vertical
+   movement, per the Figma "Navigation Link / Desktop" component states.
+   Active (current section, set by scroll-spy) turns the text gold and is not
+   affected by hovering/pressing that same link. */
+.gj-navlink { position: relative; display: inline-block; transition: color 0.5s var(--ease-smooth); }
+.gj-navlink:hover { color: #f8f3ea; }
+.gj-navlink[aria-current="page"],
+.gj-navlink[data-active="true"] {
+  color: var(--color-gold);
+}
+.gj-navlink[aria-current="page"]:hover,
+.gj-navlink[data-active="true"]:hover {
+  color: var(--color-gold);
+}
+
+/* soft affordance for smaller controls (time slots, date cells, thumbnails,
+   arrows, tabs) — gold border + faint gold wash on hover */
+.gj-soft { transition: transform 0.5s var(--ease-smooth), background-color 0.5s var(--ease-smooth), border-color 0.5s var(--ease-smooth), color 0.5s var(--ease-smooth), opacity 1s; }
+.gj-soft:hover:not(:disabled) { border-color: #b88c46 !important; background-color: rgba(184,140,70,0.08); transform: translateY(-2px); }
+.gj-soft:active:not(:disabled) { transform: translateY(-2px) scale(0.97); }
+
+@media (hover: none) {
+  /* touch devices: no lingering hover wash / lift */
+  .gj-soft:hover:not(:disabled) { background-color: transparent; transform: none; }
+}
+
+/* nav CTA (outlined-on-dark) — fills gold on hover per the Navigation CTA sheet.
+   Design System 01 Buttons.png: Nav CTA hover = #b88c46, pressed = #9c7430. */
+.gj-outline-gold { transition: transform 0.5s var(--ease-smooth), background-color 0.5s var(--ease-smooth), color 0.5s var(--ease-smooth), border-color 0.5s var(--ease-smooth); }
+.gj-outline-gold:hover:not(:disabled) { background-color: #b88c46 !important; border-color: #b88c46 !important; color: #141312 !important; transform: translateY(-2px); }
+.gj-outline-gold:active:not(:disabled) { background-color: #9c7430 !important; border-color: #9c7430 !important; color: #141312 !important; transform: none; }
+
+/* Floating "David Ring01" photo — hover-capable pointers only: the card lifts
+   2px and its Figma drop shadow deepens. The #d8cbb7 border is a real CSS border
+   (separate property) so it stays put while box-shadow animates. */
+.gj-lift { transition: transform 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth); will-change: transform; }
+@media (hover: hover) {
+  .gj-lift:hover { transform: translateY(-2px);
+    box-shadow: 0 16px 40px 0 rgba(0,0,0,0.34) !important; }
+}
+
+/* Testimonial / review card → gold border +
+   soft shadow + 2px lift on hover, matching the Testimonial hover state. */
+.gj-review-card { transition: transform 0.5s var(--ease-smooth), border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth); }
+.gj-review-card:hover { border-color: #b88c46 !important; box-shadow: 0 16px 40px rgba(20,19,18,0.12); transform: translateY(-2px); }
+@media (hover: none) { .gj-review-card:hover { border-color: #d8cbb7 !important; box-shadow: none; transform: none; } }
+
+/* Choose Your Date — clear hover on selectable, not-yet-selected day cells (the
+   2px lift comes from .gj-soft; here we just add the ring + 1s timing) */
+.gj-datecell { transition: transform 0.5s var(--ease-smooth), background-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth); }
+.gj-datecell:hover:not(:disabled) { background-color: rgba(184,140,70,0.16) !important; box-shadow: inset 0 0 0 1.5px rgba(184,140,70,0.75) !important; }
