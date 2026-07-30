@@ -45,13 +45,16 @@
   /* Overlay mode: both halves fill the width and stack on top of each other.
      pointer-events:none stops the stacked live iframe from swallowing the wheel
      (which scrolled it internally and left the Figma layer frozen) — now the
-     wheel always drives window scroll, which syncs both layers together. */
+     wheel always drives window scroll, which syncs both layers together.
+     The LIVE BUILD is the solid, always-visible base (it's the real thing
+     being checked); FIGMA is the adjustable-opacity reference drawn on top,
+     dialled in/out to compare alignment — not the other way around. */
   body.overlay .col { width: 100%; left: 0; right: 0; border: 0; pointer-events: none; }
-  body.overlay .col.left { z-index: 10; }
-  body.overlay .col.right { z-index: 11; opacity: var(--ov, .5); }
+  body.overlay .col.right { z-index: 10; }
+  body.overlay .col.left { z-index: 11; opacity: var(--ov, .5); }
   body.overlay .col .cap { display: none; }
-  body.overlay.diff .col.right { mix-blend-mode: difference; opacity: 1; }
-  body.overlay.diff .col.left { filter: none; }
+  body.overlay.diff .col.left { mix-blend-mode: difference; opacity: 1; }
+  body.overlay.diff .col.right { filter: none; }
   body.overlay.diff #stage { background: #000; }
 </style>
 </head>
