@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const SECTIONS = ["why", "whatwedo", "process", "featured", "book", "findus"];
+const SECTIONS = ["top", "why", "pillars", "whatwedo", "process", "featured", "reviews", "brands", "book", "findus", "closing"];
 
 test("has semantic structure and one h1", async ({ page }) => {
   await page.goto("/");
@@ -10,11 +10,30 @@ test("has semantic structure and one h1", async ({ page }) => {
   await expect(page.locator("h1")).toHaveCount(1);
 });
 
-test("all key sections are present", async ({ page }) => {
+test("all key sections are present with an accessible name", async ({ page }) => {
   await page.goto("/");
   for (const id of SECTIONS) {
-    await expect(page.locator(`#${id}`)).toHaveCount(1);
+    const section = page.locator(`#${id}`);
+    await expect(section).toHaveCount(1);
+    await expect(section).toHaveAccessibleName(/.+/);
   }
+});
+
+test("skip-to-content link targets a real, focusable main landmark", async ({ page }) => {
+  await page.goto("/");
+  const skipLink = page.getByRole("link", { name: "Skip to content" });
+  await expect(skipLink).toHaveAttribute("href", "#main-content");
+  await expect(page.locator("#main-content")).toHaveCount(1);
+  await expect(page.locator("main#main-content")).toHaveCount(1);
+});
+
+test("JewelryStore structured data is present and valid", async ({ page }) => {
+  await page.goto("/");
+  const json = await page.locator('script[type="application/ld+json"]').first().textContent();
+  const data = JSON.parse(json ?? "{}");
+  expect(data["@type"]).toBe("JewelryStore");
+  expect(data.telephone).toBeTruthy();
+  expect(data.address?.addressLocality).toBe("Fulham Gardens");
 });
 
 test("no horizontal overflow", async ({ page }) => {

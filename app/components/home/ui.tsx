@@ -9,7 +9,7 @@ export function Container({ children, className = "" }: { children: ReactNode; c
   return <div className={`mx-auto w-full max-w-[1180px] px-5 sm:px-6 lg:px-8 ${className}`}>{children}</div>;
 }
 
-type Variant = "gold" | "dark" | "outlineGold";
+type Variant = "gold" | "dark" | "outlineGold" | "outlineGoldOnCream";
 
 /* CTA button — Figma spec: Manrope 16px / 700 / uppercase / 0.06em. Base
    appearance here; hover lift + colour transitions come from the approved
@@ -24,6 +24,10 @@ const VARIANTS: Record<Variant, string> = {
   // #141312 text) and active (#9c7430) are the reconciled interaction-system
   // values layered on top by .gj-outline-gold.
   outlineGold: "gj-outline-gold border border-[#b58a47] text-[#f8f3ea]",
+  // Process section's CTA pair, on a cream (not dark) background — gold-dark
+  // border + text at rest, verified against the Figma "Our Process" CTA
+  // Group. Reuses .gj-outline-gold's fill-in-on-hover mechanic.
+  outlineGoldOnCream: "gj-outline-gold border border-gold-dark text-gold-dark",
 };
 
 export function CTAButton({
@@ -40,7 +44,7 @@ export function CTAButton({
   className?: string;
 }) {
   const cls =
-    `inline-flex shrink-0 items-center justify-center whitespace-nowrap ${radius} px-7 py-3.5 text-[14px] font-bold uppercase tracking-[0.06em] lg:px-9 lg:py-4 lg:text-[16px] ` +
+    `inline-flex shrink-0 items-center justify-center whitespace-nowrap ${radius} px-7 py-3.5 text-cta lg:px-9 lg:py-4 ` +
     `${VARIANTS[variant]} ${className}`;
   if (href) {
     const external = href.startsWith("#") || href.startsWith("http") || href.startsWith("tel:") || href.startsWith("mailto:");

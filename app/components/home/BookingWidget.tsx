@@ -159,7 +159,7 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
     const SUM = [sumDate, prettyTime, "30-45 Minutes", "In-Person Consultation"];
     return (
       <div style={{ ...cardBase, zIndex: 20 }}>
-        <button aria-label="Close" onClick={reset} className="gj-soft" style={{ position: "absolute", top: stacked ? 20 : 32, right: stacked ? 20 : 36, width: 40, height: 40, borderRadius: "50%", border: "1.5px solid var(--color-gold)", color: "var(--color-gold)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", background: "transparent" }}>
+        <button aria-label="Close" onClick={reset} className="gj-soft" style={{ position: "absolute", top: stacked ? 20 : 32, right: stacked ? 20 : 36, width: 40, height: 40, borderRadius: "50%", border: "1px solid #d2b79a", color: "var(--color-gold)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", background: "transparent" }}>
           <XIcon />
         </button>
         <div style={{ display: "grid", gridTemplateColumns: stacked ? "1fr" : "minmax(0,300px) 1fr", columnGap: 40, rowGap: 28, alignItems: "center" }}>
@@ -169,7 +169,7 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
             <ul style={{ marginTop: 36, display: "flex", flexDirection: "column", gap: 24 }}>
               {SUM.map((s, i) => (
                 <li key={i} style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                  <Check style={{ flex: "0 0 auto", width: 26, height: 26, color: "var(--color-gold)" }} />
+                  <Check style={{ flex: "0 0 auto", width: 40, height: 40, color: "var(--color-gold)" }} />
                   <span style={{ fontSize: 17, color: "var(--color-ink-text)" }}>{s}</span>
                 </li>
               ))}
@@ -177,16 +177,16 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
           </div>
           {/* right — thank you */}
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-            <span style={{ width: 60, height: 60, borderRadius: "50%", border: "1.5px solid var(--color-gold)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ width: 64, height: 64, borderRadius: "50%", border: "2px solid #b38952", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Check style={{ width: 30, height: 30, color: "var(--color-gold)" }} />
             </span>
-            <h3 ref={successRef} tabIndex={-1} style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: 46, fontWeight: 600, lineHeight: "1", color: "var(--color-ink-text)", margin: "18px 0 0", outline: "none" }}>Thank You!</h3>
+            <h3 ref={successRef} tabIndex={-1} style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: 48, fontWeight: 700, lineHeight: "1", color: "var(--color-ink-text)", margin: "18px 0 0", outline: "none" }}>Thank You!</h3>
             <p style={{ fontSize: 16, color: "var(--color-ink-text)", marginTop: 14 }}>Your consultation request has been received.</p>
             <p style={{ fontSize: 15, lineHeight: "22px", color: "var(--color-body)", marginTop: 10, maxWidth: 420 }}>Grech Jewellers will review your preferred date and time and contact you to confirm your appointment.</p>
-            <span style={{ marginTop: 18, borderRadius: 999, border: "1px solid var(--color-gold)", padding: "9px 22px", fontSize: 13, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--color-gold)" }}>Pending Confirmation</span>
+            <span style={{ marginTop: 18, borderRadius: 999, border: "1px solid #d7bf97", background: "#f5ecdc", padding: "9px 22px", fontSize: 13, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--color-gold)" }}>Pending Confirmation</span>
             <div style={{ width: "100%", height: 1, background: "var(--color-gold)", opacity: 0.5, margin: "26px 0 20px" }} />
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <span style={{ flex: "0 0 auto", width: 40, height: 40, borderRadius: "50%", border: "1.5px solid var(--color-gold)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-gold)" }}>
+              <span style={{ flex: "0 0 auto", width: 40, height: 40, borderRadius: "50%", border: "1px solid var(--color-gold-dark)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-gold)" }}>
                 <Mail style={{ width: 18, height: 18 }} />
               </span>
               <span style={{ fontSize: 15, color: "var(--color-ink-text)" }}>A request receipt has been sent to your email/whatsapp</span>
@@ -203,17 +203,17 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
     return (
       <div style={{ ...cardBase, zIndex: 20 }}>
         <div style={{ position: "relative", display: "grid", gridTemplateColumns: stacked ? "1fr" : "1fr 1fr 1fr", columnGap: 40, rowGap: stacked ? 28 : 0 }}>
-          {!stacked && <div style={{ position: "absolute", left: DIV1, top: 8, width: 1, height: 400, background: "var(--color-divider)" }} />}
-          {!stacked && <div style={{ position: "absolute", left: DIV2, top: 8, width: 1, height: 400, background: "var(--color-divider)" }} />}
+          {!stacked && <div style={{ position: "absolute", left: DIV1, top: 151, width: 1, height: 256, background: "var(--color-divider)" }} />}
+          {!stacked && <div style={{ position: "absolute", left: DIV2, top: 151, width: 1, height: 256, background: "var(--color-divider)" }} />}
 
           {Checklist}
 
           {/* middle — back arrow + Your Booking Request + consent */}
           <div>
-            <button aria-label="Back" onClick={() => setStep("select")} className="gj-soft" style={{ width: 44, height: 44, borderRadius: 8, border: "1px solid var(--color-gold)", color: "var(--color-gold)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", background: "transparent" }}>
+            <button aria-label="Back" onClick={() => setStep("select")} className="gj-soft" style={{ width: 40, height: 40, borderRadius: 8, border: "1px solid var(--color-divider)", color: "var(--color-gold)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", background: "transparent" }}>
               <ArrowLeft style={{ width: 18, height: 18 }} />
             </button>
-            <div style={{ marginTop: 18, background: "#fff", borderRadius: 12, padding: "22px 24px", boxShadow: "0 8px 24px -16px rgba(20,19,18,0.35)" }}>
+            <div style={{ marginTop: 20, background: "#fff", borderRadius: 8, padding: "22px 24px", boxShadow: "0 8px 24px -16px rgba(20,19,18,0.35)" }}>
               <h4 style={{ fontFamily: FONT, fontSize: 22, fontWeight: 600, color: "var(--color-ink-text)", margin: 0 }}>Your Booking Request</h4>
               <ul style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 16 }}>
                 {reqRows.map((r, i) => {
@@ -238,7 +238,7 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
           {/* right — Enter Your Details form */}
           <div>
             <h3 style={{ ...H3, textAlign: stacked ? "left" : "right" }}>Enter Your Details</h3>
-            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 8 }}>
               <Field label="Name *" value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Your name" />
               <Field label="Email *" type="email" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} placeholder="Email Address" />
               <div>
@@ -264,7 +264,7 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
               </div>
               {/* error floats above the button (absolute) so it never pushes the
                   button down / grows the card */}
-              <div style={{ position: "relative", marginTop: 4 }}>
+              <div style={{ position: "relative", marginTop: 24 }}>
                 {status === "error" && <p role="alert" style={{ position: "absolute", left: 0, right: 0, bottom: "calc(100% + 8px)", margin: 0, borderRadius: 8, background: "#fef2f2", padding: "8px 12px", fontSize: 13, lineHeight: "18px", color: "#b91c1c", boxShadow: "0 8px 20px -10px rgba(0,0,0,0.35)" }}>{message}</p>}
                 <button className="gj-primary" onClick={submit} disabled={!detailsValid}
                   style={{ width: "100%", height: 48, borderRadius: 8, fontSize: 14, fontWeight: 600, letterSpacing: "0.04em",
@@ -295,16 +295,16 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
         <div style={{ textAlign: "center" }}>
           <h3 style={{ ...H3, fontWeight: 700 }}>Choose Your Date</h3>
           <p style={SUB}>Select a day that suits you</p>
-          <div style={{ marginTop: stacked ? 16 : 22 }}>
+          <div style={{ marginTop: stacked ? 16 : 48 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 252, margin: "0 auto", height: 32 }}>
-              <button aria-label="Previous month" onClick={() => setView((v) => (v ? (v.m === 0 ? { y: v.y - 1, m: 11 } : { y: v.y, m: v.m - 1 }) : v))} className="gj-soft" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 6, border: "1px solid rgba(181,138,71,0.5)", background: "transparent", color: "var(--color-gold)", cursor: "pointer", flex: "0 0 auto" }}><ArrowLeft style={{ width: 15, height: 15 }} /></button>
+              <button aria-label="Previous month" onClick={() => setView((v) => (v ? (v.m === 0 ? { y: v.y - 1, m: 11 } : { y: v.y, m: v.m - 1 }) : v))} className="gj-soft" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold)", cursor: "pointer", flex: "0 0 auto" }}><ArrowLeft style={{ width: 15, height: 15 }} /></button>
               <span style={{ fontSize: 16, fontWeight: 500, letterSpacing: "0.02em", color: "var(--color-ink-text)" }}>{view ? `${MONTHS[view.m]} ${view.y}` : " "}</span>
-              <button aria-label="Next month" onClick={() => setView((v) => (v ? (v.m === 11 ? { y: v.y + 1, m: 0 } : { y: v.y, m: v.m + 1 }) : v))} className="gj-soft" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 6, border: "1px solid rgba(181,138,71,0.5)", background: "transparent", color: "var(--color-gold)", cursor: "pointer", flex: "0 0 auto" }}><ArrowRight style={{ width: 15, height: 15 }} /></button>
+              <button aria-label="Next month" onClick={() => setView((v) => (v ? (v.m === 11 ? { y: v.y + 1, m: 0 } : { y: v.y, m: v.m + 1 }) : v))} className="gj-soft" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold)", cursor: "pointer", flex: "0 0 auto" }}><ArrowRight style={{ width: 15, height: 15 }} /></button>
             </div>
-            <div style={{ marginTop: stacked ? 10 : 16, display: "grid", gridTemplateColumns: "repeat(7,1fr)", textAlign: "center" }}>
+            <div style={{ marginTop: stacked ? 10 : 8, display: "grid", gridTemplateColumns: "repeat(7,1fr)", textAlign: "center" }}>
               {WEEKDAYS.map((w) => (<span key={w} style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.02em", color: "var(--color-body)", opacity: 0.7 }}>{w}</span>))}
             </div>
-            <div style={{ marginTop: stacked ? 8 : 16, display: "grid", gridTemplateColumns: "repeat(7,1fr)", gridAutoRows: "48px", placeItems: "center", minHeight: 288 }}>
+            <div style={{ marginTop: stacked ? 8 : 0, display: "grid", gridTemplateColumns: "repeat(7,1fr)", gridAutoRows: "40px", columnGap: 8, rowGap: 8, placeItems: "center", minHeight: 232 }}>
               {cells.map((c, idx) => {
                 const dateStr = c.date && view ? iso(view.y, view.m, c.day) : null;
                 const disabled = dateDisabled(c.date);
@@ -321,7 +321,7 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
                       textDecoration: c.inMonth && disabled ? "line-through" : "none",
                       background: selected ? "#b88c46" : "transparent",
                       fontWeight: selected ? 600 : 400,
-                      boxShadow: isToday && !selected ? "inset 0 0 0 1px rgba(181,138,71,0.5)" : "none",
+                      boxShadow: isToday && !selected ? "inset 0 0 0 1px #403b37" : "none",
                       cursor: !c.inMonth || disabled ? "default" : "pointer",
                     }}>{c.day}</button>
                 );
@@ -334,15 +334,15 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
         <div style={{ textAlign: "center" }}>
           <h3 style={{ ...H3, fontWeight: 700, textAlign: stacked ? "center" : "right" }}>Select a Time</h3>
           <p style={{ ...SUB, textAlign: stacked ? "center" : "right" }}>Available Appointments</p>
-          <div style={{ marginTop: stacked ? 16 : 40, display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 14, rowGap: 10 }}>
+          <div style={{ marginTop: stacked ? 16 : 48, display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 14, rowGap: 10 }}>
             {timeSlots.map(({ t, disabled, preview }) => {
               const on = selectedTime === t;
               return (
                 <button key={t} className="gj-soft" disabled={disabled || preview} aria-pressed={on} aria-label={`${spaceTime(t)}${disabled && !preview ? " (unavailable)" : ""}`} onClick={() => setSelectedTime(t)}
                   style={{
-                    height: stacked ? 42 : 46, borderRadius: 8, fontSize: 15,
-                    border: `1px solid ${on ? "#b88c46" : preview || disabled ? "#e1ddd4" : "var(--color-line)"}`,
-                    background: on ? "#b88c46" : "transparent",
+                    height: stacked ? 42 : 46, borderRadius: 0, fontSize: 15,
+                    border: `1px solid ${on ? "#b88c46" : preview || disabled ? "#e1ddd4" : "var(--color-divider)"}`,
+                    background: on ? "#b88c46" : "var(--color-cream-light)",
                     color: on ? "var(--color-ink)" : preview || disabled ? "rgba(87,87,87,0.4)" : "var(--color-ink-text)",
                     textDecoration: disabled && !preview ? "line-through" : "none",
                     fontWeight: on ? 600 : 400,
@@ -351,16 +351,22 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
               );
             })}
           </div>
-          <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 8 }}>
-            <Clock style={{ width: 16, height: 16, flex: "0 0 auto", color: "var(--color-gold)" }} />
-            <span style={{ fontSize: 14, color: "var(--color-body)" }}>30-45 minute consultation</span>
-          </div>
-          <button className="gj-primary" onClick={() => canContinue && setStep("details")} disabled={!canContinue}
-            style={{ marginTop: 14, width: "100%", height: 46, borderRadius: 8, fontSize: 14, fontWeight: 600, letterSpacing: "0.04em",
-              background: canContinue ? "#b88c46" : "#d8cbb7", color: canContinue ? "var(--color-ink)" : "rgba(87,87,87,0.5)",
-              cursor: canContinue ? "pointer" : "default", border: "none" }}>
-            Continue
-          </button>
+          {/* not in Figma's IDLE STATE at all (that column ends exactly at the
+             time-slot grid, no extra room) — shown only once a time is picked,
+             so the empty/undecided card matches Figma's height exactly. */}
+          {canContinue && (
+            <>
+              <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 8 }}>
+                <Clock style={{ width: 16, height: 16, flex: "0 0 auto", color: "var(--color-gold)" }} />
+                <span style={{ fontSize: 14, color: "var(--color-body)" }}>30-45 minute consultation</span>
+              </div>
+              <button className="gj-primary" onClick={() => setStep("details")}
+                style={{ marginTop: 14, width: "100%", height: 46, borderRadius: 8, fontSize: 14, fontWeight: 600, letterSpacing: "0.04em",
+                  background: "#b88c46", color: "var(--color-ink)", cursor: "pointer", border: "none" }}>
+                Continue
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

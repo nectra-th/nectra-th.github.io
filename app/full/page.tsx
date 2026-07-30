@@ -11,7 +11,6 @@ import Booking from "../components/home/Booking";
 import FindUs from "../components/home/FindUs";
 import ClosingCTA from "../components/home/ClosingCTA";
 import Footer from "../components/home/Footer";
-import ScrollReveal from "../components/home/ScrollReveal";
 
 export const metadata = { title: "Grech Jewellers — full build (backup)", robots: { index: false } };
 
@@ -35,7 +34,6 @@ export default function FullBuild() {
         <ClosingCTA />
       </main>
       <Footer />
-      <ScrollReveal />
     </>
   );
 }

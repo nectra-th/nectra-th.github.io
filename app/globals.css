@@ -68,24 +68,168 @@
   text-box-edge: cap alphabetic;
 }
 
+/* ============================================================
+   TYPOGRAPHY SYSTEM
+   One named class per text role (size/weight/leading/tracking/
+   case only — color and spacing stay contextual per call site,
+   same as the rest of the project's convention). Every value here
+   is copied verbatim from whichever call site was already using
+   it, so introducing this system changes zero visual output.
+   Where two near-identical hand-rolled patterns existed for the
+   same role, they were consolidated onto one shared class — see
+   the "harmonized" notes below for the specific px this touched.
+   Genuinely different scales (different breakpoint tier, weight,
+   or leading model) got their own distinct class rather than
+   being forced together.
+   ============================================================ */
 @layer components {
-  /* Small-caps serif eyebrow label, e.g. "WHY GRECH" */
-  .eyebrow {
+  /* H1 — Hero only (single instance, tokenized for future upkeep) */
+  .text-h1 {
     font-family: var(--font-serif);
     font-weight: 600;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    color: var(--color-gold);
+    font-size: 34px;
+    line-height: 1.05;
   }
-  /* Gold underline accent */
-  .rule-gold::after {
-    content: "";
-    display: block;
-    width: 3.5rem;
-    height: 2px;
-    background: var(--color-gold);
-    margin-top: 1.25rem;
+  @media (min-width: 48rem) { .text-h1 { font-size: 48px; line-height: 1.02; } }
+  @media (min-width: 64rem) { .text-h1 { font-size: 56px; line-height: 64px; } }
+
+  /* H2 — section title (SectionHeader's shared h2: Booking/Featured/Process/
+     Reviews/WhatWeDo/WhyIntro, 6 callers) */
+  .text-h2 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 32px;
+    line-height: 1.08;
+  }
+  @media (min-width: 48rem) { .text-h2 { font-size: 44px; } }
+  @media (min-width: 64rem) { .text-h2 { font-size: 56px; line-height: 64px; } }
+
+  /* H2 caps — small-caps banner title (Four Pillars + Brands). Harmonized:
+     Brands was 26px on mobile, moved to match Four Pillars' 28px (md/lg/
+     tracking/leading already matched exactly — a 2px drift, not a
+     deliberate difference). */
+  .text-h2-caps {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-variant: small-caps;
+    font-size: 28px;
+    line-height: 115%;
+    letter-spacing: 0.04em;
+  }
+  @media (min-width: 48rem) { .text-h2-caps { font-size: 32px; } }
+  @media (min-width: 64rem) { .text-h2-caps { font-size: 36px; } }
+
+  /* H2 closing — Closing CTA's own larger scale (28/34/40, 121% leading) —
+     kept separate from .text-h2-caps: genuinely different at md/lg, not a
+     copy-paste drift. */
+  .text-h2-closing {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-variant: small-caps;
+    font-size: 28px;
+    line-height: 121%;
+  }
+  @media (min-width: 48rem) { .text-h2-closing { font-size: 34px; } }
+  @media (min-width: 64rem) { .text-h2-closing { font-size: 40px; } }
+
+  /* H3 card — Four Pillars card title (22px → 24px at lg only, no md step) */
+  .text-h3-card {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-variant: small-caps;
+    font-size: 22px;
+    line-height: 115%;
+  }
+  @media (min-width: 64rem) { .text-h3-card { font-size: 24px; } }
+
+  /* H3 service — What We Do card title. Kept separate from .text-h3-card:
+     different breakpoint tier (xl not lg), font-normal not semibold, and
+     its own tracking step. */
+  .text-h3-service {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-variant: small-caps;
+    font-size: 21px;
+    line-height: 108%;
+    letter-spacing: 0.02em;
+  }
+  @media (min-width: 48rem) { .text-h3-service { font-size: 24px; } }
+  @media (min-width: 80rem) { .text-h3-service { font-size: 28px; letter-spacing: 0.03em; } }
+
+  /* Eyebrow — small-caps label above a heading (gold tone: Hero + default
+     SectionHeader eyebrow) */
+  .text-eyebrow {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-variant: small-caps;
+    line-height: 115%;
+    letter-spacing: 0.12em;
+    font-size: 16px;
+  }
+  @media (min-width: 48rem) { .text-eyebrow { font-size: 19px; } }
+  @media (min-width: 64rem) { .text-eyebrow { font-size: 22px; } }
+
+  /* Eyebrow (gold-light tone: Find Us) + Closing CTA's hand-rolled eyebrow,
+     harmonized onto the same class — md/lg already matched exactly (20/24),
+     mobile size (18px→17px) and leading (100%→115%) were the only drift. */
+  .text-eyebrow-lg {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-variant: small-caps;
+    line-height: 115%;
+    letter-spacing: 0.03em;
+    font-size: 17px;
+  }
+  @media (min-width: 48rem) { .text-eyebrow-lg { font-size: 20px; } }
+  @media (min-width: 64rem) { .text-eyebrow-lg { font-size: 24px; } }
+
+  /* Body — SectionHeader's shared body copy + Hero's body (same values,
+     previously hand-duplicated instead of shared) */
+  .text-body {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.625; /* Tailwind's leading-relaxed */
+  }
+  @media (min-width: 48rem) { .text-body { font-size: 16px; } }
+  @media (min-width: 64rem) { .text-body { font-size: 18px; line-height: 27px; } }
+
+  /* Body small — Four Pillars card description (13.5px → 14px at lg) */
+  .text-body-sm {
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    line-height: 1.625;
+  }
+  @media (min-width: 64rem) { .text-body-sm { font-size: 14px; } }
+
+  /* Body extra-small — What We Do service description (13px → 14px at xl,
+     its own %-based leading and medium weight) */
+  .text-body-xs {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 157%;
+  }
+  @media (min-width: 80rem) { .text-body-xs { font-size: 14px; } }
+
+  /* CTA label — the text properties shared by every button-styled control
+     (CTAButton's own base, mobile-menu items, Closing CTA link, Find Us'
+     "Launch Navigation"). Colour/padding/radius/fill stay per-component. */
+  .text-cta {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 14px;
+  }
+  @media (min-width: 64rem) { .text-cta { font-size: 16px; } }
+
+  /* Label — small uppercase meta label (Find Us "Directions" heading +
+     contact-row labels: Location/Phone/Email/Hours) */
+  .text-label {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 14px;
   }
 }
 
@@ -120,20 +264,8 @@
 /* Optional keyframe-driven entrance */
 .animate-pop-in  { animation: pop-in 420ms var(--ease-lux) both; }
 
-/* Scroll-reveal (driven by the <Reveal> component) ---------- */
-[data-reveal] {
-  opacity: 0;
-  transform: translateY(var(--reveal-y, 24px));
-  transition:
-    opacity 700ms var(--ease-lux),
-    transform 700ms var(--ease-lux);
-  transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform;
-}
-[data-reveal][data-shown="true"] {
-  opacity: 1;
-  transform: none;
-}
+/* Scroll-reveal removed site-wide: content renders in its final position
+   immediately, no fade/move-up on scroll. */
 
 /* Animated underline for nav links — Figma "Navigation Link / Desktop"
    component: Gold Line (#c8b08a) in every visible state, 1px on Hover, 2px on
@@ -195,10 +327,6 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
-  }
-  [data-reveal] {
-    opacity: 1 !important;
-    transform: none !important;
   }
 }
 
@@ -267,4 +395,4 @@
 /* Choose Your Date — clear hover on selectable, not-yet-selected day cells (the
    2px lift comes from .gj-soft; here we just add the ring + 1s timing) */
 .gj-datecell { transition: transform 0.5s var(--ease-smooth), background-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth); }
-.gj-datecell:hover:not(:disabled) { background-color: rgba(184,140,70,0.16) !important; box-shadow: inset 0 0 0 1.5px rgba(184,140,70,0.75) !important; }
+.gj-datecell:hover:not(:disabled) { background-color: var(--color-cream-card) !important; box-shadow: inset 0 0 0 1px var(--color-divider) !important; }

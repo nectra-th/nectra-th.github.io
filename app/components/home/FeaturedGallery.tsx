@@ -21,10 +21,15 @@ function Arrow({ dir, onClick }: { dir: "left" | "right"; onClick: () => void })
       type="button"
       onClick={onClick}
       aria-label={dir === "left" ? "Previous creation" : "Next creation"}
-      className="flex h-11 w-11 items-center justify-center rounded-full border border-cream-light/30 bg-ink/45 text-cream-light backdrop-blur transition-colors duration-300 hover:border-gold hover:bg-gold hover:text-ink"
+      /* Figma's "Gallery UI Button" has 3 real states, confirmed via the
+         component sheet: Default (fill #211f1c @55%, stroke #625b52, icon
+         #efe6d6) → Hover (fill #211f1c @100%, stroke #9c7430 gold-dark, icon
+         STILL #efe6d6 — not inverted to a solid gold chip) → Active (same
+         fill/stroke as hover, icon also turns #9c7430). */
+      className="flex h-14 w-14 items-center justify-center rounded border border-body-2 bg-ink-2/55 text-cream-alt backdrop-blur transition-colors duration-300 hover:border-gold-dark hover:bg-ink-2 active:border-gold-dark active:bg-ink-2 active:text-gold-dark"
     >
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path d={dir === "left" ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <svg width="15" height="27" viewBox="0 0 15 27" fill="none" aria-hidden>
+        <path d={dir === "left" ? "M13 2L2 13.5L13 25" : "M2 2L13 13.5L2 25"} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </button>
   );
@@ -37,8 +42,8 @@ export default function FeaturedGallery() {
 
   return (
     <div>
-      {/* main image */}
-      <div className="relative aspect-[850/520] w-full overflow-hidden rounded-2xl">
+      {/* main image — Figma's viewport is 850x523, cornerRadius 16, 1px #39342e border */}
+      <div className="relative aspect-[850/523] w-full overflow-hidden rounded-2xl border border-[#39342e]">
         {IMAGES.map((src, i) => (
           <Image
             key={src}
@@ -52,14 +57,20 @@ export default function FeaturedGallery() {
             style={{ opacity: i === active ? 1 : 0 }}
           />
         ))}
-        <div className="absolute bottom-4 right-4 flex gap-2.5">
+        {/* Figma's arrow pair sits ~30px from the right edge, ~27px from the bottom */}
+        <div className="absolute bottom-[27px] right-[30px] flex gap-4">
           <Arrow dir="left" onClick={prev} />
           <Arrow dir="right" onClick={next} />
         </div>
       </div>
 
-      {/* thumbnails */}
-      <div className="no-scrollbar mt-3 flex gap-2.5 overflow-x-auto">
+      {/* thumbnails — Figma: 187x195 each, ~8px below the viewport, tight ~4-5px
+         gaps, cornerRadius ~4px, 1px border. This is a real Default/Selected
+         component variant: border is #39342e at rest, swapping to gold-dark
+         when selected — a plain colour swap, nothing else. Only border-color
+         transitions (not `transition-all`/opacity) so nothing else animates
+         alongside it and the image never visibly shifts. */}
+      <div className="no-scrollbar mt-2 flex gap-1 overflow-x-auto">
         {IMAGES.map((src, i) => (
           <button
             key={src}
@@ -67,8 +78,8 @@ export default function FeaturedGallery() {
             onClick={() => setActive(i)}
             aria-label={`View creation ${i + 1}`}
             aria-current={active === i}
-            className={`relative aspect-[187/158] w-[23%] shrink-0 overflow-hidden rounded-lg transition-all duration-300 ${
-              active === i ? "opacity-100 outline outline-2 outline-offset-[-2px] outline-gold" : "opacity-70 hover:opacity-100"
+            className={`relative aspect-[187/195] w-[22%] shrink-0 overflow-hidden rounded border transition-[border-color] duration-300 ${
+              active === i ? "border-gold-dark" : "border-[#39342e] hover:border-gold"
             }`}
           >
             <Image src={src} alt="" fill sizes="140px" className="object-cover" />

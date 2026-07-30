@@ -9,7 +9,7 @@ import HeroVideo from "./HeroVideo";
    flows below the copy. Structural content (text + CTAs) stays in the grid. */
 export default function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden bg-ink border-b-4 border-[#c8b08a] lg:z-20 lg:min-h-[988px] lg:overflow-visible">
+    <section id="top" aria-label="Hero" className="relative overflow-hidden bg-ink border-b-4 border-[#c8b08a] lg:z-20 lg:min-h-[988px] lg:overflow-visible">
       {/* full-bleed background video + dark wash (clipped to the hero band) */}
       <div className="absolute inset-0 overflow-hidden">
         <HeroVideo />
@@ -20,15 +20,15 @@ export default function Hero() {
         <div className="grid grid-cols-1 items-center gap-10 pb-16 pt-28 sm:pt-32 md:pb-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-0 lg:pb-0 lg:pt-0">
           {/* copy — Figma component's own Top:377/Left:394 (Left comes from the
              Container's 24px inset), not vertically centred in the section. */}
-          <div data-reveal className="max-w-[520px] lg:max-w-[497px] lg:self-start lg:pt-[377px]">
+          <div className="max-w-[520px] lg:max-w-[497px] lg:self-start lg:pt-[377px]">
             <Eyebrow>Since 1978</Eyebrow>
-            <h1 className="fig-trim mt-4 font-serif font-semibold text-cream-light text-[34px] leading-[1.05] md:text-[48px] md:leading-[1.02] lg:text-[56px] lg:leading-[64px]">
+            <h1 className="fig-trim mt-4 text-h1 text-cream-light">
               Expert Craftsmanship.
               <br />
               Personally Made.
             </h1>
             <GoldRule width={114} className="mt-6 lg:mt-8" />
-            <p className="fig-trim mt-7 max-w-[480px] font-sans text-[15px] leading-relaxed text-cream-light/75 md:text-base lg:text-[18px] lg:leading-[27px] lg:text-[#cfc6b8]">
+            <p className="fig-trim mt-7 max-w-[480px] text-body text-cream-light/75 lg:text-[#cfc6b8]">
               Since 1978, Grech Jewellers has combined traditional craftsmanship with
               modern design technology to create custom jewellery that&rsquo;s personally
               designed, precision manufactured and made to last for generations.

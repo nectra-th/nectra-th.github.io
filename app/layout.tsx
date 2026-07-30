@@ -51,16 +51,38 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+// JewelryStore structured data — real business details (matches FindUs.tsx),
+// so Google can surface address/phone/hours directly in local search results.
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "JewelryStore",
+  name: "Grech Jewellers",
+  image: `${SITE_URL}/assets/grech-hero-poster.jpg`,
+  url: SITE_URL,
+  telephone: "+61883567764",
+  email: "jeweller@grechjewellers.com.au",
+  priceRange: "$$",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Shop 90/457 Tapleys Hill Road",
+    addressLocality: "Fulham Gardens",
+    addressRegion: "SA",
+    postalCode: "5024",
+    addressCountry: "AU",
+  },
+  openingHoursSpecification: [
+    { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "09:00", closes: "17:00" },
+    { "@type": "OpeningHoursSpecification", dayOfWeek: "Saturday", opens: "09:00", closes: "13:00" },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${cormorant.variable} ${manrope.variable}`}>
       <head>
-        {/* If JS is unavailable, never hide scroll-reveal content. */}
-        <noscript>
-          <style>{`[data-reveal]{opacity:1 !important;transform:none !important;}`}</style>
-        </noscript>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
       </head>
       <body className="antialiased bg-ink text-ink font-sans">{children}</body>
     </html>
