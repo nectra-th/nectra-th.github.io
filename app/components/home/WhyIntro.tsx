@@ -46,7 +46,7 @@ export default function WhyIntro() {
             >
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <CTAButton href="#book" variant="gold">Book a Consultation</CTAButton>
-                <CTAButton href="#featured" variant="dark">See Our Work</CTAButton>
+                <CTAButton href="#featured" variant="dark" className="!hidden">See Our Work</CTAButton>
               </div>
             </SectionHeader>
           </div>
