@@ -14,6 +14,24 @@ export default function Hero() {
       <div className="absolute inset-0 overflow-hidden">
         <HeroVideo />
         <div className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/55 to-ink" />
+        {/* Figma's left-to-right wash: #141312 63%→0%, fading over the
+           rightmost 1920px and pinned to the section's right edge. The flat
+           63% segment is encoded as a color-stop (not a separate
+           background-color layer) so it never double-stacks with the fade —
+           a second flat layer under the fade would have kept the "0%" end
+           from ever actually reaching transparent. calc(100% - 1920px)
+           gives the flat segment's length on screens wider than 1920px; on
+           narrower screens it goes negative and CSS clamps it back up to
+           the first stop, so the fade just stretches across the full
+           (narrower) width instead of being cropped. */}
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, rgba(20,19,18,0.63) 0%, rgba(20,19,18,0.63) max(0px, calc(100% - 1920px)), rgba(20,19,18,0) 100%)",
+          }}
+        />
       </div>
 
       <Container className="relative lg:!px-[24px]">

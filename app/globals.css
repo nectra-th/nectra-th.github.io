@@ -83,31 +83,46 @@
    being forced together.
    ============================================================ */
 @layer components {
-  /* H1 — Hero only (single instance, tokenized for future upkeep) */
+  /* H1 — Hero only (single instance, tokenized for future upkeep). Tablet
+     verified against figma-data/tablet.1_4838.json: 36px, and the weight
+     genuinely drops to Regular at this breakpoint (not a copy-paste guess —
+     reset back to 600 at lg where desktop is SemiBold again). */
   .text-h1 {
     font-family: var(--font-serif);
     font-weight: 600;
     font-size: 34px;
     line-height: 1.05;
   }
-  @media (min-width: 48rem) { .text-h1 { font-size: 48px; line-height: 1.02; } }
-  @media (min-width: 64rem) { .text-h1 { font-size: 56px; line-height: 64px; } }
+  @media (min-width: 48rem) { .text-h1 { font-size: 36px; font-weight: 400; line-height: 1; } }
+  @media (min-width: 64rem) { .text-h1 { font-size: 56px; font-weight: 600; line-height: 64px; } }
 
   /* H2 — section title (SectionHeader's shared h2: Booking/Featured/Process/
-     Reviews/WhatWeDo/WhyIntro, 6 callers) */
+     Reviews/WhatWeDo/WhyIntro, 6 callers). Tablet verified against all 6
+     instances: fontSize stays 32px (same as mobile, not 44 as previously
+     guessed) but weight is Bold here, not SemiBold — reset to 600 at lg. */
   .text-h2 {
     font-family: var(--font-serif);
     font-weight: 600;
     font-size: 32px;
     line-height: 1.08;
   }
-  @media (min-width: 48rem) { .text-h2 { font-size: 44px; } }
-  @media (min-width: 64rem) { .text-h2 { font-size: 56px; line-height: 64px; } }
+  @media (min-width: 48rem) { .text-h2 { font-size: 32px; font-weight: 700; line-height: 1.125; } }
+  @media (min-width: 64rem) { .text-h2 { font-size: 56px; font-weight: 600; line-height: 64px; } }
 
   /* H2 caps — small-caps banner title (Four Pillars + Brands). Harmonized:
      Brands was 26px on mobile, moved to match Four Pillars' 28px (md/lg/
      tracking/leading already matched exactly — a 2px drift, not a
-     deliberate difference). */
+     deliberate difference).
+     Tablet verified: 24px for both, tracking (0.04em) auto-scales to exactly
+     Four Pillars' real 0.96px — but the two instances genuinely diverge
+     beyond that at this breakpoint: Four Pillars stays 600/small-caps/110%
+     leading (used below), while Brands' "Selected Brands In Store" node is
+     700/TITLE-case(no small-caps)/200% leading in the raw Figma data. That
+     Brands spec reads like a manually-stretched text box rather than an
+     intentional style (200% leading on a single line has no visual reason),
+     so this class keeps the Four Pillars values and Brands stays a close
+     approximation at md — flagging rather than silently forcing one number
+     to cover both. */
   .text-h2-caps {
     font-family: var(--font-serif);
     font-weight: 600;
@@ -116,8 +131,8 @@
     line-height: 115%;
     letter-spacing: 0.04em;
   }
-  @media (min-width: 48rem) { .text-h2-caps { font-size: 32px; } }
-  @media (min-width: 64rem) { .text-h2-caps { font-size: 36px; } }
+  @media (min-width: 48rem) { .text-h2-caps { font-size: 24px; line-height: 110%; } }
+  @media (min-width: 64rem) { .text-h2-caps { font-size: 36px; line-height: 115%; } }
 
   /* H2 closing — Closing CTA's own larger scale (28/34/40, 121% leading) —
      kept separate from .text-h2-caps: genuinely different at md/lg, not a
@@ -129,10 +144,14 @@
     font-size: 28px;
     line-height: 121%;
   }
-  @media (min-width: 48rem) { .text-h2-closing { font-size: 34px; } }
-  @media (min-width: 64rem) { .text-h2-closing { font-size: 40px; } }
+  @media (min-width: 48rem) { .text-h2-closing { font-size: 24px; line-height: 108.33%; } }
+  @media (min-width: 64rem) { .text-h2-closing { font-size: 40px; line-height: 121%; } }
 
-  /* H3 card — Four Pillars card title (22px → 24px at lg only, no md step) */
+  /* H3 card — Four Pillars card title. Tablet verified across all 4 cards:
+     18px — smaller than the mobile size below, not a typo. Figma's real
+     tablet arrangement packs Four Pillars into a tighter 2-column grid than
+     the 1-column mobile stack, so the card title genuinely shrinks at md
+     before growing again to 24px on the 4-across desktop row. */
   .text-h3-card {
     font-family: var(--font-serif);
     font-weight: 600;
@@ -140,11 +159,16 @@
     font-size: 22px;
     line-height: 115%;
   }
-  @media (min-width: 64rem) { .text-h3-card { font-size: 24px; } }
+  @media (min-width: 48rem) { .text-h3-card { font-size: 18px; line-height: 130%; } }
+  @media (min-width: 64rem) { .text-h3-card { font-size: 24px; line-height: 115%; } }
 
   /* H3 service — What We Do card title. Kept separate from .text-h3-card:
      different breakpoint tier (xl not lg), font-normal not semibold, and
-     its own tracking step. */
+     its own tracking step. Tablet verified across all 6 service cards: a
+     non-round 18.96px (67.7211% of desktop's 28px) — internally consistent
+     to the decimal across every instance, so it's a real proportional scale
+     Figma applied, not six independent guesses. Tracking at this size is
+     0.03em (matching the xl step below), not the 0.02em used at mobile. */
   .text-h3-service {
     font-family: var(--font-serif);
     font-weight: 400;
@@ -153,7 +177,7 @@
     line-height: 108%;
     letter-spacing: 0.02em;
   }
-  @media (min-width: 48rem) { .text-h3-service { font-size: 24px; } }
+  @media (min-width: 48rem) { .text-h3-service { font-size: 18.96px; letter-spacing: 0.03em; } }
   @media (min-width: 80rem) { .text-h3-service { font-size: 28px; letter-spacing: 0.03em; } }
 
   /* Eyebrow — small-caps label above a heading (gold tone: Hero + default
@@ -166,7 +190,9 @@
     letter-spacing: 0.12em;
     font-size: 16px;
   }
-  @media (min-width: 48rem) { .text-eyebrow { font-size: 19px; } }
+  /* Tablet verified: 16px (letter-spacing already em-based on this class, so
+     0.12em auto-scales to the real 1.92px tablet tracking with no override). */
+  @media (min-width: 48rem) { .text-eyebrow { font-size: 16px; } }
   @media (min-width: 64rem) { .text-eyebrow { font-size: 22px; } }
 
   /* Eyebrow (gold-light tone: Find Us) + Closing CTA's hand-rolled eyebrow,
@@ -180,8 +206,11 @@
     letter-spacing: 0.03em;
     font-size: 17px;
   }
-  @media (min-width: 48rem) { .text-eyebrow-lg { font-size: 20px; } }
-  @media (min-width: 64rem) { .text-eyebrow-lg { font-size: 24px; } }
+  /* Tablet verified: this role's tracking actually converges onto
+     .text-eyebrow's at md (16px / 0.12em — identical to that class), then
+     diverges back to its own 0.03em step once lg's 24px kicks in. */
+  @media (min-width: 48rem) { .text-eyebrow-lg { font-size: 16px; letter-spacing: 0.12em; } }
+  @media (min-width: 64rem) { .text-eyebrow-lg { font-size: 24px; letter-spacing: 0.03em; } }
 
   /* Body — SectionHeader's shared body copy + Hero's body (same values,
      previously hand-duplicated instead of shared) */
@@ -190,30 +219,49 @@
     font-size: 15px;
     line-height: 1.625; /* Tailwind's leading-relaxed */
   }
-  @media (min-width: 48rem) { .text-body { font-size: 16px; } }
-  @media (min-width: 64rem) { .text-body { font-size: 18px; line-height: 27px; } }
+  /* Tablet verified across 6 instances: 14px (down from the 15px mobile
+     size) and Medium weight — 5 of 6 agree exactly, only the Reviews body
+     comes in Light instead; treating Medium as the role's real tablet
+     weight and resetting to Regular at lg where all 6 agree again. */
+  @media (min-width: 48rem) { .text-body { font-size: 14px; font-weight: 500; } }
+  @media (min-width: 64rem) { .text-body { font-size: 18px; line-height: 27px; font-weight: 400; } }
 
-  /* Body small — Four Pillars card description (13.5px → 14px at lg) */
+  /* Body small — Four Pillars card description (13.5px → 14px at lg).
+     Tablet verified across all 4 cards: 12px and Light weight (down from
+     Regular) — reset to Regular at lg where desktop is Regular again. */
   .text-body-sm {
     font-family: var(--font-sans);
     font-size: 13.5px;
     line-height: 1.625;
   }
-  @media (min-width: 64rem) { .text-body-sm { font-size: 14px; } }
+  @media (min-width: 48rem) { .text-body-sm { font-size: 12px; font-weight: 300; } }
+  @media (min-width: 64rem) { .text-body-sm { font-size: 14px; font-weight: 400; } }
 
   /* Body extra-small — What We Do service description (13px → 14px at xl,
-     its own %-based leading and medium weight) */
+     its own %-based leading and medium weight). Tablet verified across all
+     6 service cards: the same non-round 67.7211% scale factor as
+     .text-h3-service (9.48px) — weight and leading-% carry over unchanged. */
   .text-body-xs {
     font-family: var(--font-sans);
     font-weight: 500;
     font-size: 13px;
     line-height: 157%;
   }
+  @media (min-width: 48rem) { .text-body-xs { font-size: 9.48px; } }
   @media (min-width: 80rem) { .text-body-xs { font-size: 14px; } }
 
   /* CTA label — the text properties shared by every button-styled control
      (CTAButton's own base, mobile-menu items, Closing CTA link, Find Us'
      "Launch Navigation"). Colour/padding/radius/fill stay per-component. */
+  /* Tablet verified: fontSize converges cleanly to 12px across every button
+     instance (Nav CTA, Book a Consultation ×3, See Our Work, Closing CTA) —
+     but weight and tracking fragment into at least 3 different real values
+     per instance at this breakpoint (500/600/700 weight; letter-spacing on
+     "Book a Consultation" alone varies 3x between where it appears), with no
+     text or size difference to explain it. That's real per-instance drift,
+     not a shared scale — so only fontSize is corrected here; the class's
+     existing em-based letter-spacing (0.06em) still auto-scales to 0.72px,
+     which happens to match the Footer/"See Our Work" instances exactly. */
   .text-cta {
     font-family: var(--font-sans);
     font-weight: 700;
@@ -221,16 +269,19 @@
     letter-spacing: 0.06em;
     font-size: 14px;
   }
+  @media (min-width: 48rem) { .text-cta { font-size: 12px; } }
   @media (min-width: 64rem) { .text-cta { font-size: 16px; } }
 
   /* Label — small uppercase meta label (Find Us "Directions" heading +
-     contact-row labels: Location/Phone/Email/Hours) */
+     contact-row labels: Location/Phone/Email/Hours). Tablet verified across
+     both instances: 10px, weight/tracking unchanged. */
   .text-label {
     font-family: var(--font-sans);
     font-weight: 600;
     text-transform: uppercase;
     font-size: 14px;
   }
+  @media (min-width: 48rem) { .text-label { font-size: 10px; } }
 }
 
 /* Hide scrollbars on horizontal scrollers but keep functionality */
