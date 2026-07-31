@@ -21,6 +21,38 @@ const NAV = [
 
 const PHONE = "tel:+61883567764";
 
+// Why Grech / Our Work / Book a Design Consultation each have one hero photo
+// as their real focal point, so nav should land 40px above THAT image. Every
+// other destination lands above its own title instead — with more breathing
+// room (80px) since 40px reads as too tight against plain text. Native
+// fragment navigation can only align to a section's top edge, so this is all
+// done by hand via window.scrollTo.
+const IMAGE_TARGET_IDS = new Set(["why", "featured", "book"]);
+const IMAGE_LANDING_GAP = 40;
+const TITLE_LANDING_GAP = 80;
+
+function scrollToNavTarget(e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>, href: string) {
+  const id = href.slice(1);
+  const section = document.querySelector(href);
+  if (!section) return;
+  e.preventDefault();
+
+  let target: Element | null = null;
+  let gap = TITLE_LANDING_GAP;
+  if (IMAGE_TARGET_IDS.has(id)) {
+    // mobile/desktop each render their own image element (one hidden via
+    // CSS depending on breakpoint) — pick whichever one is actually visible.
+    const candidates = document.querySelectorAll(`[data-scroll-image="${id}"]`);
+    target = [...candidates].find((el) => el.getBoundingClientRect().width > 0) ?? section;
+    gap = IMAGE_LANDING_GAP;
+  } else {
+    target = section.querySelector("h2") ?? section;
+  }
+
+  const top = target.getBoundingClientRect().top + window.scrollY - gap;
+  window.scrollTo({ top, behavior: "smooth" });
+}
+
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -79,6 +111,7 @@ export default function Header() {
               <a
                 key={n.href}
                 href={n.href}
+                onClick={(e) => scrollToNavTarget(e, n.href)}
                 className="gj-navlink link-underline text-[12px] font-medium uppercase text-cream-light/85"
               >
                 {n.label}
@@ -88,6 +121,7 @@ export default function Header() {
 
           <CTAButton
             href="#book"
+            onClick={(e) => scrollToNavTarget(e, "#book")}
             variant="outlineGold"
             radius="rounded-[4px]"
             className="lg:!h-12 lg:!px-[18px] lg:!py-0 lg:!text-[14px] lg:!font-medium lg:!tracking-[1px]"
@@ -136,7 +170,7 @@ export default function Header() {
               <a
                 key={n.href}
                 href={n.href}
-                onClick={() => setOpen(false)}
+                onClick={(e) => { scrollToNavTarget(e, n.href); setOpen(false); }}
                 className="border-b border-cream-light/10 py-4 font-serif text-2xl text-cream-light transition-colors hover:text-gold"
               >
                 {n.label}
@@ -147,7 +181,7 @@ export default function Header() {
           <div className="flex flex-col gap-3 px-6 pb-10">
             <a
               href="#book"
-              onClick={() => setOpen(false)}
+              onClick={(e) => { scrollToNavTarget(e, "#book"); setOpen(false); }}
               className="inline-flex w-full items-center justify-center rounded-[2px] bg-gold px-9 py-4 text-[15px] font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:bg-gold-dark"
             >
               Book a Consultation

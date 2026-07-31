@@ -37,7 +37,7 @@ export function CTAButton({
 }: {
   children: ReactNode;
   href?: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => void;
   type?: "button" | "submit";
   variant?: Variant;
   radius?: string;
@@ -49,7 +49,7 @@ export function CTAButton({
   if (href) {
     const external = href.startsWith("#") || href.startsWith("http") || href.startsWith("tel:") || href.startsWith("mailto:");
     return external
-      ? <a href={href} className={cls}>{children}</a>
+      ? <a href={href} onClick={onClick} className={cls}>{children}</a>
       : <Link href={href} className={cls}>{children}</Link>;
   }
   return <button type={type} onClick={onClick} className={cls}>{children}</button>;

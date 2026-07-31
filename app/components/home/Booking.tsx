@@ -93,7 +93,7 @@ export default function Booking() {
         {/* photo — mobile/tablet: contained, in-flow. Hidden at lg in favour
            of the bleed-to-edge version below. */}
         <div className="mt-10 lg:hidden">
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl" style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.16)" }}>
+          <div data-scroll-image="book" className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl" style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.16)" }}>
             <Image src={PHOTO_SRC} alt={PHOTO_ALT} fill sizes="(min-width: 640px) 560px, 90vw" className="object-cover" />
           </div>
         </div>
@@ -112,7 +112,7 @@ export default function Booking() {
          it tracks the same centring as the copy text at every viewport width. */}
       <div className="absolute inset-x-0 hidden lg:top-[153px] lg:block">
         <div className="relative mx-auto max-w-[1180px]">
-          <div className="absolute overflow-hidden rounded-l-2xl lg:left-[413px] lg:h-[762px] lg:w-[1137px]">
+          <div data-scroll-image="book" className="absolute overflow-hidden rounded-l-2xl lg:left-[413px] lg:h-[762px] lg:w-[1137px]">
             <Image src={PHOTO_SRC} alt={PHOTO_ALT} fill sizes="1137px" className="object-cover" />
           </div>
         </div>

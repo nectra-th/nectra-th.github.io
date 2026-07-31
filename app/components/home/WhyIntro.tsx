@@ -65,6 +65,7 @@ export default function WhyIntro() {
           <div className="lg:hidden">
             <div className="relative mx-auto w-full max-w-[560px]">
               <div
+                data-scroll-image="why"
                 className="relative aspect-[731/533] w-full overflow-hidden rounded-2xl"
                 style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.14)" }}
               >
@@ -102,7 +103,7 @@ export default function WhyIntro() {
          card is positioned as a % of the photo box so it scales with it. */}
       <div className="absolute inset-x-0 top-0 mx-auto hidden h-0 max-w-[1920px] lg:block">
         <div className="absolute right-0 top-[315px] aspect-[731/533] w-[min(38.07vw,731px)]">
-          <div className="relative h-full w-full overflow-hidden rounded-l-2xl border border-[#d8cbb7]" style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.14)" }}>
+          <div data-scroll-image="why" className="relative h-full w-full overflow-hidden rounded-l-2xl border border-[#d8cbb7]" style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.14)" }}>
             <Image
               src={WORKSHOP}
               alt="A Grech jeweller at the workshop bench with tools and design sketches"

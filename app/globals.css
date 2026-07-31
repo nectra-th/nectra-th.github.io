@@ -39,8 +39,6 @@
 @layer base {
   html {
     scroll-behavior: smooth;
-    /* offset anchor jumps so section tops clear the fixed header */
-    scroll-padding-top: 84px;
   }
   body {
     font-family: var(--font-sans);

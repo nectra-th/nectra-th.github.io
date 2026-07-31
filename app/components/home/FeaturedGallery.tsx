@@ -43,7 +43,7 @@ export default function FeaturedGallery() {
   return (
     <div>
       {/* main image — Figma's viewport is 850x523, cornerRadius 16, 1px #39342e border */}
-      <div className="relative aspect-[850/523] w-full overflow-hidden rounded-2xl border border-[#39342e]">
+      <div data-scroll-image="featured" className="relative aspect-[850/523] w-full overflow-hidden rounded-2xl border border-[#39342e]">
         {IMAGES.map((src, i) => (
           <Image
             key={src}
