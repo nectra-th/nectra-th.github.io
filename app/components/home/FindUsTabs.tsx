@@ -20,9 +20,10 @@ function TabIcon({ src, active }: { src: string; active: boolean }) {
   return (
     <span
       aria-hidden
-      className="h-6 w-6"
+      // backgroundColor lives in className (not inline) so group-hover can
+      // reach it — an inline style would win over the hover class every time.
+      className={`h-6 w-6 transition-colors duration-300 ${active ? "bg-gold" : "bg-[#403b37] group-hover:bg-gold"}`}
       style={{
-        backgroundColor: active ? "var(--color-gold)" : "#403b37",
         WebkitMaskImage: `url(${src})`, maskImage: `url(${src})`,
         WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
         WebkitMaskSize: "contain", maskSize: "contain",
@@ -84,8 +85,8 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
               aria-controls="findus-panel"
               tabIndex={active ? 0 : -1}
               onClick={() => setTab(i)}
-              className={`flex items-center justify-center text-[16px] uppercase tracking-[0.06em] transition-colors duration-300 sm:flex-1 ${
-                active ? "font-bold text-gold" : "font-medium text-[#403b37] hover:text-ink-text"
+              className={`group flex items-center justify-center text-[16px] uppercase tracking-[0.06em] transition-colors duration-300 sm:flex-1 ${
+                active ? "font-bold text-gold" : "font-medium text-[#403b37] hover:text-gold"
               }`}
             >
               {/* the gold underline spans icon + label together (Figma:

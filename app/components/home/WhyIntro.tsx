@@ -78,7 +78,7 @@ export default function WhyIntro() {
               </div>
               {/* rotating ring media card overlapping the lower-left corner */}
               <div
-                className="gj-lift absolute bottom-[-26px] left-4 h-[150px] w-[180px] overflow-hidden rounded-xl border border-divider sm:h-[168px] sm:w-[202px]"
+                className="gj-lift absolute bottom-[-26px] left-4 h-[150px] w-[180px] overflow-hidden rounded-xl border border-divider bg-black sm:h-[168px] sm:w-[202px]"
                 style={{ boxShadow: "0 6px 20px rgba(0,0,0,0.25)", boxSizing: "border-box" }}
               >
                 <RotatingImage srcs={RINGS} bgSize="cover" bgPos="center" />
@@ -102,7 +102,7 @@ export default function WhyIntro() {
          card is positioned as a % of the photo box so it scales with it. */}
       <div className="absolute inset-x-0 top-0 mx-auto hidden h-0 max-w-[1920px] lg:block">
         <div className="absolute right-0 top-[315px] aspect-[731/533] w-[min(38.07vw,731px)]">
-          <div className="relative h-full w-full overflow-hidden rounded-2xl" style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.14)" }}>
+          <div className="relative h-full w-full overflow-hidden rounded-l-2xl border border-[#d8cbb7]" style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.14)" }}>
             <Image
               src={WORKSHOP}
               alt="A Grech jeweller at the workshop bench with tools and design sketches"
@@ -112,7 +112,7 @@ export default function WhyIntro() {
             />
           </div>
           <div
-            className="gj-lift absolute overflow-hidden rounded-xl border border-divider"
+            className="gj-lift absolute overflow-hidden rounded-xl border border-divider bg-black"
             style={{
               left: "-11.22%", top: "73.92%", width: "31.19%", aspectRatio: "228 / 190",
               boxShadow: "0 6px 20px rgba(0,0,0,0.25)", boxSizing: "border-box",

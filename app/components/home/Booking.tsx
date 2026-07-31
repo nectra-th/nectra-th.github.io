@@ -6,7 +6,7 @@ import { Container } from "./ui";
 import SectionHeader from "./SectionHeader";
 import BookingWidget from "./BookingWidget";
 
-const PHOTO_SRC = "/assets/booking-consult.jpg";
+const PHOTO_SRC = "/assets/consultation-02.png";
 const PHOTO_ALT = "A jeweller discussing a custom design with clients at the counter";
 
 /* Book a Design Consultation — Figma (`1:4212` copy, `1:3807` photo, `IDLE

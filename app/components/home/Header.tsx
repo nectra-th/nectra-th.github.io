@@ -24,30 +24,10 @@ const PHONE = "tel:+61883567764";
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [activeHref, setActiveHref] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => setMounted(true), []);
-
-  // scroll-spy: mark the nav link for whichever section is currently in view
-  // (crossing the upper third of the viewport) as "active" — the Figma
-  // Navigation Link component's persisted Active state.
-  useEffect(() => {
-    const targets = NAV.map((n) => document.getElementById(n.href.slice(1))).filter((el): el is HTMLElement => !!el);
-    if (!targets.length) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter((e) => e.isIntersecting);
-        if (!visible.length) return;
-        const top = visible.reduce((a, b) => (a.boundingClientRect.top < b.boundingClientRect.top ? a : b));
-        setActiveHref("#" + top.target.id);
-      },
-      { rootMargin: "-35% 0px -55% 0px", threshold: 0 },
-    );
-    targets.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
 
   // lock body scroll while the mobile menu is open
   useEffect(() => {
@@ -84,7 +64,7 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 bg-ink/[0.72]">
+    <header className="absolute inset-x-0 top-0 z-50 bg-ink/[0.72]">
       <Container className="flex h-[72px] items-center justify-between lg:h-[108px] lg:!px-0">
         <a href="#top" aria-label="Grech Jewellers — home" className="shrink-0">
           <img src="/assets/logo-header.svg" alt="Grech Jewellers" width={238} height={65} className="h-8 w-auto lg:h-[65px]" />
@@ -99,7 +79,6 @@ export default function Header() {
               <a
                 key={n.href}
                 href={n.href}
-                aria-current={activeHref === n.href ? "page" : undefined}
                 className="gj-navlink link-underline text-[12px] font-medium uppercase text-cream-light/85"
               >
                 {n.label}

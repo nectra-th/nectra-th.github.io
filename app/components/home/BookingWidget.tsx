@@ -130,8 +130,8 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
   // (`cardWidth` kept for API compatibility but no longer drives the layout.)
   void cardWidth;
   const cardChrome = {
-    borderRadius: 18, background: "rgba(248,243,234,0.94)", boxShadow: "0 20px 60px -20px rgba(20,19,18,0.25)",
-    backdropFilter: "blur(4px)", padding: stacked ? "26px 20px" : "40px 44px", fontFamily: FONT,
+    borderRadius: 18, background: "rgba(248,243,234,0.9)", border: "1px solid #d8cbb7", boxShadow: "0 20px 60px -20px rgba(20,19,18,0.25)",
+    backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: stacked ? "26px 20px" : "40px 44px", fontFamily: FONT,
   } as const;
   const cardBase: React.CSSProperties = { position: "relative", width: "100%", minHeight: stacked ? undefined : 470, ...cardChrome };
   // divider x-positions for 3 equal columns (1fr each) with a 40px column gap

@@ -116,7 +116,7 @@ export default function Process() {
          reference to bleed against) and is hidden at lg in favour of this. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-0 top-[446px] hidden aspect-[781/664] w-[min(40.6771vw,781px)] overflow-hidden rounded-2xl border border-divider lg:block"
+        className="pointer-events-none absolute left-0 top-[446px] hidden aspect-[781/664] w-[min(40.6771vw,781px)] overflow-hidden rounded-r-2xl border border-divider lg:block"
         style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.12)" }}
       >
         <Image

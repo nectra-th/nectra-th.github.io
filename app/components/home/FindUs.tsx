@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Container } from "./ui";
 import { Eyebrow, GoldRule } from "./SectionHeader";
 import FindUsTabs from "./FindUsTabs";
+import LaunchNavigationButton from "./LaunchNavigationButton";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -190,9 +191,12 @@ export default function FindUs() {
                 <span className="font-serif text-[24px] font-semibold leading-[15px] tracking-[0.09em] text-[#403b37]">Google Maps</span>
                 <span aria-hidden className="h-0.5 w-12 bg-gold-dark" />
               </div>
-              <a href={MAPS_DIR} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center rounded-lg bg-gold px-[34px] py-[18px] text-[14px] leading-[10px] font-semibold uppercase tracking-[0.09em] text-cream-light transition-colors hover:bg-gold-dark">
+              {/* desktop opens a new tab; mobile navigates same-tab so the OS
+                 can intercept it as a universal/app link straight into the
+                 native Google Maps app — see LaunchNavigationButton. */}
+              <LaunchNavigationButton href={MAPS_DIR} className="inline-flex items-center justify-center rounded-lg bg-gold px-[34px] py-[18px] text-[14px] leading-[10px] font-semibold uppercase tracking-[0.09em] text-cream-light transition-colors hover:bg-gold-dark">
                 Launch Navigation
-              </a>
+              </LaunchNavigationButton>
             </div>
             </div>
           </div>

@@ -268,10 +268,8 @@
    immediately, no fade/move-up on scroll. */
 
 /* Animated underline for nav links — Figma "Navigation Link / Desktop"
-   component: Gold Line (#c8b08a) in every visible state, 1px on Hover, 2px on
-   Press, 1px on Active (current section). Active is a persisted state (set by
-   scroll-spy, not a live pointer state) and must NOT be affected by hovering
-   or pressing an already-active link — the last two rules pin that. */
+   component: Gold Line (#c8b08a), 1px on Hover, 2px on Press. No persisted
+   "current section" active state (removed per request). */
 @layer components {
   .link-underline {
     position: relative;
@@ -296,17 +294,6 @@
   .link-underline:active::after {
     transform: scaleX(1);
     height: 2px;
-  }
-  .link-underline[aria-current="page"]::after,
-  .link-underline[data-active="true"]::after {
-    transform: scaleX(1);
-    height: 1px;
-  }
-  .link-underline[aria-current="page"]:hover::after,
-  .link-underline[aria-current="page"]:active::after,
-  .link-underline[data-active="true"]:hover::after,
-  .link-underline[data-active="true"]:active::after {
-    height: 1px;
   }
 }
 
@@ -347,18 +334,9 @@
 /* nav link — hover brightens the text; the underline itself comes from the
    .link-underline utility already applied alongside this class. No vertical
    movement, per the Figma "Navigation Link / Desktop" component states.
-   Active (current section, set by scroll-spy) turns the text gold and is not
-   affected by hovering/pressing that same link. */
+   No persisted "current section" active state (removed per request). */
 .gj-navlink { position: relative; display: inline-block; transition: color 0.5s var(--ease-smooth); }
 .gj-navlink:hover { color: #f8f3ea; }
-.gj-navlink[aria-current="page"],
-.gj-navlink[data-active="true"] {
-  color: var(--color-gold);
-}
-.gj-navlink[aria-current="page"]:hover,
-.gj-navlink[data-active="true"]:hover {
-  color: var(--color-gold);
-}
 
 /* soft affordance for smaller controls (time slots, date cells, thumbnails,
    arrows, tabs) — gold border + faint gold wash on hover */
