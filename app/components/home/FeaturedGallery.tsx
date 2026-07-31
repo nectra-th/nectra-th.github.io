@@ -65,11 +65,12 @@ export default function FeaturedGallery() {
       </div>
 
       {/* thumbnails — Figma: 187x195 each, ~8px below the viewport, tight ~4-5px
-         gaps, cornerRadius ~4px, 1px border. This is a real Default/Selected
-         component variant: border is #39342e at rest, swapping to gold-dark
-         when selected — a plain colour swap, nothing else. Only border-color
-         transitions (not `transition-all`/opacity) so nothing else animates
-         alongside it and the image never visibly shifts. */}
+         gaps, cornerRadius ~4px, 1.09px border. Three real component states,
+         confirmed against the component sheet: Default #39342e (dark-border),
+         Hover #625b52 (muted-dark, not gold), Selected #9c7430 (gold-dark) —
+         selected stays gold even if also hovered, it doesn't fall back to the
+         hover colour. Non-selected, non-hovered thumbs sit at 63% opacity;
+         hovering (any thumb) or being the active one brings it to 100%. */}
       <div className="no-scrollbar mt-2 flex gap-1 overflow-x-auto">
         {IMAGES.map((src, i) => (
           <button
@@ -78,8 +79,8 @@ export default function FeaturedGallery() {
             onClick={() => setActive(i)}
             aria-label={`View creation ${i + 1}`}
             aria-current={active === i}
-            className={`relative aspect-[187/195] w-[22%] shrink-0 overflow-hidden rounded border transition-[border-color] duration-300 ${
-              active === i ? "border-gold-dark" : "border-[#39342e] hover:border-gold"
+            className={`relative aspect-[187/195] w-[22%] shrink-0 overflow-hidden rounded border transition-[border-color,opacity] duration-300 hover:opacity-100 ${
+              active === i ? "border-gold-dark opacity-100" : "border-[#39342e] opacity-[0.63] hover:border-body-2"
             }`}
           >
             <Image src={src} alt="" fill sizes="140px" className="object-cover" />

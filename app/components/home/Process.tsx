@@ -21,8 +21,13 @@ const STEPS = [
 
 function Step({ s }: { s: (typeof STEPS)[number] }) {
   return (
-    <li className="relative z-10 flex flex-col items-center text-center">
-      <span className="flex h-16 w-16 items-center justify-center rounded-full border border-divider bg-cream-alt">
+    <li className="group relative z-10 flex flex-col items-center text-center transition-[transform] duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] hover:[transform:translateY(-2px)]">
+      {/* Hover spec straight from Figma's "01 CONSULTATION, State=Hover":
+         1px border darkens to gold-dark, "Elevation/Small" shadow
+         (0 2px 8px rgba(0,0,0,.25)) appears behind it, and the whole step
+         (icon + number + label) lifts -2px together — the same lift used
+         everywhere else on the site. */}
+      <span className="flex h-16 w-16 items-center justify-center rounded-full border border-divider bg-cream-alt transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:border-gold-dark group-hover:shadow-[0_2px_8px_rgba(0,0,0,0.25)]">
         <img src={`/assets/icons/${s.icon}.png`} alt="" aria-hidden loading="lazy" decoding="async" className="h-8 w-auto" />
       </span>
       <span className="mt-3 font-sans text-sm font-normal text-gold-dark">{s.n}</span>

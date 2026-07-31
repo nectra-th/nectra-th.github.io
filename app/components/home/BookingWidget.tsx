@@ -230,7 +230,17 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
               </ul>
             </div>
             <label style={{ marginTop: 18, display: "flex", gap: 12, cursor: "pointer" }}>
-              <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ flex: "0 0 auto", width: 18, height: 18, marginTop: 2, accentColor: "var(--color-gold)" }} />
+              <span style={{ position: "relative", flex: "0 0 auto", width: 24, height: 24, marginTop: 2 }}>
+                <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)}
+                  style={{ position: "absolute", inset: 0, margin: 0, width: 24, height: 24, opacity: 0, cursor: "pointer" }} />
+                <span aria-hidden style={{
+                  display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, borderRadius: 2,
+                  background: consent ? "var(--color-gold-dark)" : "var(--color-cream)",
+                  border: `1px solid ${consent ? "var(--color-gold-dark)" : "var(--color-divider)"}`,
+                }}>
+                  {consent && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="5 13 10 18 19 7" /></svg>}
+                </span>
+              </span>
               <span style={{ fontSize: 14, lineHeight: "20px", color: "var(--color-ink-text)" }}>I understand this is a consultation request and Grech Jewellers will contact me to confirm a suitable appointment time.</span>
             </label>
           </div>
@@ -244,18 +254,18 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
               <div>
                 <FieldLabel>Contact Number*</FieldLabel>
                 <div style={{ display: "flex" }}>
-                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0 12px", height: 44, border: "1px solid var(--color-line)", borderRight: "none", borderRadius: "8px 0 0 8px", background: "#fff" }}>
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0 12px", height: 44, border: "1px solid var(--color-divider)", borderRight: "none", borderRadius: "8px 0 0 8px", background: "var(--color-cream-light)" }}>
                     <span role="img" aria-label="Australia" style={{ width: 26, height: 20, borderRadius: 2, backgroundImage: "url(/assets/flag-au.png)", backgroundSize: "cover", backgroundPosition: "center" }} />
                   </span>
-                  <input type="tel" aria-label="Contact number" value={form.phone} placeholder="0412 345 678" onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                    style={{ flex: 1, minWidth: 0, height: 44, border: "1px solid var(--color-line)", borderRadius: "0 8px 8px 0", background: "#fff", padding: "0 14px", fontSize: 14, color: "var(--color-ink-text)", outline: "none" }} />
+                  <input type="tel" aria-label="Contact number" value={form.phone} placeholder="0412 345 678" onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className="gj-field"
+                    style={{ flex: 1, minWidth: 0, height: 44, border: "1px solid var(--color-divider)", borderRadius: "0 8px 8px 0", background: "var(--color-cream-light)", padding: "0 14px", fontSize: 14, color: "#403b37", outline: "none" }} />
                 </div>
               </div>
               <div>
                 <FieldLabel>How did you hear about us?</FieldLabel>
                 <div style={{ position: "relative" }}>
-                  <select aria-label="How did you hear about us?" value={form.hear} onChange={(e) => setForm((f) => ({ ...f, hear: e.target.value }))}
-                    style={{ appearance: "none", width: "100%", height: 44, border: "1px solid var(--color-line)", borderRadius: 8, background: "#fff", padding: "0 38px 0 14px", fontSize: 14, color: form.hear ? "var(--color-ink-text)" : "var(--color-body)", outline: "none", cursor: "pointer" }}>
+                  <select aria-label="How did you hear about us?" value={form.hear} onChange={(e) => setForm((f) => ({ ...f, hear: e.target.value }))} className="gj-field"
+                    style={{ appearance: "none", width: "100%", height: 44, border: "1px solid var(--color-divider)", borderRadius: 8, background: "var(--color-cream-light)", padding: "0 38px 0 14px", fontSize: 14, color: form.hear ? "#403b37" : "var(--color-body)", outline: "none", cursor: "pointer" }}>
                     <option value="" disabled>Select an option</option>
                     {HEAR_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
@@ -297,9 +307,9 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
           <p style={SUB}>Select a day that suits you</p>
           <div style={{ marginTop: stacked ? 16 : 48 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 252, margin: "0 auto", height: 32 }}>
-              <button aria-label="Previous month" onClick={() => setView((v) => (v ? (v.m === 0 ? { y: v.y - 1, m: 11 } : { y: v.y, m: v.m - 1 }) : v))} className="gj-soft" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold)", cursor: "pointer", flex: "0 0 auto" }}><ArrowLeft style={{ width: 15, height: 15 }} /></button>
+              <button aria-label="Previous month" onClick={() => setView((v) => (v ? (v.m === 0 ? { y: v.y - 1, m: 11 } : { y: v.y, m: v.m - 1 }) : v))} className="gj-navarrow" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold-dark)", cursor: "pointer", flex: "0 0 auto" }}><ArrowLeft style={{ width: 15, height: 15 }} /></button>
               <span style={{ fontSize: 16, fontWeight: 500, letterSpacing: "0.02em", color: "var(--color-ink-text)" }}>{view ? `${MONTHS[view.m]} ${view.y}` : " "}</span>
-              <button aria-label="Next month" onClick={() => setView((v) => (v ? (v.m === 11 ? { y: v.y + 1, m: 0 } : { y: v.y, m: v.m + 1 }) : v))} className="gj-soft" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold)", cursor: "pointer", flex: "0 0 auto" }}><ArrowRight style={{ width: 15, height: 15 }} /></button>
+              <button aria-label="Next month" onClick={() => setView((v) => (v ? (v.m === 11 ? { y: v.y + 1, m: 0 } : { y: v.y, m: v.m + 1 }) : v))} className="gj-navarrow" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold-dark)", cursor: "pointer", flex: "0 0 auto" }}><ArrowRight style={{ width: 15, height: 15 }} /></button>
             </div>
             <div style={{ marginTop: stacked ? 10 : 8, display: "grid", gridTemplateColumns: "repeat(7,1fr)", textAlign: "center" }}>
               {WEEKDAYS.map((w) => (<span key={w} style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.02em", color: "var(--color-body)", opacity: 0.7 }}>{w}</span>))}
@@ -317,11 +327,10 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
                     onClick={() => { if (dateStr) { setSelectedDate(dateStr); setSelectedTime(null); setStatus("idle"); } }}
                     style={{
                       width: 40, height: 40, borderRadius: "50%", fontSize: 15,
-                      color: !c.inMonth ? "rgba(87,87,87,0.25)" : disabled ? "rgba(87,87,87,0.3)" : selected ? "var(--color-ink)" : "var(--color-ink-text)",
-                      textDecoration: c.inMonth && disabled ? "line-through" : "none",
+                      color: !c.inMonth ? "rgba(98,91,82,0.45)" : disabled ? "#625b52" : selected ? "#f8f3ea" : isToday ? "var(--color-ink-text)" : "#403b37",
                       background: selected ? "#b88c46" : "transparent",
-                      fontWeight: selected ? 600 : 400,
-                      boxShadow: isToday && !selected ? "inset 0 0 0 1px #403b37" : "none",
+                      fontWeight: 400,
+                      boxShadow: isToday && !selected ? "inset 0 0 0 1px var(--color-divider)" : "none",
                       cursor: !c.inMonth || disabled ? "default" : "pointer",
                     }}>{c.day}</button>
                 );
@@ -338,14 +347,14 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
             {timeSlots.map(({ t, disabled, preview }) => {
               const on = selectedTime === t;
               return (
-                <button key={t} className="gj-soft" disabled={disabled || preview} aria-pressed={on} aria-label={`${spaceTime(t)}${disabled && !preview ? " (unavailable)" : ""}`} onClick={() => setSelectedTime(t)}
+                <button key={t} className={"gj-soft" + (!on && !disabled && !preview ? " gj-timeslot" : "")} disabled={disabled || preview} aria-pressed={on} aria-label={`${spaceTime(t)}${disabled && !preview ? " (unavailable)" : ""}`} onClick={() => setSelectedTime(t)}
                   style={{
                     height: stacked ? 42 : 46, borderRadius: 0, fontSize: 15,
-                    border: `1px solid ${on ? "#b88c46" : preview || disabled ? "#e1ddd4" : "var(--color-divider)"}`,
-                    background: on ? "#b88c46" : "var(--color-cream-light)",
-                    color: on ? "var(--color-ink)" : preview || disabled ? "rgba(87,87,87,0.4)" : "var(--color-ink-text)",
+                    border: `1px solid ${on ? "#b88c46" : "var(--color-divider)"}`,
+                    background: on ? "#b88c46" : disabled ? "var(--color-cream-card)" : "var(--color-cream-light)",
+                    color: on ? "#ede5d7" : preview || disabled ? "var(--color-line)" : "#403b37",
                     textDecoration: disabled && !preview ? "line-through" : "none",
-                    fontWeight: on ? 600 : 400,
+                    fontWeight: 400,
                     cursor: disabled || preview ? "default" : "pointer",
                   }}>{t}</button>
               );
@@ -374,15 +383,15 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <span style={{ marginBottom: 6, display: "block", fontSize: 13, fontWeight: 500, color: "var(--color-ink-text)" }}>{children}</span>;
+  return <span style={{ marginBottom: 6, display: "block", fontSize: 13, fontWeight: 500, color: "#625b52" }}>{children}</span>;
 }
 
 function Field({ label, value, onChange, type = "text", placeholder }: { label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string }) {
   return (
     <label style={{ display: "block" }}>
       <FieldLabel>{label}</FieldLabel>
-      <input type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)}
-        style={{ width: "100%", height: 44, borderRadius: 8, border: "1px solid var(--color-line)", background: "#fff", padding: "0 14px", fontSize: 14, color: "var(--color-ink-text)", outline: "none" }} />
+      <input type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className="gj-field"
+        style={{ width: "100%", height: 44, borderRadius: 8, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", padding: "0 14px", fontSize: 14, color: "#403b37", outline: "none" }} />
     </label>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 /* Find Us tab bar + swapping main view. Tab 0 = store photo, tab 1 = the Figma
    shopping-centre floor-plan, tab 2 = a live Google Maps embed. The directions
@@ -34,6 +34,30 @@ function TabIcon({ src, active }: { src: string; active: boolean }) {
 
 export default function FindUsTabs({ directions, firstTime }: { directions: ReactNode; firstTime: ReactNode }) {
   const [tab, setTab] = useState(0);
+  const panelRef = useRef<HTMLDivElement>(null);
+  // Google Maps tab: the view should go full-width instead of sitting in the
+  // narrow 610fr column, but keep the SAME height it already has there — not
+  // grow taller just because it's wider. aspect-[610/348] can't express that
+  // (it re-derives height from whatever width it's given), so once spanning
+  // all 3 columns we switch to an explicit px height computed from the
+  // panel's own width: (panelWidth - the two 24px column gaps) * 348/1091,
+  // i.e. exactly the height the narrow 610fr column would have produced.
+  // Only applies at lg (1024px+) — below that the grid is already a single
+  // full-width column, so the normal aspect-ratio box is already correct.
+  const [mapHeight, setMapHeight] = useState<number | null>(null);
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const GAP = 48;
+    const RATIO = 348 / 1091;
+    const update = () => {
+      if (window.innerWidth < 1024) { setMapHeight(null); return; }
+      setMapHeight(Math.round((panel.clientWidth - GAP) * RATIO));
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
   const onKey = (e: React.KeyboardEvent) => {
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
     e.preventDefault();
@@ -84,16 +108,21 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
         {/* view + directions + first-time card — Figma lays these out as 3
            side-by-side columns (610fr/203fr/278fr, 24px gaps), not an
            image-beside-a-stacked-sidebar. */}
-        <div id="findus-panel" role="tabpanel" aria-labelledby={`findus-tab-${tab}`} className="mt-6 grid gap-6 lg:grid-cols-[610fr_203fr_278fr] lg:gap-6">
-          <div className="relative aspect-[610/348] w-full overflow-hidden rounded-xl border border-divider bg-ink-2 shadow-[0_6px_8.6px_rgba(20,19,18,0.1)]">
+        <div id="findus-panel" ref={panelRef} role="tabpanel" aria-labelledby={`findus-tab-${tab}`} className="mt-6 grid gap-6 lg:grid-cols-[610fr_203fr_278fr] lg:gap-6">
+          <div
+            className={`relative aspect-[610/348] w-full overflow-hidden rounded-xl border border-divider bg-ink-2 shadow-[0_6px_8.6px_rgba(20,19,18,0.1)] ${tab === 2 ? "lg:col-span-3" : ""}`}
+            style={tab === 2 && mapHeight != null ? { height: mapHeight } : undefined}
+          >
             {tab === 0 && <Image src="/assets/findus-store.png" alt="Inside the Grech Jewellers showroom" fill sizes="(min-width: 1024px) 32vw, 90vw" className="object-cover" />}
             {tab === 1 && <Image src="/assets/figma-img/shopping-centre-map.png" alt="Fulham Gardens shopping centre map with Grech Jewellers highlighted" fill sizes="(min-width: 1024px) 32vw, 90vw" className="object-cover" />}
             {tab === 2 && (
               <iframe title="Grech Jewellers location on Google Maps" src={GOOGLE_EMBED} loading="lazy" className="h-full w-full border-0" />
             )}
           </div>
-          {directions}
-          {firstTime}
+          {/* hidden on the Google Maps tab — the map takes the full width
+             in their place instead of pushing them below it. */}
+          {tab !== 2 && <div className="lg:col-start-2">{directions}</div>}
+          {tab !== 2 && <div className="lg:col-start-3">{firstTime}</div>}
         </div>
       </div>
     </div>
