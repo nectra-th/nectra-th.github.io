@@ -142,7 +142,7 @@ export default function FindUs() {
          the image's own opacity down to ~7.5% net visibility, far darker
          than Figma's actual 39%). */}
       <div aria-hidden className="absolute inset-0">
-        <Image src="/assets/findus-blur-bg.jpg" alt="" fill sizes="100vw" className="object-cover opacity-[0.39] blur-md" />
+        <Image src="/assets/findus-blur-bg.webp" alt="" fill sizes="100vw" className="object-cover opacity-[0.39] blur-md" />
       </div>
 
       <Container className="relative">

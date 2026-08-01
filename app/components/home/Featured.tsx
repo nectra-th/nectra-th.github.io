@@ -4,13 +4,13 @@ import FeaturedGallery from "./FeaturedGallery";
 
 /* eslint-disable @next/next/no-img-element */
 
-const SKETCH = "/assets/figma-img/7b3544a57ad8f231118674e34b269ea5bd3fd189.png";
+const SKETCH = "/assets/figma-img/7b3544a57ad8f231118674e34b269ea5bd3fd189.webp";
 // Mobile uses a direct export of the Figma node instead of the raw source
 // bitmap: at 390x249 it already ships in its final mobile orientation
 // (right-side-up — confirmed by the user; only DESKTOP flips the sketch)
 // with the node's 55% image opacity and the transparent→ink gradient baked
 // in as alpha, so it needs no CSS transform/opacity/overlay.
-const SKETCH_MOBILE = "/assets/figma-img/david-sketch-alpha-grey02-mobile.png";
+const SKETCH_MOBILE = "/assets/figma-img/david-sketch-alpha-grey02-mobile.webp";
 
 /* Featured Creations — dark band. Copy + pull-quote on the left, the gallery
    slider on the right (stacks on tablet/mobile). Closes with a tagline

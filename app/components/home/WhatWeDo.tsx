@@ -4,19 +4,19 @@ import SectionHeader from "./SectionHeader";
 
 /* eslint-disable @next/next/no-img-element */
 
-const BLUEPRINT = "/assets/figma-img/c14f17656e3eed8c249125dc63041ce9154d0701.png";
+const BLUEPRINT = "/assets/figma-img/c14f17656e3eed8c249125dc63041ce9154d0701.webp";
 
 const SERVICES = [
-  { title: ["Custom", "Jewellery"], icon: "ic-custom", img: "/assets/figma-img/cropped/170a0dc03a4a67f171f5bbfcbc64747037945dde.png", desc: "Designed and handcrafted to reflect your story, style and vision." },
+  { title: ["Custom", "Jewellery"], icon: "ic-custom", img: "/assets/figma-img/cropped/170a0dc03a4a67f171f5bbfcbc64747037945dde.webp", desc: "Designed and handcrafted to reflect your story, style and vision." },
   // Figma verified: this one heading alone drops to 20px at mobile (not the
   // usual 24px, letterSpacing 0.6px = the same 0.03em ratio) — the only one
   // of the 6 services long enough that it needs a smaller size to stay on
   // one line; every other heading fits at the standard 24px untouched.
-  { title: ["Engagement &", "Wedding Rings"], icon: "ic-rings", mobileHeadingPx: 20, img: "/assets/figma-img/cropped/c5c992b48e443701e426c3606eda9e7413009670.png", desc: "Beautifully crafted rings for life’s most important moments." },
-  { title: ["Jewellery", "Repairs"], icon: "ic-anvil", img: "/assets/figma-img/cropped/f481b2b8396296b95352a977041180e3aafb449a.png", desc: "Expert repairs and restorations to bring treasured pieces back to life." },
-  { title: ["Valuations"], icon: "ic-magnifier", img: "/assets/figma-img/cropped/4ac7c8fe6797951d87385b00fd3ba3e144263657.png", desc: "Independent jewellery valuations for insurance, estates and peace of mind." },
-  { title: ["Antique", "Jewellery"], icon: "ic-pendant", img: "/assets/figma-img/cropped/a3a7e179e1e16f7a5392d7ee70b87cf294ca2051.png", desc: "Restoring and preserving antique jewellery while respecting its original character." },
-  { title: ["Watch", "Services"], icon: "ic-watch", img: "/assets/figma-img/cropped/a0ea27c7ddd271697692c04050ca9bbdd77a11ec.png", desc: "Professional servicing, repairs and battery replacements provided for quality timepieces." },
+  { title: ["Engagement &", "Wedding Rings"], icon: "ic-rings", mobileHeadingPx: 20, img: "/assets/figma-img/cropped/c5c992b48e443701e426c3606eda9e7413009670.webp", desc: "Beautifully crafted rings for life’s most important moments." },
+  { title: ["Jewellery", "Repairs"], icon: "ic-anvil", img: "/assets/figma-img/cropped/f481b2b8396296b95352a977041180e3aafb449a.webp", desc: "Expert repairs and restorations to bring treasured pieces back to life." },
+  { title: ["Valuations"], icon: "ic-magnifier", img: "/assets/figma-img/cropped/4ac7c8fe6797951d87385b00fd3ba3e144263657.webp", desc: "Independent jewellery valuations for insurance, estates and peace of mind." },
+  { title: ["Antique", "Jewellery"], icon: "ic-pendant", img: "/assets/figma-img/cropped/a3a7e179e1e16f7a5392d7ee70b87cf294ca2051.webp", desc: "Restoring and preserving antique jewellery while respecting its original character." },
+  { title: ["Watch", "Services"], icon: "ic-watch", img: "/assets/figma-img/cropped/a0ea27c7ddd271697692c04050ca9bbdd77a11ec.webp", desc: "Professional servicing, repairs and battery replacements provided for quality timepieces." },
 ];
 
 /* Figma's "Custom-Jewellery" icon (compId 1:236) is literally the same ring

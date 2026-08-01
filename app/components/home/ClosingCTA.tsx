@@ -8,9 +8,9 @@ import { Container } from "./ui";
    the round diamond into an oval. Mobile's frame (278×227, aspect 1.2247)
    instead shows the photo essentially uncropped, so the original bitmap with
    object-cover reproduces it to within ~0.4% of Figma's own crop. */
-const RING_SQUARE = "/assets/figma-img/ring-closing-crop.png";
-const RING_FULL = "/assets/figma-img/a9d1b22585ed4478f4ae22a79b5a0c37d0f09e70.png";
-const STAMP = "/assets/figma-img/a15446604381559e8dde90720667fc5fa3dcb262.png";
+const RING_SQUARE = "/assets/figma-img/ring-closing-crop.webp";
+const RING_FULL = "/assets/figma-img/a9d1b22585ed4478f4ae22a79b5a0c37d0f09e70.webp";
+const STAMP = "/assets/figma-img/a15446604381559e8dde90720667fc5fa3dcb262.webp";
 
 /* Closing CTA — one DOM order (ring → copy → stamp) serves every breakpoint:
    md/lg lay it out as three columns (ring | copy | stamp) with the copy

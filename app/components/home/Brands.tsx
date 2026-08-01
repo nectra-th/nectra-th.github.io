@@ -10,9 +10,9 @@ import { GoldRule } from "./SectionHeader";
    144×43 tablet, vs the file's natural 5.02), which would visibly distort a
    real brand logo — so this keeps the file's true ratio and matches height only. */
 const BRANDS = [
-  { src: "/assets/brand-coeurdelion.png", alt: "Cœur de Lion", w: 800, h: 143, cls: "h-8 md:h-[29px] lg:h-8" },
-  { src: "/assets/brand-ellani.png", alt: "Ellani Collection", w: 800, h: 356, cls: "h-12 md:h-10 lg:h-12" },
-  { src: "/assets/brand-orogreco.png", alt: "Oro Greco", w: 768, h: 153, cls: "h-12 md:h-[43px] lg:h-12" },
+  { src: "/assets/brand-coeurdelion.webp", alt: "Cœur de Lion", w: 800, h: 143, cls: "h-8 md:h-[29px] lg:h-8" },
+  { src: "/assets/brand-ellani.webp", alt: "Ellani Collection", w: 800, h: 356, cls: "h-12 md:h-10 lg:h-12" },
+  { src: "/assets/brand-orogreco.webp", alt: "Oro Greco", w: 768, h: 153, cls: "h-12 md:h-[43px] lg:h-12" },
 ];
 
 /* Selected Brands In Store — dark strip with three brand logos: a row on

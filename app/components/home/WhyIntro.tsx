@@ -5,8 +5,8 @@ import RotatingImage from "./RotatingImage";
 
 /* eslint-disable @next/next/no-img-element */
 
-const WORKSHOP = "/assets/figma-img/9bbb1421b0e46c5d5cbfa426a35c775df39e4423.png";
-const SKETCH = "/assets/figma-img/c8c0022e68fb42e9221a5a1be9fadffbd8839272.png";
+const WORKSHOP = "/assets/figma-img/9bbb1421b0e46c5d5cbfa426a35c775df39e4423.webp";
+const SKETCH = "/assets/figma-img/c8c0022e68fb42e9221a5a1be9fadffbd8839272.webp";
 const RINGS = ["/assets/figma-img/ring-rot-1.png", "/assets/figma-img/ring-rot-2.png", "/assets/figma-img/ring-rot-3.png"];
 
 /* Why Grech — copy left (the same reusable "DESKTOP" component as the Hero:

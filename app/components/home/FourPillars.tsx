@@ -6,7 +6,7 @@ import QualityStrip from "./QualityStrip";
 
 // Same asset the Why Grech section uses for its md/lg backdrop — the mobile
 // artboard re-places it inside this section instead (see the img below).
-const SKETCH = "/assets/figma-img/c8c0022e68fb42e9221a5a1be9fadffbd8839272.png";
+const SKETCH = "/assets/figma-img/c8c0022e68fb42e9221a5a1be9fadffbd8839272.webp";
 
 // Body copy line breaks are hard-set (not left to natural wrapping) so every
 // card reads as exactly 3 lines — the break points are IDENTICAL on all

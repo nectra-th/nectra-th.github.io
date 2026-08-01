@@ -125,7 +125,7 @@ export default function Hero() {
          (top-full + border-compensated translateY) per request — the ring
          straddles the Hero/Why-Grech boundary at every breakpoint. */}
       <Image
-        src="/assets/hero-rings.png"
+        src="/assets/hero-rings.webp"
         alt="Grech Jewellers diamond engagement ring and matching wedding band"
         width={720}
         height={720}
@@ -154,7 +154,7 @@ export default function Hero() {
          would sit 4px short of the actual line between the two sections.
          Hidden at lg in favour of the desktop version below. */}
       <Image
-        src="/assets/hero-rings.png"
+        src="/assets/hero-rings.webp"
         alt="Grech Jewellers diamond engagement ring and matching wedding band"
         width={720}
         height={720}
@@ -176,7 +176,7 @@ export default function Hero() {
          offset, so it stays centred on the seam even when the section
          renders taller than 988px. */}
       <Image
-        src="/assets/hero-rings.png"
+        src="/assets/hero-rings.webp"
         alt="Grech Jewellers diamond engagement ring and matching wedding band"
         width={720}
         height={720}

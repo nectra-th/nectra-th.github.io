@@ -8,11 +8,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
    container — no absolute coordinates. */
 
 const IMAGES = [
-  "/assets/figma-img/65f309ab217b0a54da7f69aa805c868bdeea725f.png",
-  "/assets/figma-img/81d578de67f967d51b2236c979ea7972051da24b.png",
-  "/assets/figma-img/2c63e483982c2795ce6bfb52aaa2beaa608229c5.png",
-  "/assets/figma-img/633d28daa0a85b2f44a77bed4fa60769d9c5a3e5.png",
-  "/assets/figma-img/47769d2a1b6ed1549bb63b255585b79185ae5985.png",
+  "/assets/figma-img/65f309ab217b0a54da7f69aa805c868bdeea725f.webp",
+  "/assets/figma-img/81d578de67f967d51b2236c979ea7972051da24b.webp",
+  "/assets/figma-img/2c63e483982c2795ce6bfb52aaa2beaa608229c5.webp",
+  "/assets/figma-img/633d28daa0a85b2f44a77bed4fa60769d9c5a3e5.webp",
+  "/assets/figma-img/47769d2a1b6ed1549bb63b255585b79185ae5985.webp",
 ];
 
 function Arrow({ dir, onClick }: { dir: "left" | "right"; onClick: () => void }) {

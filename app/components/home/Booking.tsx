@@ -6,7 +6,7 @@ import { Container } from "./ui";
 import { Eyebrow, GoldRule } from "./SectionHeader";
 import BookingWidget from "./BookingWidget";
 
-const PHOTO_SRC = "/assets/consultation-02.png";
+const PHOTO_SRC = "/assets/consultation-02.webp";
 const PHOTO_ALT = "A jeweller discussing a custom design with clients at the counter";
 
 /* Book a Design Consultation — verified against Figma at all 3 reference

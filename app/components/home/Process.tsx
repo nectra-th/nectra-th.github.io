@@ -5,8 +5,8 @@ import QualityStrip from "./QualityStrip";
 
 /* eslint-disable @next/next/no-img-element */
 
-const PHOTO = "/assets/figma-img/93008b2255e0cb4ff383e1f248edae1148054651.png";
-const SKETCH = "/assets/figma-img/5f6008f58d9a12cc23a117e06c212f06004cb655.png";
+const PHOTO = "/assets/figma-img/93008b2255e0cb4ff383e1f248edae1148054651.webp";
+const SKETCH = "/assets/figma-img/5f6008f58d9a12cc23a117e06c212f06004cb655.webp";
 // Mobile's own crop of the ring sketch — a completely different aspect ratio
 // (233×162) from the tablet/desktop crop (272×362/440×585), not a scaled
 // version of it. Exported directly from Figma's "David-Sketch-Alpha-Grey 1"

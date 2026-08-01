@@ -164,7 +164,7 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
             className={`relative aspect-[610/348] w-full overflow-hidden rounded-xl border border-divider bg-ink-2 shadow-[0_6px_8.6px_rgba(20,19,18,0.1)] ${tab === 2 ? "lg:col-span-3" : ""}`}
             style={tab === 2 && mapHeight != null ? { height: mapHeight } : undefined}
           >
-            {tab === 0 && <Image src="/assets/findus-store.png" alt="Inside the Grech Jewellers showroom" fill sizes="(min-width: 1024px) 32vw, 90vw" className="object-cover" />}
+            {tab === 0 && <Image src="/assets/findus-store.webp" alt="Inside the Grech Jewellers showroom" fill sizes="(min-width: 1024px) 32vw, 90vw" className="object-cover" />}
             {tab === 1 && <Image src="/assets/figma-img/shopping-centre-map.png" alt="Fulham Gardens shopping centre map with Grech Jewellers highlighted" fill sizes="(min-width: 1024px) 32vw, 90vw" className="object-cover" />}
             {tab === 2 && (
               <iframe title="Grech Jewellers location on Google Maps" src={GOOGLE_EMBED} loading="lazy" className="h-full w-full border-0" />
