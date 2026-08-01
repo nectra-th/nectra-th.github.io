@@ -16,7 +16,10 @@ const manrope = Manrope({
   display: "swap",
 });
 
-const SITE_URL = "https://grech-jewellers.vercel.app";
+// The business's real domain — canonical for every deployed copy (GH Pages
+// mirror, Vercel), so search engines consolidate ranking signals here
+// instead of treating the mirrors as duplicate content.
+const SITE_URL = "https://www.grechjewellers.com.au";
 const TITLE = "Grech Jewellers | Expert Craftsmanship, Personally Made — Since 1978";
 const DESCRIPTION =
   "Adelaide's trusted manufacturing jeweller since 1978. Custom jewellery, engagement & wedding rings, repairs, valuations and more — personally designed and precision manufactured on site.";

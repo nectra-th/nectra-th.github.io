@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE = "https://grech-jewellers.vercel.app";
+const SITE = "https://www.grechjewellers.com.au";
 
 export const dynamic = "force-static";
 
