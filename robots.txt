@@ -6,4 +6,4 @@ Disallow: /full
 Disallow: /design
 Disallow: /review
 
-Sitemap: https://grech-jewellers.vercel.app/sitemap.xml
+Sitemap: https://www.grechjewellers.com.au/sitemap.xml
