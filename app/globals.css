@@ -452,26 +452,9 @@
    MOTION SYSTEM
    ============================================================ */
 
-/* Keyframes ------------------------------------------------- */
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes img-fade {
-  from { opacity: 0; transform: scale(1.04); }
-  to   { opacity: 1; transform: scale(1); }
-}
-@keyframes pop-in {
-  0%   { opacity: 0; transform: scale(0.6); }
-  60%  { transform: scale(1.08); }
-  100% { opacity: 1; transform: scale(1); }
-}
-
-/* Optional keyframe-driven entrance */
-.animate-pop-in  { animation: pop-in 420ms var(--ease-lux) both; }
-
 /* Scroll-reveal removed site-wide: content renders in its final position
-   immediately, no fade/move-up on scroll. */
+   immediately, no fade/move-up on scroll. (The old fade-up / img-fade /
+   pop-in keyframes went with it — nothing referenced them.) */
 
 /* Animated underline for nav links — Figma "Navigation Link / Desktop"
    component: Gold Line (#c8b08a), 1px on Hover, 2px on Press. No persisted
@@ -487,10 +470,12 @@
     bottom: -2px;
     height: 1px;
     width: 100%;
-    background: #c8b08a;
+    /* per request: underline is #b58a47 (was #c8b08a) */
+    background: #b58a47;
     transform: scaleX(0);
     transform-origin: left center;
-    transition: transform 260ms var(--ease-lux), height 120ms var(--ease-lux);
+    /* 0.5s per request (was 260ms — read as too quick) */
+    transition: transform 0.5s var(--ease-lux), height 120ms var(--ease-lux);
   }
   .link-underline:hover::after,
   .link-underline:focus-visible::after {
@@ -533,16 +518,18 @@
 .gj-primary:hover:not(:disabled) { background-color: #9c7430 !important; transform: translateY(-2px); }
 .gj-primary:active:not(:disabled) { background-color: #8e682a !important; transform: none; }
 
-.gj-outline { transition: transform 0.5s var(--ease-smooth), background-color 0.5s var(--ease-smooth), color 0.5s var(--ease-smooth), border-color 0.5s var(--ease-smooth); }
-.gj-outline:hover:not(:disabled) { background-color: #211f1c !important; transform: translateY(-2px); }
-.gj-outline:active:not(:disabled) { background-color: #1b1917 !important; transform: none; }
+/* (.gj-outline removed — its last consumer, the CTAButton "dark" variant,
+   migrated to .btn-secondary. BookingWidget still uses .gj-primary.) */
 
 /* nav link — hover brightens the text; the underline itself comes from the
    .link-underline utility already applied alongside this class. No vertical
    movement, per the Figma "Navigation Link / Desktop" component states.
    No persisted "current section" active state (removed per request). */
+/* Main nav link colours (per request): rest #cfc6b8 (set at the call site
+   via text-line), hover AND pressed text #f8f3ea; the underline (1px hover /
+   2px pressed, #b58a47) comes from .link-underline alongside this class. */
 .gj-navlink { position: relative; display: inline-block; transition: color 0.5s var(--ease-smooth); }
-.gj-navlink:hover { color: #f8f3ea; }
+.gj-navlink:hover, .gj-navlink:active { color: #f8f3ea; }
 
 /* soft affordance for smaller controls (time slots, date cells, thumbnails,
    arrows, tabs) — gold border + faint gold wash on hover */

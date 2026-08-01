@@ -1,6 +1,6 @@
 /* Homepage — full build. Sections are rendered top-to-bottom below, each
    verified section-by-section against the Figma desktop artboard (heights
-   sum to 11088px). The previous complete build is backed up at /full. */
+   sum to 11088px). */
 
 import Header from "./components/home/Header";
 import Hero from "./components/home/Hero";

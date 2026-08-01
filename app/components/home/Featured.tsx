@@ -64,7 +64,7 @@ export default function Featured() {
            block is built by hand instead of reusing SectionHeader's shared
            scale, which doesn't have a 32px/centred/single-line variant. */}
         <div className="grid items-start gap-y-[183px] sm:gap-y-9 lg:grid-cols-[298fr_850fr] lg:gap-x-[30px] lg:gap-y-0">
-          <div className="relative text-center lg:mt-[66px] lg:text-left" data-reveal>
+          <div className="relative text-center lg:mt-[66px] lg:text-left">
             {/* Hand-rolled rather than the shared <Eyebrow>: this section's
                eyebrow is 16px/400/#b58a47 on mobile+tablet but 22px/600/
                gold-dark on desktop, and the shared component has no such

@@ -116,7 +116,7 @@ export default function Header() {
                 key={n.href}
                 href={n.href}
                 onClick={(e) => scrollToNavTarget(e, n.href)}
-                className="gj-navlink link-underline whitespace-nowrap text-[11px] font-medium uppercase text-cream-light/85 lg:text-[12px]"
+                className="gj-navlink link-underline whitespace-nowrap text-[11px] font-medium uppercase text-line lg:text-[12px]"
               >
                 {n.label}
               </a>

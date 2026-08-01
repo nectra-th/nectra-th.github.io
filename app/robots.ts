@@ -4,7 +4,7 @@ export const dynamic = "force-static";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/full", "/design", "/review"] },
+    rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/api/", "/design", "/review"] },
     sitemap: "https://www.grechjewellers.com.au/sitemap.xml",
   };
 }

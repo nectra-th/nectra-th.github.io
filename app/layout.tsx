@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
+import NoContextMenu from "./components/NoContextMenu";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -87,7 +88,7 @@ export default function RootLayout({
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
       </head>
-      <body className="antialiased bg-ink text-ink font-sans">{children}</body>
+      <body className="antialiased bg-ink text-ink font-sans"><NoContextMenu />{children}</body>
     </html>
   );
 }
