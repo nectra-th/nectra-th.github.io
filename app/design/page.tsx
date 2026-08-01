@@ -200,6 +200,76 @@ export default function DesignBible() {
           <li><b>Interaction classes:</b> legacy <code>.gj-*</code> set still powers nav links, calendar cells, time slots, gallery arrows, review cards — see globals.css.</li>
         </ul>
       </Section>
+
+      <Section n="07" title="Booking system" note="The booking widget's own Figma component family ('03 Components / Booking System') — distinct from the 01-Buttons system. All values below are the literal component-set states; in code they live in the .gj-datecell / .gj-navarrow / .gj-field / .gj-timeslot classes. Shadow on hover = 0 2px 8px 25%, same as buttons. Error red #d84b4b is the system's only non-palette colour.">
+        <div className="flex flex-col gap-10">
+          <div>
+            <p className="mb-3 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-gold-dark">Booking CTA — 334×48 · radius 8 · 15px text #ede5d7</p>
+            <div className="flex flex-wrap items-center gap-3">
+              {[["Default", "#b88c46", "#ede5d7", false], ["Hover (+shadow)", "#b58a47", "#ede5d7", true], ["Pressed", "#8e682a", "#ede5d7", false], ["Loading", "#b88c46", "#ede5d7", false], ["Disabled", "#d8cbb7", "#9f968a", false]].map(([label, bg, txt, sh]) => (
+                <span key={label as string} className="inline-flex h-12 items-center justify-center rounded-lg px-8 font-sans text-[15px]" style={{ backgroundColor: bg as string, color: txt as string, boxShadow: sh ? "0 2px 8px rgba(0,0,0,0.25)" : undefined }}>{label as string}</span>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="mb-3 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-gold-dark">Time Button — 162×43 · 15px</p>
+            <div className="flex flex-wrap items-center gap-3">
+              {[["Default", "#f8f3ea", "#d8cbb7", "#403b37", false], ["Hover (+shadow)", "#efe6d6", "#9c7430", "#2e2926", true], ["Selected", "#b88c46", "#b88c46", "#ede5d7", false], ["Disabled", "#f8f3ea", "#d8cbb7", "#cfc6b8", false], ["Unavailable", "#f3eddf", "#d8cbb7", "#9f968a", false]].map(([label, bg, bd, txt, sh]) => (
+                <span key={label as string} className="inline-flex h-[43px] w-[162px] items-center justify-center font-sans text-[15px]" style={{ backgroundColor: bg as string, border: `1px solid ${bd}`, color: txt as string, boxShadow: sh ? "0 2px 8px rgba(0,0,0,0.25)" : undefined }}>{label as string}</span>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="mb-3 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-gold-dark">Calendar Day — 40px circle · 15px</p>
+            <div className="flex flex-wrap items-center gap-4">
+              {[["7", "Default", "transparent", "transparent", "#403b37"], ["8", "Hover", "#f8f3ea", "#9c7430", "#2e2926"], ["9", "Today", "transparent", "#d8cbb7", "#2e2926"], ["10", "Selected", "#b88c46", "#b88c46", "#f8f3ea"], ["11", "Disabled / outside / unavailable", "transparent", "transparent", "#625b52"]].map(([d, label, bg, bd, txt]) => (
+                <span key={label} className="flex flex-col items-center gap-2">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full font-sans text-[15px]" style={{ backgroundColor: bg, border: `1px solid ${bd}`, color: txt }}>{d}</span>
+                  <span className="font-sans text-[10px] uppercase text-[#9f968a]">{label}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="mb-3 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-gold-dark">Month Toggle Arrow — 32×32</p>
+            <div className="flex flex-wrap items-center gap-4">
+              {[["Default", "#f8f3ea", "#d8cbb7", "#9c7430", false], ["Hover (+shadow)", "#f3eddf", "#9c7430", "#8e682a", true], ["Pressed (+shadow)", "#f8f3ea", "#9c7430", "#8e682a", true]].map(([label, bg, bd, ic, sh]) => (
+                <span key={label as string} className="flex flex-col items-center gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full font-sans text-[14px]" style={{ backgroundColor: bg as string, border: `1px solid ${bd}`, color: ic as string, boxShadow: sh ? "0 2px 8px rgba(0,0,0,0.25)" : undefined }}>‹</span>
+                  <span className="font-sans text-[10px] uppercase text-[#9f968a]">{label as string}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="mb-3 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-gold-dark">Inputs (Text / Select / Phone) — 334×66 incl. label · 14px · label #625b52 · error #d84b4b</p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[["Default", "#d8cbb7", "1px", "Your name", "#9f968a"], ["Hover", "#9c7430", "1px", "Your name", "#9f968a"], ["Focus", "#9c7430", "2px", "Your name|", "#2e2926"], ["Filled", "#d8cbb7", "1px", "David Grech", "#2e2926"], ["Error", "#d84b4b", "1px", "Required field", "#d84b4b"]].map(([label, bd, bw, val, txt]) => (
+                <div key={label}>
+                  <p className="font-sans text-[14px] text-[#625b52]">Full name <span className="text-[10px] uppercase text-[#9f968a]">— {label}</span></p>
+                  <div className="mt-2 flex h-11 items-center rounded bg-white px-3 font-sans text-[14px]" style={{ border: `${bw} solid ${bd}`, color: txt }}>{val}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="mb-3 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-gold-dark">Checkbox — 24×24 · radius 2</p>
+            <div className="flex flex-wrap items-center gap-4">
+              {[["Default", "#ede5d7", "#d8cbb7", ""], ["Ticked", "#9c7430", "#9c7430", "✓"], ["Pressed", "#8e682a", "#8e682a", "✓"]].map(([label, bg, bd, mark]) => (
+                <span key={label} className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-[2px] font-sans text-[14px] text-cream-light" style={{ backgroundColor: bg, border: `1px solid ${bd}` }}>{mark}</span>
+                  <span className="font-sans text-[10px] uppercase text-[#9f968a]">{label}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Section>
     </main>
   );
 }

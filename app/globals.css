@@ -383,7 +383,8 @@
     border: 1px solid transparent;
     cursor: pointer;
     transition: background-color 0.5s var(--ease-smooth), color 0.5s var(--ease-smooth),
-      border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth);
+      border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth),
+      transform 0.5s var(--ease-smooth);
     height: 56px;
     padding: 0 28px;
     font-size: 14px;
@@ -400,6 +401,15 @@
     .btn-secondary { padding: 0 42px; }
   }
   .btn:disabled, .btn.is-disabled { cursor: not-allowed; pointer-events: none; }
+
+  /* Site-wide hover lift (matches .gj-* and the Nav CTA): every variant
+     rises 2px on hover and settles back while pressed. */
+  .btn-primary:hover:not(:disabled):not(.is-disabled),
+  .btn-secondary:hover:not(:disabled):not(.is-disabled),
+  .btn-editorial:hover:not(:disabled):not(.is-disabled) { transform: translateY(-2px); }
+  .btn-primary:active:not(:disabled):not(.is-disabled),
+  .btn-secondary:active:not(:disabled):not(.is-disabled),
+  .btn-editorial:active:not(:disabled):not(.is-disabled) { transform: none; }
 
   .btn-primary { background-color: #b88c46; border-color: #b88c46; color: #141312; }
   .btn-primary:hover:not(:disabled):not(.is-disabled) {
