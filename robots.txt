@@ -2,7 +2,6 @@ User-Agent: *
 Allow: /
 Disallow: /admin
 Disallow: /api/
-Disallow: /full
 Disallow: /design
 Disallow: /review
 
