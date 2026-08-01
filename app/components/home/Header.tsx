@@ -144,57 +144,69 @@ export default function Header() {
           onClick={() => setOpen(true)}
           className="flex h-11 w-11 items-center justify-center md:hidden"
         >
+          {/* gold bars (not white) — same #b88c46 as the menu's close ring,
+             per the mobile design */}
           <span className="relative block h-4 w-6">
-            <span className="absolute left-0 top-0 h-0.5 w-full bg-cream-light" />
-            <span className="absolute left-0 top-1/2 h-0.5 w-full -translate-y-1/2 bg-cream-light" />
-            <span className="absolute bottom-0 left-0 h-0.5 w-full bg-cream-light" />
+            <span className="absolute left-0 top-0 h-0.5 w-full bg-gold" />
+            <span className="absolute left-0 top-1/2 h-0.5 w-full -translate-y-1/2 bg-gold" />
+            <span className="absolute bottom-0 left-0 h-0.5 w-full bg-gold" />
           </span>
         </button>
       </Container>
 
-      {/* full-screen mobile menu (portal) */}
+      {/* full-screen mobile menu (portal) — rebuilt against the "iPhone 13 &
+         14 - 2" design export (390×844, pixel-measured): big logo top-left
+         (249px wide at x16,y20), 40px gold-ring close button (right 17,
+         top 36), then a right-aligned nav list whose first divider sits at
+         exactly y=130 — six PURE WHITE 1px full-width lines framing five
+         87px rows, 32px uppercase sans items in #cfc6b8 (the --color-line
+         token, sampled solid off the export) flush right. 40px below the
+         last divider: a 54px gold Book button, a 13px gap, and a 54px
+         outlined Call button whose "CALL US" is bold but the number
+         regular. Remaining space below stays empty ink. */}
       {mounted && open && createPortal(
-        <div ref={menuRef} id="mobile-menu" role="dialog" aria-modal="true" aria-label="Menu" onKeyDown={trapTab} className="fixed inset-0 z-[100] flex flex-col bg-ink">
-          <div className="flex h-[72px] items-center justify-between px-5">
-            <img src="/assets/logo-header.svg" alt="Grech Jewellers" width={238} height={65} className="h-8 w-auto" />
+        <div ref={menuRef} id="mobile-menu" role="dialog" aria-modal="true" aria-label="Menu" onKeyDown={trapTab} className="fixed inset-0 z-[100] flex flex-col overflow-y-auto bg-ink">
+          <div className="relative h-[130px] shrink-0">
+            <img src="/assets/logo-header.svg" alt="Grech Jewellers" width={238} height={65} className="absolute left-4 top-5 h-auto w-[249px]" />
             <button
               type="button"
               aria-label="Close menu"
               onClick={() => setOpen(false)}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-gold/60 text-gold transition-colors hover:bg-gold hover:text-ink"
+              className="absolute right-[17px] top-9 flex h-10 w-10 items-center justify-center rounded-full border border-gold text-gold transition-colors hover:bg-gold hover:text-ink"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
                 <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
             </button>
           </div>
 
-          <nav aria-label="Mobile" className="flex flex-1 flex-col justify-center gap-1 px-6">
-            {NAV.map((n) => (
+          <nav aria-label="Mobile" className="mx-4 shrink-0">
+            {NAV.map((n, i) => (
               <a
                 key={n.href}
                 href={n.href}
                 onClick={(e) => { scrollToNavTarget(e, n.href); setOpen(false); }}
-                className="border-b border-cream-light/10 py-4 font-serif text-2xl text-cream-light transition-colors hover:text-gold"
+                className={`flex h-[87px] items-center justify-end border-t border-white font-sans text-[32px] font-normal uppercase text-line transition-colors hover:text-gold ${i === NAV.length - 1 ? "border-b" : ""}`}
               >
                 {n.label}
               </a>
             ))}
           </nav>
 
-          <div className="flex flex-col gap-3 px-6 pb-10">
+          <div className="mt-10 flex shrink-0 flex-col gap-[13px] px-4 pb-10">
             <a
               href="#book"
               onClick={(e) => { scrollToNavTarget(e, "#book"); setOpen(false); }}
-              className="inline-flex w-full items-center justify-center rounded-[2px] bg-gold px-9 py-4 text-[15px] font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:bg-gold-dark"
+              className="inline-flex h-[54px] w-full items-center justify-center rounded-[4px] bg-gold text-[14px] font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:bg-gold-dark"
             >
               Book a Consultation
             </a>
             <a
               href={PHONE}
-              className="inline-flex w-full items-center justify-center rounded-[2px] border border-cream-light/30 px-9 py-4 text-[15px] font-bold uppercase tracking-[0.06em] text-cream-light transition-colors hover:bg-cream-light hover:text-ink"
+              className="inline-flex h-[54px] w-full items-center justify-center gap-2 rounded-[4px] border border-cream-light/35 text-[14px] uppercase text-cream-light transition-colors hover:bg-cream-light hover:text-ink"
             >
-              Call Us
+              <span className="font-bold tracking-[0.06em]">Call Us</span>
+              <span className="font-normal tracking-normal">(08) 8356 7764</span>
             </a>
           </div>
         </div>,
