@@ -1,215 +1,205 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 
-/* Design-token reference (not linked from the site). Every colour, type style,
-   shadow, rule, radius and motion value used across the homepage — with its
-   Figma-derived spec — so the design can be audited token-by-token. */
+/* Design Bible (not linked from the site, noindexed) — the single reference
+   page for designers: every colour token, both font families, all 13
+   typography roles with their per-breakpoint specs, the full button system
+   (3 variants × 4 states × 3 device sizes, live + static state swatches),
+   breakpoints, motion values, and site-wide conventions. Values here mirror
+   globals.css and the Figma Design System file ("03 Components") — if those
+   change, update this page. */
 
-export const metadata = { title: "Design System — Grech Jewellers", robots: { index: false } };
+export const metadata = { title: "Design Bible — Grech Jewellers", robots: { index: false } };
 
-function Section({ n, title, note, children }: { n: string; title: string; note?: string; children: ReactNode }) {
+const COLORS = [
+  { name: "ink", hex: "#141312", note: "Primary dark background (hero, dark bands)" },
+  { name: "ink-2", hex: "#211f1c", note: "Raised dark surface (card hover on dark)" },
+  { name: "ink-3", hex: "#2e2c2c", note: "Tertiary dark" },
+  { name: "ink-text", hex: "#2e2926", note: "Headings on light backgrounds" },
+  { name: "cream", hex: "#ede5d7", note: "Light band background" },
+  { name: "cream-light", hex: "#f8f3ea", note: "Lightest surface + text on dark" },
+  { name: "cream-card", hex: "#f3eddf", note: "Card fill on light (pillar hover)" },
+  { name: "cream-alt", hex: "#efe6d6", note: "Alt light surface (time slots)" },
+  { name: "gold", hex: "#b88c46", note: "Primary interaction gold (buttons, accents)" },
+  { name: "gold-dark", hex: "#9c7430", note: "Hover gold / rules / eyebrows on light" },
+  { name: "gold-light", hex: "#c0985a", note: "Eyebrows on dark" },
+  { name: "rule", hex: "#c8b08a", note: "Section-boundary rules (4px borders)" },
+  { name: "divider", hex: "#d8cbb7", note: "Content dividers, card borders" },
+  { name: "line", hex: "#cfc6b8", note: "Body copy on dark, mobile menu nav" },
+  { name: "body", hex: "#575757", note: "Body copy on light" },
+  { name: "body-2", hex: "#625b52", note: "Muted serif captions" },
+  { name: "muted", hex: "#9f968a", note: "Disabled text, secondary borders" },
+];
+
+const TYPE_ROLES: [string, string, string, string, string, string][] = [
+  // class, sample, mobile, tablet, desktop, used in
+  [".text-h1", "Expert Craftsmanship.", "36px Bold / lh36", "36px Regular / lh36", "56px SemiBold / lh64", "Hero heading only"],
+  [".text-h2", "Every Meaningful Piece", "32px SemiBold / lh34.5", "32px Bold / lh36", "56px SemiBold / lh64", "Section titles (6 sections)"],
+  [".text-h2-caps", "Our Four Pillars of Trust", "36px / 110% / 0.04em", "24px / 110%", "36px / 115%", "Four Pillars + Brands titles (small-caps)"],
+  [".text-h2-closing", "A Conversation Today", "32px / 121% / 0.03em", "24px / 108%", "40px / 121%", "Closing CTA title (small-caps)"],
+  [".text-h3-card", "Family Craftsmanship", "24px / 130%", "18px / 130%", "24px / 115%", "Four Pillars card titles (small-caps)"],
+  [".text-h3-service", "Custom Jewellery", "21px / 108% / 0.02em", "18.96px / 0.03em", "24px → 28px @xl", "What We Do card titles (small-caps)"],
+  [".text-eyebrow", "Since 1978", "16px / 0.12em", "16px / 0.12em", "22px / 0.12em", "Gold eyebrow labels (small-caps)"],
+  [".text-eyebrow-lg", "Plan Your Visit", "17px / 0.03em", "16px / 0.12em", "24px / 0.03em", "Gold-light eyebrows (Find Us, Closing)"],
+  [".text-body", "Since 1978, Grech Jewellers has combined…", "14px Medium / lh25", "14px Medium / lh18", "18px Regular / lh27", "Shared body copy"],
+  [".text-body-sm", "Family owned since 1978…", "15px Light / lh22", "12px Light / lh16", "14px Regular / lh21", "Four Pillars descriptions"],
+  [".text-body-xs", "Designed and handcrafted…", "13px Medium / 157%", "9.48px", "13px → 14px @xl", "Service card descriptions"],
+  [".text-cta", "Book a Consultation", "14px Bold / 0.06em", "12px", "14px → 16px @lg", "Button labels (uppercase)"],
+  [".text-label", "First Time Visiting?", "14px SemiBold", "10px", "14px", "Small uppercase meta labels"],
+];
+
+const BTN_STATES: { state: string; p: [string, string, string]; s: [string, string, string]; e: [string, string, string] }[] = [
+  // [bg, border, text]
+  { state: "Default", p: ["#b88c46", "#b88c46", "#141312"], s: ["transparent", "#9f968a", "#f8f3ea"], e: ["transparent", "#9c7430", "#9c7430"] },
+  { state: "Hover", p: ["#9c7430", "#9c7430", "#f8f3ea"], s: ["#211f1c", "#c8b08a", "#b58a47"], e: ["#9c7430", "#9c7430", "#141312"] },
+  { state: "Pressed", p: ["#8e682a", "#8e682a", "#f8f3ea"], s: ["#1b1917", "#9c7430", "#c8b08a"], e: ["#8e682a", "#8e682a", "#f8f3ea"] },
+  { state: "Disabled", p: ["#d8cbb7", "#d8cbb7", "#9f968a"], s: ["transparent", "#39342e", "#9f968a"], e: ["transparent", "#d8cbb7", "#9f968a"] },
+];
+
+function Section({ n, title, note, dark = false, children }: { n: string; title: string; note?: string; dark?: boolean; children: ReactNode }) {
   return (
-    <section className="border-t border-line pt-10">
-      <div className="mb-6">
+    <section className={`${dark ? "bg-ink text-cream-light" : ""} border-t border-line`}>
+      <div className="mx-auto max-w-[1100px] px-6 py-12">
         <span className="font-sans text-[12px] font-bold uppercase tracking-[0.14em] text-gold-dark">{n}</span>
-        <h2 className="mt-1 font-serif text-3xl font-semibold text-ink-text">{title}</h2>
-        {note && <p className="mt-1 max-w-2xl font-sans text-[13px] text-[#575757]">{note}</p>}
+        <h2 className={`mt-1 font-serif text-3xl font-semibold ${dark ? "text-cream-light" : "text-ink-text"}`}>{title}</h2>
+        {note && <p className={`mt-2 max-w-2xl font-sans text-[13px] leading-relaxed ${dark ? "text-line" : "text-[#575757]"}`}>{note}</p>}
+        <div className="mt-8">{children}</div>
       </div>
-      {children}
     </section>
   );
 }
 
-/* ---------------- Colours ---------------- */
-type Swatch = { name: string; varName: string; hex: string; use: string; light?: boolean };
-const INK: Swatch[] = [
-  { name: "Ink", varName: "--color-ink", hex: "#141312", use: "Page/hero background, primary-button text" },
-  { name: "Ink 2", varName: "--color-ink-2", hex: "#211f1c", use: "Dark sections (services), footer" },
-  { name: "Ink 3", varName: "--color-ink-3", hex: "#2e2c2c", use: "Quality-strip text" },
-  { name: "Ink Text", varName: "--color-ink-text", hex: "#2e2926", use: "Headings & body on light" },
-];
-const CREAM: Swatch[] = [
-  { name: "Cream", varName: "--color-cream", hex: "#ede5d7", use: "Primary light section background", light: true },
-  { name: "Cream Light", varName: "--color-cream-light", hex: "#f8f3ea", use: "Cards, panels, text on dark", light: true },
-  { name: "Cream Card", varName: "--color-cream-card", hex: "#f3eddf", use: "Review / first-time cards", light: true },
-  { name: "Cream Alt", varName: "--color-cream-alt", hex: "#efe6d6", use: "Alternate fill", light: true },
-];
-const GOLD: Swatch[] = [
-  { name: "Gold", varName: "--color-gold", hex: "#b88c46", use: "Primary — CTAs, active states, eyebrows, rules, icons" },
-  { name: "Gold Dark", varName: "--color-gold-dark", hex: "#9c7430", use: "Hover/pressed gold, eyebrow text, rules on cream" },
-  { name: "Gold Light", varName: "--color-gold-light", hex: "#c0985a", use: "Light-gold accents, secondary eyebrow" },
-];
-const SUPPORT: Swatch[] = [
-  { name: "Rule", varName: "--color-rule", hex: "#c8b08a", use: "Section-boundary rules", light: true },
-  { name: "Divider", varName: "--color-divider", hex: "#d8cbb7", use: "Content dividers, card borders", light: true },
-  { name: "Line", varName: "--color-line", hex: "#cfc6b8", use: "Input borders, hairlines", light: true },
-  { name: "Body", varName: "--color-body", hex: "#575757", use: "Secondary body text" },
-  { name: "Body Warm", varName: "(#403b37)", hex: "#403b37", use: "Card body copy on cream" },
-  { name: "Body 2", varName: "--color-body-2", hex: "#625b52", use: "Muted warm text" },
-  { name: "Muted", varName: "--color-muted", hex: "#9f968a", use: "Faint / copyright" },
-];
-
-function SwatchCard({ s }: { s: Swatch }) {
+function StateBtn({ label, spec, size }: { label: string; spec: [string, string, string]; size: "m" | "t" | "d" }) {
+  const dims = size === "t"
+    ? { height: 41, padding: "0 20px", fontSize: 12, letterSpacing: "0.72px" }
+    : size === "d"
+      ? { height: 56, padding: "0 36px", fontSize: 16, letterSpacing: "0.96px" }
+      : { height: 56, padding: "0 28px", fontSize: 14, letterSpacing: "0.84px" };
   return (
-    <div className="w-[168px]">
-      <div className={`h-20 rounded-lg ${s.light ? "border border-line" : ""}`} style={{ background: s.hex }} />
-      <p className="mt-2 font-sans text-[13px] font-semibold text-ink-text">{s.name}</p>
-      <p className="font-mono text-[12px] uppercase text-[#575757]">{s.hex}</p>
-      <p className="font-mono text-[11px] text-[#9f968a]">{s.varName}</p>
-      <p className="mt-1 font-sans text-[11px] leading-snug text-[#575757]">{s.use}</p>
-    </div>
-  );
-}
-function SwatchRow({ label, items }: { label: string; items: Swatch[] }) {
-  return (
-    <div className="mb-7">
-      <h3 className="mb-3 font-sans text-[12px] font-bold uppercase tracking-[0.1em] text-ink-text/70">{label}</h3>
-      <div className="flex flex-wrap gap-5">{items.map((s) => <SwatchCard key={s.name} s={s} />)}</div>
-    </div>
+    <span
+      className="inline-flex items-center justify-center whitespace-nowrap rounded-[4px] font-sans font-bold uppercase"
+      style={{ ...dims, backgroundColor: spec[0], border: `1px solid ${spec[1]}`, color: spec[2] }}
+    >
+      {label}
+    </span>
   );
 }
 
-/* ---------------- Type ---------------- */
-type Type = { role: string; spec: string; cls: string; sample: string; dark?: boolean; style?: React.CSSProperties };
-const TYPE: Type[] = [
-  { role: "H1 / H2 heading", spec: "Cormorant Garamond · 56 / 64 · 600 · tracking 0", cls: "font-serif text-[56px] leading-[64px] font-semibold text-ink-text", sample: "Adelaide’s Trusted" },
-  { role: "H2 · Find Us", spec: "Cormorant · 56 · 700 · tracking −0.84", cls: "font-serif text-[56px] font-bold text-ink-text", sample: "Find Us", style: { letterSpacing: "-0.84px" } },
-  { role: "H2 · Closing", spec: "Cormorant · 40 / 48 · 600 · tracking 1.2 · small-caps", cls: "font-serif text-[40px] leading-[48px] font-semibold text-ink-text [font-variant:small-caps]", sample: "A Conversation Today", style: { letterSpacing: "1.2px" } },
-  { role: "Section heading", spec: "Cormorant · 36 / 41 · 600 · tracking 1.44 · small-caps", cls: "font-serif text-[36px] leading-[41px] font-semibold text-ink-text [font-variant:small-caps]", sample: "Our Four Pillars of Trust", style: { letterSpacing: "1.44px" } },
-  { role: "Service card title", spec: "Cormorant · 28 / 30 · 400 · tracking 0.84 · small-caps · cream on dark", cls: "font-serif text-[28px] leading-[30px] text-cream-light [font-variant:small-caps]", sample: "Custom Jewellery", dark: true, style: { letterSpacing: "0.84px" } },
-  { role: "Card title", spec: "Cormorant · 24 / 28 · 600 · tracking 0.72 · small-caps", cls: "font-serif text-[24px] leading-[28px] font-semibold text-ink-text [font-variant:small-caps]", sample: "Family Craftsmanship", style: { letterSpacing: "0.72px" } },
-  { role: "Eyebrow (primary)", spec: "Cormorant · 22 · 600 · tracking 0.12em · uppercase · gold-dark", cls: "font-serif text-[22px] font-semibold uppercase tracking-[0.12em] text-gold-dark", sample: "Why Grech" },
-  { role: "Tagline strip", spec: "Cormorant · 20 · 400 · tracking 2 · small-caps", cls: "font-serif text-[20px] tracking-[0.1em] text-ink-3 [font-variant:small-caps]", sample: "quality. integrity. craftsmanship. since 1978." },
-  { role: "Body copy", spec: "Manrope · 18 / 27 · 400", cls: "font-sans text-[18px] leading-[27px] text-[#403b37]", sample: "Since 1978, Grech Jewellers has combined traditional craftsmanship with modern design technology." },
-  { role: "CTA / button label", spec: "Manrope · 16 / 22 · 700 · tracking 0.06em · uppercase", cls: "font-sans text-[16px] font-bold uppercase tracking-[0.06em] text-ink-text", sample: "Book a Consultation" },
-  { role: "Column heading / tab", spec: "Manrope · 16 · 700 · gold", cls: "font-sans text-[16px] font-bold uppercase tracking-[0.04em] text-gold", sample: "Explore" },
-  { role: "Card body", spec: "Manrope · 14 / 21 · 400 · body-warm", cls: "font-sans text-[14px] leading-[21px] text-[#403b37]", sample: "Family owned since 1978, creating every piece with decades of hands-on experience." },
-  { role: "Process label", spec: "Manrope · 14 / 18 · 500 · tracking 1 · uppercase", cls: "font-sans text-[14px] leading-[18px] font-medium uppercase tracking-[0.08em] text-ink-text", sample: "Stone Setting" },
-  { role: "Footer link", spec: "Manrope · 14 / 30 · 400", cls: "font-sans text-[14px] leading-[30px] text-[#575757]", sample: "About · Services · Process" },
-  { role: "Nav link", spec: "Manrope · 12 / 16 · 400 · tracking 0.14em · uppercase", cls: "font-sans text-[12px] leading-[16px] uppercase tracking-[0.14em] text-ink-text", sample: "What We Do" },
-];
-
-/* ---------------- Shadows ---------------- */
-const SHADOWS = [
-  { role: "Product / ring (rest)", val: "0 6px 20px rgba(0,0,0,0.25)" },
-  { role: "Ring hover (elevated)", val: "0 16px 40px rgba(0,0,0,0.34)" },
-  { role: "Service card", val: "0 20px 55px rgba(0,0,0,0.28)" },
-  { role: "Soft ambient (photos)", val: "0 22px 60px rgba(20,19,18,0.12)" },
-  { role: "Booking widget", val: "0 20px 60px -20px rgba(20,19,18,0.25)" },
-  { role: "Review card hover", val: "0 16px 40px rgba(20,19,18,0.12)" },
-];
-
-const RADII = [
-  { role: "Buttons", v: "2px" }, { role: "Inputs / small", v: "8px" }, { role: "Thumbnails / cards", v: "12px" }, { role: "Photos / panels", v: "16px" }, { role: "Circles (steps, social)", v: "9999px" },
-];
-
-export default function DesignSystem() {
+export default function DesignBible() {
   return (
-    <div className="min-h-screen bg-cream-light">
-      <main className="mx-auto max-w-[1180px] px-5 py-12 sm:px-6 lg:px-8">
-        <header className="mb-10">
-          <p className="font-sans text-[12px] font-bold uppercase tracking-[0.14em] text-gold-dark">Grech Jewellers</p>
-          <h1 className="mt-1 font-serif text-4xl font-semibold text-ink-text">Design System</h1>
-          <p className="mt-2 max-w-2xl font-sans text-[15px] text-[#575757]">
-            Every colour, type style, shadow, rule and motion value used on the site — with its Figma-derived spec — for a token-by-token design audit.
-            Interactions live on <Link href="/review" className="text-gold-dark underline">/review</Link>.
-          </p>
-        </header>
+    <main className="bg-cream-light pb-24">
+      <header className="mx-auto max-w-[1100px] px-6 pb-10 pt-16">
+        <p className="text-eyebrow text-gold-dark">Grech Jewellers</p>
+        <h1 className="fig-trim mt-3 font-serif text-5xl font-semibold text-ink-text">Design Bible</h1>
+        <p className="mt-4 max-w-2xl font-sans text-[14px] leading-relaxed text-[#575757]">
+          The living reference for every token used on grechjewellers: colours, type roles,
+          the button system, breakpoints and conventions. Sources: <code>globals.css</code> and
+          the Figma Design System (&ldquo;03 Components&rdquo;). Resize the window to see the
+          responsive roles change tier.
+        </p>
+      </header>
 
-        <div className="flex flex-col gap-10">
-          <Section n="01" title="Typefaces" note="Two families. Cormorant Garamond for display/headings; Manrope for UI/body.">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div className="rounded-xl border border-line p-6">
-                <p className="font-serif text-[52px] leading-none text-ink-text">Aa</p>
-                <p className="mt-3 font-sans text-[13px] font-semibold text-ink-text">Cormorant Garamond</p>
-                <p className="font-sans text-[12px] text-[#575757]">Display · weights 400 / 500 / 600 / 700 · <span className="font-mono">font-serif</span></p>
-                <p className="mt-2 font-serif text-[20px] text-ink-text">The quick brown fox — 1978</p>
-              </div>
-              <div className="rounded-xl border border-line p-6">
-                <p className="font-sans text-[52px] font-semibold leading-none text-ink-text">Aa</p>
-                <p className="mt-3 font-sans text-[13px] font-semibold text-ink-text">Manrope</p>
-                <p className="font-sans text-[12px] text-[#575757]">UI / body · weights 400 / 500 / 600 / 700 · <span className="font-mono">font-sans</span></p>
-                <p className="mt-2 font-sans text-[16px] text-ink-text">The quick brown fox — 1978</p>
+      <Section n="01" title="Colour" note="Every @theme token. Gold #b88c46 is the reconciled primary (the interaction system + shadow work all use it); #b58a47 appears only in legacy Figma fills and the Featured/Find Us eyebrows.">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {COLORS.map((c) => (
+            <div key={c.name} className="overflow-hidden rounded-lg border border-divider bg-white">
+              <div className="h-16" style={{ backgroundColor: c.hex }} />
+              <div className="p-3">
+                <p className="font-sans text-[13px] font-bold text-ink-text">--color-{c.name}</p>
+                <p className="font-mono text-[12px] uppercase text-[#575757]">{c.hex}</p>
+                <p className="mt-1 font-sans text-[11px] leading-snug text-[#9f968a]">{c.note}</p>
               </div>
             </div>
-          </Section>
-
-          <Section n="02" title="Colour palette" note="Brand gold reconciled to #b88c46 (matches all interaction states + Figma shadow tokens).">
-            <SwatchRow label="Ink / dark" items={INK} />
-            <SwatchRow label="Cream / light" items={CREAM} />
-            <SwatchRow label="Gold / brand" items={GOLD} />
-            <SwatchRow label="Support (rules, dividers, body text)" items={SUPPORT} />
-          </Section>
-
-          <Section n="03" title="Typography scale" note="Rendered at spec. Each row: role · font · size / line-height · weight · tracking.">
-            <div className="flex flex-col divide-y divide-line">
-              {TYPE.map((t) => (
-                <div key={t.role} className={`grid items-center gap-4 py-5 md:grid-cols-[220px_1fr] ${t.dark ? "" : ""}`}>
-                  <div>
-                    <p className="font-sans text-[13px] font-semibold text-ink-text">{t.role}</p>
-                    <p className="font-mono text-[11px] leading-tight text-[#575757]">{t.spec}</p>
-                  </div>
-                  <div className={t.dark ? "rounded-lg bg-ink px-5 py-4" : ""}>
-                    <p className={`${t.cls} truncate`} style={t.style}>{t.sample}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Section>
-
-          <Section n="04" title="Elevation / shadows" note="Figma drop-shadow tokens. Warm ambient rgba(20,19,18,·) on light surfaces; neutral black on product photography.">
-            <div className="flex flex-wrap gap-8">
-              {SHADOWS.map((s) => (
-                <div key={s.role} className="w-[240px]">
-                  <div className="h-28 rounded-2xl bg-cream" style={{ boxShadow: s.val }} />
-                  <p className="mt-4 font-sans text-[13px] font-semibold text-ink-text">{s.role}</p>
-                  <p className="font-mono text-[11px] text-[#575757]">{s.val}</p>
-                </div>
-              ))}
-            </div>
-          </Section>
-
-          <Section n="05" title="Rules & dividers" note="Gold underlines mark section headers; hairlines separate content.">
-            <div className="flex flex-col gap-6">
-              <div><span aria-hidden className="block h-0.5 w-[114px] bg-gold-dark" /><p className="mt-2 font-mono text-[11px] text-[#575757]">Hero rule — gold-dark · 114 × 2px</p></div>
-              <div><span aria-hidden className="block h-0.5 w-16 bg-gold-dark" /><p className="mt-2 font-mono text-[11px] text-[#575757]">Section rule — gold-dark · 64 × 2px</p></div>
-              <div><span aria-hidden className="block h-px w-full max-w-md bg-line" /><p className="mt-2 font-mono text-[11px] text-[#575757]">Hairline — line #cfc6b8 · 1px</p></div>
-              <div><span aria-hidden className="block h-px w-full max-w-md bg-divider" /><p className="mt-2 font-mono text-[11px] text-[#575757]">Content divider — divider #d8cbb7 · 1px</p></div>
-            </div>
-          </Section>
-
-          <Section n="06" title="Radii & motion">
-            <div className="grid gap-8 md:grid-cols-2">
-              <div>
-                <h3 className="mb-3 font-sans text-[12px] font-bold uppercase tracking-[0.1em] text-ink-text/70">Corner radii</h3>
-                <div className="flex flex-wrap gap-4">
-                  {RADII.map((r) => (
-                    <div key={r.role} className="text-center">
-                      <div className="h-16 w-16 border border-gold-dark/50 bg-cream" style={{ borderRadius: r.v }} />
-                      <p className="mt-2 font-sans text-[11px] text-ink-text">{r.role}</p>
-                      <p className="font-mono text-[11px] text-[#575757]">{r.v}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h3 className="mb-3 font-sans text-[12px] font-bold uppercase tracking-[0.1em] text-ink-text/70">Motion</h3>
-                <ul className="flex flex-col gap-2 font-sans text-[13px] text-ink-text">
-                  <li><span className="font-semibold">Hover / lift</span> — 0.5s · <span className="font-mono text-[12px] text-[#575757]">cubic-bezier(0.45, 0, 0.55, 1)</span> · translateY(−2px)</li>
-                  <li><span className="font-semibold">Scroll reveal</span> — 700ms · <span className="font-mono text-[12px] text-[#575757]">cubic-bezier(0.22, 1, 0.36, 1)</span> · translateY(24px) + fade</li>
-                  <li><span className="font-semibold">Ring crossfade</span> — swap 3s · fade 1s</li>
-                  <li><span className="font-semibold">Underline / dots</span> — 260–300ms ease</li>
-                  <li className="text-[#575757]">All motion is disabled under <span className="font-mono text-[12px]">prefers-reduced-motion</span>.</li>
-                </ul>
-              </div>
-            </div>
-          </Section>
+          ))}
         </div>
+      </Section>
 
-        <footer className="mt-14 border-t border-line pt-6">
-          <p className="font-sans text-[12px] text-[#9f968a]">Grech Jewellers — design tokens · derived from the Figma source of truth.</p>
-        </footer>
-      </main>
-    </div>
+      <Section n="02" title="Fonts" note="Two families only. Serif for headings/eyebrows/captions, sans for body and UI. Small-caps roles use font-variant, not an uppercase transform.">
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div className="rounded-lg border border-divider bg-white p-6">
+            <p className="font-serif text-4xl text-ink-text">Cormorant Garamond</p>
+            <p className="mt-2 font-sans text-[12px] text-[#575757]">--font-serif · weights 400 / 600 / 700 · headings, eyebrows, small-caps captions</p>
+          </div>
+          <div className="rounded-lg border border-divider bg-white p-6">
+            <p className="font-sans text-4xl text-ink-text">Manrope</p>
+            <p className="mt-2 font-sans text-[12px] text-[#575757]">--font-sans · weights 300–700 · body copy, buttons, labels, nav</p>
+          </div>
+        </div>
+      </Section>
+
+      <Section n="03" title="Typography roles" note="13 shared classes in globals.css. Each renders live below at the CURRENT viewport tier; the table lists all three tiers (mobile base / md 768+ / lg 1024+). Every value is verified against its own Figma artboard — several roles genuinely shrink or change weight at tablet.">
+        <div className="flex flex-col gap-6">
+          {TYPE_ROLES.map(([cls, sample, m, t, d, used]) => (
+            <div key={cls} className="rounded-lg border border-divider bg-white p-5">
+              <p className={`${cls.slice(1)} fig-trim text-ink-text`}>{sample}</p>
+              <div className="mt-4 grid gap-1 border-t border-divider pt-3 font-sans text-[12px] text-[#575757] sm:grid-cols-[140px_1fr_1fr_1fr_1fr]">
+                <code className="font-bold text-gold-dark">{cls}</code>
+                <span><b>mobile</b> {m}</span>
+                <span><b>tablet</b> {t}</span>
+                <span><b>desktop</b> {d}</span>
+                <span className="text-[#9f968a]">{used}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section n="04" title="Buttons" dark note="The 01-Buttons system: .btn + .btn-primary / .btn-secondary / .btn-editorial. Sizing per tier — mobile h56·px28·14px, tablet h41·px20·12px, desktop h56·px36·16px (Secondary pads 42 at desktop, per its own wider Figma set). Shadow 0 2px 8px 25% on Hover only. The top row is LIVE (hover/press it); rows below are static renderings of each state. Editorial is Figma desktop-only. The header nav CTA, menu Call button, Launch Navigation and Booking-widget controls are separate Figma component families — not these classes.">
+        <div className="mb-8 flex flex-wrap items-center gap-4">
+          <button className="btn btn-primary">Book a Consultation</button>
+          <button className="btn btn-secondary">See Our Work</button>
+          <button className="btn btn-editorial">Book a Consultation</button>
+          <button className="btn btn-primary" disabled>Disabled</button>
+          <span className="font-sans text-[11px] uppercase tracking-wide text-line">← live: hover / press these</span>
+        </div>
+        {(["m", "t", "d"] as const).map((size) => (
+          <div key={size} className="mb-8">
+            <p className="mb-3 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-gold-light">
+              {size === "m" ? "Mobile — h56 · pad 28 · 14px/0.84" : size === "t" ? "Tablet — h41 · pad 20 · 12px/0.72" : "Desktop — h56 · pad 36 (S: 42) · 16px/0.96"}
+            </p>
+            <div className="grid gap-3">
+              {BTN_STATES.map((row) => (
+                <div key={row.state} className="flex flex-wrap items-center gap-3">
+                  <span className="w-[72px] shrink-0 font-sans text-[11px] uppercase tracking-wide text-line">{row.state}</span>
+                  <StateBtn label="Primary" spec={row.p} size={size} />
+                  <StateBtn label="Secondary" spec={row.s} size={size} />
+                  <StateBtn label="Editorial" spec={row.e} size={size} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </Section>
+
+      <Section n="05" title="Breakpoints & references" note="Tailwind defaults; each maps to a Figma reference artboard. Content column is a 1180px max-width Container (px-5 / sm:px-6 / lg:px-8 gutters).">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse font-sans text-[13px] text-ink-text">
+            <thead><tr className="border-b border-divider text-left text-[11px] uppercase tracking-wide text-[#9f968a]">
+              <th className="py-2 pr-6">Tier</th><th className="pr-6">CSS range</th><th className="pr-6">Figma artboard</th><th>Notes</th>
+            </tr></thead>
+            <tbody className="[&_td]:py-2 [&_td]:pr-6 [&_tr]:border-b [&_tr]:border-divider/60">
+              <tr><td>mobile (base)</td><td>&lt; 768px</td><td>iPhone 13 &amp; 14 — 390px</td><td>Hamburger menu, stacked layouts, seam-straddling hero ring</td></tr>
+              <tr><td>tablet (md)</td><td>768–1023px</td><td>iPad Pro 11&quot; — 834px</td><td>Desktop-style nav bar; its OWN compositions, not scaled desktop</td></tr>
+              <tr><td>desktop (lg)</td><td>1024px+</td><td>Slide 16:9 — 1920px</td><td>Bleed elements use vw fractions capped at Figma px</td></tr>
+              <tr><td>xl</td><td>1280px+</td><td>—</td><td>Only .text-h3-service / .text-body-xs step here</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </Section>
+
+      <Section n="06" title="Motion & conventions" note="What every new component should inherit.">
+        <ul className="grid list-disc gap-3 pl-5 font-sans text-[13px] leading-relaxed text-[#575757] sm:grid-cols-2">
+          <li><b>Transitions:</b> 0.5s <code>--ease-smooth</code> (cubic-bezier .45,0,.55,1); entrances use <code>--ease-lux</code>.</li>
+          <li><b>Hover lift:</b> interactive cards lift −2px (.gj-lift / .gj-soft); the new button system uses colour+shadow only, no lift.</li>
+          <li><b>Reduced motion:</b> all animation/transition collapse to 0.01ms; carousels stop auto-advancing; hero video doesn&rsquo;t autoplay.</li>
+          <li><b>fig-trim:</b> text measured from Figma uses <code>text-box-trim</code> cap-height trimming — margins are cap-to-cap, so browser line-boxes match Figma&rsquo;s trimmed boxes.</li>
+          <li><b>Hero overlay pattern:</b> one gradient everywhere (&ldquo;Rectangle 23&rdquo;): transparent 47% → short 13% fade → flat 63% ink; vertical on mobile, horizontal (dark side = copy side) from md up. Video is full-opacity — the gradient is the only dimmer.</li>
+          <li><b>Gold rules:</b> 2px <code>gold-dark</code> bars — 114px under section titles, 64px under band titles, 32px in cards.</li>
+          <li><b>Section boundaries:</b> dark bands close with a 4px <code>--color-rule</code> bottom border.</li>
+          <li><b>Radius:</b> buttons 4px · cards 12px (rounded-xl) · media 16px (rounded-2xl); full-bleed mobile media drops rounding.</li>
+          <li><b>Carousel dots:</b> 10px <code>divider</code> dots, active = 26px <code>gold</code> pill.</li>
+          <li><b>Interaction classes:</b> legacy <code>.gj-*</code> set still powers nav links, calendar cells, time slots, gallery arrows, review cards — see globals.css.</li>
+        </ul>
+      </Section>
+    </main>
   );
 }

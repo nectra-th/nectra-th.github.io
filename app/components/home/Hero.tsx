@@ -20,26 +20,32 @@ export default function Hero() {
     // whole section above Why Grech's positioned subtree at every tier for
     // the same reason.
     <section id="top" aria-label="Hero" className="relative z-20 bg-ink border-b-4 border-[#c8b08a] min-h-[907px] max-h-[907px] md:min-h-[469px] md:max-h-none lg:min-h-[988px]">
-      {/* full-bleed background video + dark wash (clipped to the hero band) */}
+      {/* full-bleed background video + overlay (clipped to the hero band).
+         ONE shared overlay pattern at every tier, taken from the art team's
+         "Rectangle 23" export (pixel-profiled at 390×908): transparent for
+         47% of the axis, a short 13% fade, then flat 63% ink for the rest —
+         NOT a smooth full-length ramp. Only the AXIS differs per tier:
+         mobile runs it vertically (transparent top → dark bottom, where the
+         copy sits), md+ runs the identical stops horizontally via `to left`
+         (transparent right → dark left, where the copy sits). The video
+         itself is full-opacity everywhere — this gradient is the only
+         dimmer. */}
       <div className="absolute inset-0 overflow-hidden">
         <HeroVideo />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/70 via-ink/55 to-ink" />
-        {/* Figma's left-to-right wash: #141312 63%→0%, fading over the
-           rightmost 1920px and pinned to the section's right edge. The flat
-           63% segment is encoded as a color-stop (not a separate
-           background-color layer) so it never double-stacks with the fade —
-           a second flat layer under the fade would have kept the "0%" end
-           from ever actually reaching transparent. calc(100% - 1920px)
-           gives the flat segment's length on screens wider than 1920px; on
-           narrower screens it goes negative and CSS clamps it back up to
-           the first stop, so the fade just stretches across the full
-           (narrower) width instead of being cropped. */}
         <div
           aria-hidden
-          className="absolute inset-0"
+          className="absolute inset-0 md:hidden"
           style={{
             backgroundImage:
-              "linear-gradient(to right, rgba(20,19,18,0.63) 0%, rgba(20,19,18,0.63) max(0px, calc(100% - 1920px)), rgba(20,19,18,0) 100%)",
+              "linear-gradient(to bottom, rgba(20,19,18,0) 0%, rgba(20,19,18,0) 47%, rgba(20,19,18,0.63) 60%, rgba(20,19,18,0.63) 100%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 hidden md:block"
+          style={{
+            backgroundImage:
+              "linear-gradient(to left, rgba(20,19,18,0) 0%, rgba(20,19,18,0) 47%, rgba(20,19,18,0.63) 60%, rgba(20,19,18,0.63) 100%)",
           }}
         />
       </div>
@@ -98,9 +104,15 @@ export default function Hero() {
             {/* base: mobile buttons are Figma's own 53px-tall full-width
                stack with a 16px gap (max-md:!h/!py-0 — same !important
                range-scoping reasoning as the tablet overrides). */}
+            {/* .btn's own per-device scale now covers tablet (41/20/12) and
+               desktop (56/36 primary, 56/42 secondary) exactly — only the
+               artboard-specific deviations remain as overrides: the mobile
+               53px height, and tablet's Medium/no-tracking label (the hero
+               artboard instances genuinely differ from the component set
+               there). */}
             <div className="mt-9 flex flex-col gap-4 sm:flex-row md:mt-[9px] md:gap-2 lg:mt-6 lg:gap-3">
-              <CTAButton href="#book" variant="gold" className="max-md:!h-[53px] max-md:!py-0 md:max-lg:!h-[41px] md:max-lg:!px-5 md:max-lg:!py-0 md:max-lg:!text-[12px] md:max-lg:!font-medium md:max-lg:!tracking-normal lg:!h-14">Book a Consultation</CTAButton>
-              <CTAButton href="#featured" variant="dark" className="max-md:!h-[53px] max-md:!py-0 md:max-lg:!h-[41px] md:max-lg:!px-5 md:max-lg:!py-0 md:max-lg:!text-[12px] md:max-lg:!font-medium md:max-lg:!tracking-normal lg:!h-14 lg:!px-[42px]">See Our Work</CTAButton>
+              <CTAButton href="#book" variant="gold" className="max-md:!h-[53px] md:max-lg:!font-medium md:max-lg:!tracking-normal">Book a Consultation</CTAButton>
+              <CTAButton href="#featured" variant="dark" className="max-md:!h-[53px] md:max-lg:!font-medium md:max-lg:!tracking-normal">See Our Work</CTAButton>
             </div>
           </div>
 

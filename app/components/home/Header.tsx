@@ -194,10 +194,13 @@ export default function Header() {
           </nav>
 
           <div className="mt-10 flex shrink-0 flex-col gap-[13px] px-4 pb-10">
+            {/* .btn-primary matches this button's resting spec exactly
+               (gold/ink/14px/0.84/radius 4) — only the menu design's 54px
+               height differs from the mobile set's 56. */}
             <a
               href="#book"
               onClick={(e) => { scrollToNavTarget(e, "#book"); setOpen(false); }}
-              className="inline-flex h-[54px] w-full items-center justify-center rounded-[4px] bg-gold text-[14px] font-bold uppercase tracking-[0.06em] text-ink transition-colors hover:bg-gold-dark"
+              className="btn btn-primary w-full !h-[54px]"
             >
               Book a Consultation
             </a>

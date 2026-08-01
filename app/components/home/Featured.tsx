@@ -6,9 +6,10 @@ import FeaturedGallery from "./FeaturedGallery";
 
 const SKETCH = "/assets/figma-img/7b3544a57ad8f231118674e34b269ea5bd3fd189.png";
 // Mobile uses a direct export of the Figma node instead of the raw source
-// bitmap: at 390x249 it already bakes in the node's 180° rotation, its 55%
-// image opacity and the transparent→ink gradient (as alpha, 141 at the top
-// edge → 254 at the bottom), so it needs no CSS transform/opacity/overlay.
+// bitmap: at 390x249 it already ships in its final mobile orientation
+// (right-side-up — confirmed by the user; only DESKTOP flips the sketch)
+// with the node's 55% image opacity and the transparent→ink gradient baked
+// in as alpha, so it needs no CSS transform/opacity/overlay.
 const SKETCH_MOBILE = "/assets/figma-img/david-sketch-alpha-grey02-mobile.png";
 
 /* Featured Creations — dark band. Copy + pull-quote on the left, the gallery
@@ -40,7 +41,11 @@ export default function Featured() {
         className="pointer-events-none absolute top-[31%] hidden aspect-[1064/734] [transform:rotate(180deg)] lg:block"
         style={{ left: "calc(max(32px, (100vw - 1180px) / 2) - 736px)", width: "min(55.4167vw, 1064px)" }}
       >
-        <img src={SKETCH} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover opacity-[0.55]" />
+        {/* scaleY(-1) on the img only (user request): flips the artwork
+           upside-down from what the wrapper's rotate(180) was showing, while
+           the gradient overlay below stays outside the flip so its on-screen
+           fade direction is unchanged. Net art transform = scaleX(-1). */}
+        <img src={SKETCH} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover opacity-[0.55] [transform:scaleY(-1)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-ink" />
       </div>
       {/* lg:!px-0: Figma's 370-1548 content span already fills the standard

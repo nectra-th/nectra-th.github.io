@@ -17,7 +17,10 @@ export default function HeroVideo() {
   return (
     <video
       ref={ref}
-      className="h-full w-full object-cover opacity-40"
+      // full opacity at EVERY tier — the Rectangle-23-pattern gradient in
+      // Hero.tsx is the only dimmer (per request; the old 40% dim made the
+      // band near-black and the overlay imperceptible).
+      className="h-full w-full object-cover"
       muted
       loop
       playsInline

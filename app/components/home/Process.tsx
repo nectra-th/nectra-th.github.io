@@ -263,7 +263,10 @@ export default function Process() {
               {/* Figma: body-bottom to CTA-top is 29px at mobile, 24px at
                  desktop, 16px at tablet — not one flat value everywhere. */}
               <div className="mt-[29px] md:mt-4 lg:mt-6">
-                <CTAButton href="#book" variant="outlineGoldOnCream">Book a Consultation</CTAButton>
+                {/* overrides preserve this instance's pre-migration sizes
+                   exactly (51/48/58 tall, 28px padding below lg) — it never
+                   adopted the component set's 56/41/56 scale. */}
+                <CTAButton href="#book" variant="outlineGoldOnCream" className="max-md:!h-[51px] md:max-lg:!h-[48px] md:max-lg:!px-7 lg:!h-[58px]">Book a Consultation</CTAButton>
               </div>
             </div>
           </div>

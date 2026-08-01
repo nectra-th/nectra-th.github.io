@@ -11,23 +11,18 @@ export function Container({ children, className = "" }: { children: ReactNode; c
 
 type Variant = "gold" | "dark" | "outlineGold" | "outlineGoldOnCream";
 
-/* CTA button — Figma spec: Manrope 16px / 700 / uppercase / 0.06em. Base
-   appearance here; hover lift + colour transitions come from the approved
-   .gj-* classes (0.5s ease-smooth). */
-const VARIANTS: Record<Variant, string> = {
-  gold: "gj-primary bg-gold text-ink",
-  // border colour is Figma's literal muted-line token (#9f968a), not an
-  // opacity blend — verified against the Hero "See Our Work" instance.
-  dark: "gj-outline border border-[#9f968a] text-cream-light",
-  // rest-state: gold border (#b58a47) + cream-light label text — the exact
-  // fills read off the Figma header CTA instance. Hover (#b88c46 fill/border,
-  // #141312 text) and active (#9c7430) are the reconciled interaction-system
-  // values layered on top by .gj-outline-gold.
-  outlineGold: "gj-outline-gold border border-[#b58a47] text-[#f8f3ea]",
-  // Process section's CTA pair, on a cream (not dark) background — gold-dark
-  // border + text at rest, verified against the Figma "Our Process" CTA
-  // Group. Reuses .gj-outline-gold's fill-in-on-hover mechanic.
-  outlineGoldOnCream: "gj-outline-gold border border-gold-dark text-gold-dark",
+/* CTA button. gold/dark/outlineGoldOnCream now sit on the shared BUTTON
+   SYSTEM classes in globals.css (.btn + .btn-primary/-secondary/-editorial —
+   the Figma "01 Buttons" component sets, all four states, per-device
+   sizing built in); call sites keep their artboard-verified per-instance
+   size overrides so resting layout is pixel-identical to the pre-migration
+   rendering. outlineGold stays on the legacy path: it reproduces the
+   NAVIGATION CTA component (a different Figma sheet with its own states),
+   not a 01-Buttons instance. */
+const BTN_VARIANTS: Partial<Record<Variant, string>> = {
+  gold: "btn btn-primary",
+  dark: "btn btn-secondary",
+  outlineGoldOnCream: "btn btn-editorial",
 };
 
 export function CTAButton({
@@ -43,9 +38,10 @@ export function CTAButton({
   radius?: string;
   className?: string;
 }) {
-  const cls =
-    `inline-flex shrink-0 items-center justify-center whitespace-nowrap ${radius} px-7 py-3.5 text-cta lg:px-9 lg:py-4 ` +
-    `${VARIANTS[variant]} ${className}`;
+  const cls = BTN_VARIANTS[variant]
+    ? `${BTN_VARIANTS[variant]} shrink-0 ${className}`
+    : `inline-flex shrink-0 items-center justify-center whitespace-nowrap ${radius} px-7 py-3.5 text-cta lg:px-9 lg:py-4 ` +
+      `gj-outline-gold border border-[#b58a47] text-[#f8f3ea] ${className}`;
   if (href) {
     const external = href.startsWith("#") || href.startsWith("http") || href.startsWith("tel:") || href.startsWith("mailto:");
     return external

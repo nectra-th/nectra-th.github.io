@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /* Fluid featured-creations slider: a large active image, prev/next controls, and
    a scrollable thumbnail strip (active thumb gets a gold ring). Fills its
@@ -40,6 +40,73 @@ export default function FeaturedGallery() {
   const prev = () => setActive((a) => (a - 1 + IMAGES.length) % IMAGES.length);
   const next = () => setActive((a) => (a + 1) % IMAGES.length);
 
+  /* Mobile (<sm) auto-advance + stepper. The mobile tier is a native
+     scroll-snap track (not the sm+ cross-fade), so "advance" means scrolling
+     the track one viewport-width right every 3s, wrapping after the last
+     slide. Same conventions as the shared Carousel component: pauses while
+     scrolled out of view (IntersectionObserver), backs off for 5s after any
+     manual swipe/tap, and honours prefers-reduced-motion by not
+     auto-advancing at all (swipe + dots still work). All of it no-ops from
+     sm up, where the track doesn't overflow (slides stack absolutely) and
+     the dots are hidden. */
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [mobileActive, setMobileActive] = useState(0);
+  const mobileActiveRef = useRef(0);
+  const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const resumeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inView = useRef(false);
+  const programmatic = useRef(false);
+
+  const clearTimers = useCallback(() => {
+    if (autoRef.current) { clearInterval(autoRef.current); autoRef.current = null; }
+    if (resumeRef.current) { clearTimeout(resumeRef.current); resumeRef.current = null; }
+  }, []);
+
+  const goToSlide = useCallback((i: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    programmatic.current = true;
+    track.scrollTo({ left: i * track.clientWidth, behavior: "smooth" });
+    setMobileActive(i);
+    mobileActiveRef.current = i;
+    window.setTimeout(() => { programmatic.current = false; }, 650);
+  }, []);
+
+  const startAuto = useCallback(() => {
+    clearTimers();
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    autoRef.current = setInterval(() => {
+      const track = trackRef.current;
+      // only the mobile snap-track overflows; from sm up this is a no-op
+      if (!track || track.scrollWidth - track.clientWidth < 10) return;
+      if (inView.current) goToSlide((mobileActiveRef.current + 1) % IMAGES.length);
+    }, 3000);
+  }, [clearTimers, goToSlide]);
+
+  const onManual = useCallback(() => {
+    clearTimers();
+    resumeRef.current = setTimeout(startAuto, 5000);
+  }, [clearTimers, startAuto]);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const io = new IntersectionObserver(([e]) => {
+      inView.current = e.isIntersecting;
+      if (e.isIntersecting && !autoRef.current && !resumeRef.current) startAuto();
+    }, { threshold: 0.35 });
+    io.observe(track);
+    return () => { io.disconnect(); clearTimers(); };
+  }, [startAuto, clearTimers]);
+
+  const onTrackScroll = () => {
+    const track = trackRef.current;
+    if (!track || track.clientWidth === 0) return;
+    const i = Math.round(track.scrollLeft / track.clientWidth);
+    if (i !== mobileActiveRef.current) { setMobileActive(i); mobileActiveRef.current = i; }
+    if (!programmatic.current) onManual();
+  };
+
   return (
     <div>
       {/* Main viewport. Figma gives it 850x523 (desktop) / 390x240 (mobile) —
@@ -51,6 +118,8 @@ export default function FeaturedGallery() {
          have. From sm up the slides stack absolutely again and the arrows /
          thumbnails cross-fade between them exactly as before. */}
       <div
+        ref={trackRef}
+        onScroll={onTrackScroll}
         data-scroll-image="featured"
         className="no-scrollbar relative flex aspect-[850/523] w-full snap-x snap-mandatory overflow-x-auto border-y border-[#39342e] sm:block sm:overflow-hidden sm:rounded-2xl sm:border"
       >
@@ -77,6 +146,26 @@ export default function FeaturedGallery() {
           <Arrow dir="left" onClick={prev} />
           <Arrow dir="right" onClick={next} />
         </div>
+      </div>
+
+      {/* mobile stepper — same dot language as the shared Carousel (gold
+         26px pill for the active step, 10px divider-coloured dots
+         otherwise); hidden from sm up where the thumbnail strip takes over. */}
+      <div className="mt-6 flex justify-center gap-2.5 sm:hidden">
+        {IMAGES.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={`Go to creation ${i + 1}`}
+            aria-current={mobileActive === i}
+            onClick={() => { goToSlide(i); onManual(); }}
+            className="h-2.5 rounded-full transition-all duration-300"
+            style={{
+              width: mobileActive === i ? 26 : 10,
+              background: mobileActive === i ? "var(--color-gold)" : "var(--color-divider)",
+            }}
+          />
+        ))}
       </div>
 
       {/* thumbnails — Figma: 187x195 each, ~8px below the viewport, tight ~4-5px

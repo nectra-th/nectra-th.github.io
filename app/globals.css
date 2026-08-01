@@ -341,6 +341,104 @@
 }
 
 /* ============================================================
+   BUTTON SYSTEM
+   Verbatim from the Figma Design System ("03 Components / 01
+   Buttons"): three COMPONENT_SETs — Button / Mobile, / Tablet,
+   / Desktop — each with Primary + Secondary variants in four
+   states (Default / Hover / Pressed / Disabled); the Desktop
+   set adds a third "Editorial" variant (outlined gold-dark),
+   which Figma only defines at desktop but shares the same
+   sizing scale here so it degrades sensibly if used below lg.
+
+   Shared by every variant/size: Manrope Bold uppercase, 4px
+   radius, a real 1px border even when filled (Figma strokes the
+   fill colour), and a 0 2px 8px rgba(0,0,0,.25) drop shadow on
+   Hover ONLY (not Pressed). Sizing per device set:
+     mobile  — h56, padding-x 28, 14px / 0.84 tracking
+     tablet  — h41, padding-x 20, 12px / 0.72
+     desktop — h56, padding-x 36 (Primary/Editorial) or 42
+               (Secondary — its set is genuinely wider), 16px / 0.96
+   States (P=Primary, S=Secondary, E=Editorial):
+     P: #b88c46/#141312 → hover #9c7430/#f8f3ea+shadow →
+        pressed #8e682a/#f8f3ea → disabled #d8cbb7/#9f968a
+     S: transparent+#9f968a border/#f8f3ea → hover #211f1c fill,
+        #c8b08a border, #b58a47 text+shadow → pressed #1b1917,
+        #9c7430 border, #c8b08a text → disabled #39342e border,
+        #9f968a text
+     E: transparent+#9c7430 border/#9c7430 → hover #9c7430 fill,
+        #141312 text+shadow → pressed #8e682a/#f8f3ea →
+        disabled #d8cbb7 border, #9f968a text
+   Transitions use the site's shared 0.5s ease-smooth. Disabled
+   styles apply via :disabled (buttons) or .is-disabled (links). */
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.5s var(--ease-smooth), color 0.5s var(--ease-smooth),
+      border-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth);
+    height: 56px;
+    padding: 0 28px;
+    font-size: 14px;
+    letter-spacing: 0.84px;
+    line-height: 19.6px;
+  }
+  @media (min-width: 48rem) {
+    .btn { height: 41px; padding: 0 20px; font-size: 12px; letter-spacing: 0.72px; line-height: 16.8px; }
+  }
+  @media (min-width: 64rem) {
+    .btn { height: 56px; padding: 0 36px; font-size: 16px; letter-spacing: 0.96px; line-height: 22.4px; }
+    /* Figma's desktop Secondary set is authored wider (284px box via 42px
+       padding vs Primary's 272/36) — a real spec difference, not drift. */
+    .btn-secondary { padding: 0 42px; }
+  }
+  .btn:disabled, .btn.is-disabled { cursor: not-allowed; pointer-events: none; }
+
+  .btn-primary { background-color: #b88c46; border-color: #b88c46; color: #141312; }
+  .btn-primary:hover:not(:disabled):not(.is-disabled) {
+    background-color: #9c7430; border-color: #9c7430; color: #f8f3ea;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+  .btn-primary:active:not(:disabled):not(.is-disabled) {
+    background-color: #8e682a; border-color: #8e682a; color: #f8f3ea; box-shadow: none;
+  }
+  .btn-primary:disabled, .btn-primary.is-disabled {
+    background-color: #d8cbb7; border-color: #d8cbb7; color: #9f968a;
+  }
+
+  .btn-secondary { background-color: transparent; border-color: #9f968a; color: #f8f3ea; }
+  .btn-secondary:hover:not(:disabled):not(.is-disabled) {
+    background-color: #211f1c; border-color: #c8b08a; color: #b58a47;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+  .btn-secondary:active:not(:disabled):not(.is-disabled) {
+    background-color: #1b1917; border-color: #9c7430; color: #c8b08a; box-shadow: none;
+  }
+  .btn-secondary:disabled, .btn-secondary.is-disabled {
+    background-color: transparent; border-color: #39342e; color: #9f968a;
+  }
+
+  .btn-editorial { background-color: transparent; border-color: #9c7430; color: #9c7430; }
+  .btn-editorial:hover:not(:disabled):not(.is-disabled) {
+    background-color: #9c7430; border-color: #9c7430; color: #141312;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+  .btn-editorial:active:not(:disabled):not(.is-disabled) {
+    background-color: #8e682a; border-color: #8e682a; color: #f8f3ea; box-shadow: none;
+  }
+  .btn-editorial:disabled, .btn-editorial.is-disabled {
+    background-color: transparent; border-color: #d8cbb7; color: #9f968a;
+  }
+}
+
+/* ============================================================
    MOTION SYSTEM
    ============================================================ */
 

@@ -79,8 +79,12 @@ export default function WhyIntro() {
               {/* Mobile CTA per Figma: 46px tall, full-width, SemiBold with
                  1.26px tracking — its own spec, distinct from both the hero
                  mobile buttons (53px/Bold) and the md+ tiers. */}
+              {/* overrides preserve this instance's pre-migration rendering
+                 exactly: mobile 46px/SemiBold/1.26 (its own artboard spec),
+                 tablet 46px tall at 28px padding (this button never adopted
+                 the 41px tablet scale); desktop matches .btn's own 56/36. */}
               <div className="mt-[48px] flex flex-col gap-3 sm:flex-row md:mt-6">
-                <CTAButton href="#book" variant="gold" className="max-md:!h-[46px] max-md:!py-0 max-md:!font-semibold max-md:!tracking-[1.26px]">Book a Consultation</CTAButton>
+                <CTAButton href="#book" variant="gold" className="max-md:!h-[46px] max-md:!font-semibold max-md:!tracking-[1.26px] md:max-lg:!h-[46px] md:max-lg:!px-7">Book a Consultation</CTAButton>
                 <CTAButton href="#featured" variant="dark" className="!hidden">See Our Work</CTAButton>
               </div>
             </SectionHeader>
