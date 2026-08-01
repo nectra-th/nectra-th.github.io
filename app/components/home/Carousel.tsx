@@ -15,12 +15,17 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type Pointer
    card toward nothing. vw is relative to the viewport instead, so it's
    unaffected by the track's own padding. */
 export default function Carousel({
-  slides, cardClassName = "w-[82vw]", gap = 16, snap = "center",
+  slides, cardClassName = "w-[82vw]", gap = 16, gapClassName, snap = "center",
   dots = true, intervalMs = 5000, ariaLabel,
 }: {
   slides: ReactNode[];
   cardClassName?: string;
+  /** Fixed px gap. Ignored when `gapClassName` is set. */
   gap?: number;
+  /** Responsive gap utilities (e.g. "gap-3 md:gap-4") — needed when the gap
+   *  differs per breakpoint, since the inline `gap` above can't be overridden
+   *  by a class. */
+  gapClassName?: string;
   snap?: "center" | "start";
   dots?: boolean;
   intervalMs?: number;
@@ -173,11 +178,11 @@ export default function Carousel({
         // or pushing the dots down — overflow-x-auto forces overflow-y to
         // also become non-visible (a CSS spec quirk, not something we can
         // opt out of per-axis), so without this the shadow was just gone.
-        className="no-scrollbar -mx-5 -my-14 flex snap-x snap-mandatory overflow-x-auto px-5 py-14 sm:-mx-6 sm:px-6 cursor-grab active:cursor-grabbing"
+        className={`no-scrollbar -mx-5 -my-14 flex snap-x snap-mandatory overflow-x-auto px-5 py-14 sm:-mx-6 sm:px-6 cursor-grab active:cursor-grabbing ${gapClassName ?? ""}`}
         style={
           snap === "center" && sidePad !== null
-            ? { gap, paddingLeft: sidePad, paddingRight: sidePad, scrollPaddingLeft: sidePad, scrollPaddingRight: sidePad }
-            : { gap, scrollPadding: "0 20px" }
+            ? { ...(gapClassName ? {} : { gap }), paddingLeft: sidePad, paddingRight: sidePad, scrollPaddingLeft: sidePad, scrollPaddingRight: sidePad }
+            : { ...(gapClassName ? {} : { gap }), scrollPadding: "0 20px" }
         }
       >
         {slides.map((slide, i) => (

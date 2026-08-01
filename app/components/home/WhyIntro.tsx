@@ -27,7 +27,7 @@ const RINGS = ["/assets/figma-img/ring-rot-1.png", "/assets/figma-img/ring-rot-2
    own bounds so this is safe. Only true mobile still stacks in-flow. */
 export default function WhyIntro() {
   return (
-    <section id="why" aria-label="Why Grech" className="relative overflow-hidden bg-cream py-16 md:overflow-visible md:py-0 md:pb-[80px] lg:min-h-[1014px] lg:overflow-visible lg:pb-0">
+    <section id="why" aria-label="Why Grech" className="relative overflow-hidden bg-cream pt-[146px] pb-16 min-h-[936px] max-h-[936px] md:min-h-0 md:max-h-none md:overflow-visible md:py-0 md:pb-[80px] lg:min-h-[1014px] lg:overflow-visible lg:pb-0">
       {/* decorative pen-sketch backdrop — Figma x=-261 y=806(rel) w=1115 h=836
          at desktop; x=-114 y=790(rel) w=603 h=452 at tablet (verified against
          tablet.1_4838.json — its own composition, not a scale of desktop's).
@@ -52,45 +52,69 @@ export default function WhyIntro() {
       />
 
       <Container className="relative lg:!px-[20px]">
-        <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[543px_1fr] lg:items-start lg:gap-0">
+        {/* base gap 53px: Figma mobile's own button-to-photo distance
+           (buttons end y=1372, photo starts y=1425). */}
+        <div className="grid grid-cols-1 items-center gap-[53px] lg:grid-cols-[543px_1fr] lg:items-start lg:gap-0">
           {/* copy — Figma component's own Top:433 (relative to section top) at
-             desktop, Top:155/width:352 at tablet (both verified per-breakpoint,
-             not a scale of one another). */}
+             desktop, Top:155/width:352 at tablet, the section's own
+             pt-[146px] at mobile (each verified per-breakpoint against its
+             own artboard, not scales of one another). */}
           <div className="md:max-w-[352px] md:pt-[155px] lg:max-w-[543px] lg:self-start lg:pt-[433px]">
+            {/* Mobile margins are Figma's own mobile gaps plus fig-trim
+               compensation (our cap-trimmed boxes are shorter than the
+               artboard's untrimmed ones, so each following gap absorbs the
+               difference to land at the artboard's absolute Y): eyebrow→
+               title 10, title→rule 9(+9 trim), rule→body 18(+9), body→CTA
+               33(+17). Title is TWO lines on mobile ("Manufacturing
+               Jeweller" fits the 289px box) vs three from md up. */}
             <SectionHeader
               eyebrow="Why Grech"
-              title={<>Adelaide&rsquo;s Trusted<br />Manufacturing<br />Jeweller</>}
+              title={<>Adelaide&rsquo;s Trusted<br />Manufacturing<br className="hidden md:block" /> Jeweller</>}
               body="Since 1978, Grech Jewellers has combined nearly five decades of traditional jewellery-making expertise with modern design technology to create custom pieces that are personally designed, precision manufactured and built to last for generations."
               ruleWidth={114}
+              titleMargin="mt-[10px] md:mt-4"
+              ruleMargin="mt-[22.5px] md:mt-6 lg:mt-8"
+              bodyMargin="mt-[16px] md:mt-7"
             >
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <CTAButton href="#book" variant="gold">Book a Consultation</CTAButton>
+              {/* Mobile CTA per Figma: 46px tall, full-width, SemiBold with
+                 1.26px tracking — its own spec, distinct from both the hero
+                 mobile buttons (53px/Bold) and the md+ tiers. */}
+              <div className="mt-[48px] flex flex-col gap-3 sm:flex-row md:mt-6">
+                <CTAButton href="#book" variant="gold" className="max-md:!h-[46px] max-md:!py-0 max-md:!font-semibold max-md:!tracking-[1.26px]">Book a Consultation</CTAButton>
                 <CTAButton href="#featured" variant="dark" className="!hidden">See Our Work</CTAButton>
               </div>
             </SectionHeader>
           </div>
 
-          {/* imagery — in-flow, contained on mobile only; tablet and desktop
-             each get their own Figma-exact bled/absolute version below. */}
+          {/* imagery — in-flow on mobile only; tablet and desktop each get
+             their own Figma-exact bled/absolute version below. Mobile photo
+             is FULL-BLEED (Figma x=0, 390 wide — the -mx cancels Container's
+             gutter) with no corner rounding, and the rotating ring card sits
+             on its bottom-RIGHT, overhanging 74px below (all per
+             mobile.1_4213.json: photo y=1425 h=284, card x=217 y=1666
+             141×117 — expressed as % of the photo box so narrower phones
+             keep the proportions). */}
           <div className="md:hidden">
-            <div className="relative mx-auto w-full max-w-[560px]">
+            <div className="relative -mx-5 sm:-mx-6">
               <div
                 data-scroll-image="why"
-                className="relative aspect-[731/533] w-full overflow-hidden rounded-2xl"
+                className="relative aspect-[731/533] w-full overflow-hidden"
                 style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.14)" }}
               >
                 <Image
                   src={WORKSHOP}
                   alt="A Grech jeweller at the workshop bench with tools and design sketches"
                   fill
-                  sizes="90vw"
+                  sizes="100vw"
                   className="object-cover"
                 />
               </div>
-              {/* rotating ring media card overlapping the lower-left corner */}
               <div
-                className="gj-lift absolute bottom-[-26px] left-4 h-[150px] w-[180px] overflow-hidden rounded-xl border border-divider bg-black sm:h-[168px] sm:w-[202px]"
-                style={{ boxShadow: "0 6px 20px rgba(0,0,0,0.25)", boxSizing: "border-box" }}
+                className="gj-lift absolute overflow-hidden rounded-xl border border-divider bg-black"
+                style={{
+                  left: "55.64%", top: "84.86%", width: "36.15%", aspectRatio: "141 / 117",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.25)", boxSizing: "border-box",
+                }}
               >
                 <RotatingImage srcs={RINGS} bgSize="cover" bgPos="center" />
               </div>

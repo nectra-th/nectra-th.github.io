@@ -42,23 +42,38 @@ export default function FeaturedGallery() {
 
   return (
     <div>
-      {/* main image — Figma's viewport is 850x523, cornerRadius 16, 1px #39342e border */}
-      <div data-scroll-image="featured" className="relative aspect-[850/523] w-full overflow-hidden rounded-2xl border border-[#39342e]">
+      {/* Main viewport. Figma gives it 850x523 (desktop) / 390x240 (mobile) —
+         the same 1.625 aspect either way, so one ratio covers both; only the
+         chrome differs. Mobile has NO arrows and NO thumbnails in Figma, so
+         below sm this becomes a native scroll-snap track (all five slides side
+         by side, swipeable) rather than a controls-driven fade — that keeps
+         every image reachable without inventing chrome the design doesn't
+         have. From sm up the slides stack absolutely again and the arrows /
+         thumbnails cross-fade between them exactly as before. */}
+      <div
+        data-scroll-image="featured"
+        className="no-scrollbar relative flex aspect-[850/523] w-full snap-x snap-mandatory overflow-x-auto border-y border-[#39342e] sm:block sm:overflow-hidden sm:rounded-2xl sm:border"
+      >
         {IMAGES.map((src, i) => (
-          <Image
+          <div
             key={src}
-            src={src}
-            alt="Featured Grech Jewellers custom creation"
-            aria-hidden={i !== active}
-            fill
-            priority={i === 0}
-            sizes="(min-width: 1024px) 62vw, 92vw"
-            className="object-cover transition-opacity duration-500"
-            style={{ opacity: i === active ? 1 : 0 }}
-          />
+            className={`relative h-full w-full shrink-0 snap-center transition-opacity duration-500 sm:absolute sm:inset-0 ${
+              active === i ? "sm:opacity-100" : "sm:opacity-0"
+            }`}
+          >
+            <Image
+              src={src}
+              alt="Featured Grech Jewellers custom creation"
+              fill
+              priority={i === 0}
+              sizes="(min-width: 1024px) 62vw, 100vw"
+              className="object-cover"
+            />
+          </div>
         ))}
-        {/* Figma's arrow pair sits ~30px from the right edge, ~27px from the bottom */}
-        <div className="absolute bottom-[27px] right-[30px] flex gap-4">
+        {/* Figma's arrow pair sits ~30px from the right edge, ~27px from the
+           bottom — desktop/tablet only, mobile has no controls. */}
+        <div className="absolute bottom-[27px] right-[30px] hidden gap-4 sm:flex">
           <Arrow dir="left" onClick={prev} />
           <Arrow dir="right" onClick={next} />
         </div>
@@ -73,8 +88,9 @@ export default function FeaturedGallery() {
          hovering (any thumb) or being the active one brings it to 100%. */}
       {/* image-to-thumbnail gap differs by breakpoint in Figma: ~2px on the
          834px tablet reference vs 8px on desktop — not the same value scaled,
-         two genuinely different measurements. */}
-      <div className="no-scrollbar mt-[2px] flex gap-1 overflow-x-auto lg:mt-2">
+         two genuinely different measurements. Hidden below sm: the mobile
+         design has no thumbnail strip at all. */}
+      <div className="no-scrollbar mt-[2px] hidden gap-1 overflow-x-auto sm:flex lg:mt-2">
         {IMAGES.map((src, i) => (
           <button
             key={src}

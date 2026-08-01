@@ -10,10 +10,12 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 const GOOGLE_EMBED =
   "https://maps.google.com/maps?q=Grech%20Jewellers%20457%20Tapleys%20Hill%20Road%20Fulham%20Gardens%20SA%205024&z=16&output=embed";
 
+// `short` is the mobile artboard's own wording — it drops "Map" from the
+// middle tab so all three fit one row at 390px.
 const TABS = [
-  { label: "Our Store", icon: "/assets/icons/tab-store.svg" },
-  { label: "Shopping Centre Map", icon: "/assets/icons/tab-map.svg" },
-  { label: "Google Maps", icon: "/assets/icons/tab-pin.svg" },
+  { label: "Our Store", short: "Our Store", icon: "/assets/icons/tab-store.svg" },
+  { label: "Shopping Centre Map", short: "Shopping Centre", icon: "/assets/icons/tab-map.svg" },
+  { label: "Google Maps", short: "Google Maps", icon: "/assets/icons/tab-pin.svg" },
 ];
 
 function TabIcon({ src, active }: { src: string; active: boolean }) {
@@ -22,9 +24,10 @@ function TabIcon({ src, active }: { src: string; active: boolean }) {
       aria-hidden
       // backgroundColor lives in className (not inline) so group-hover can
       // reach it — an inline style would win over the hover class every time.
-      // md:h-4/w-4: the tablet frame's own verified icon size (16px, down
-      // from 24px) — this was still rendering at the desktop size below lg.
-      className={`h-6 w-6 transition-colors duration-300 md:h-4 md:w-4 lg:h-6 lg:w-6 ${active ? "bg-gold" : "bg-[#403b37] group-hover:bg-gold"}`}
+      // 16px through md (both the mobile and tablet artboards agree), 24px
+      // only at lg. Mobile's active tint is gold-dark, not the gold used
+      // from md up.
+      className={`h-4 w-4 transition-colors duration-300 lg:h-6 lg:w-6 ${active ? "bg-gold-dark md:bg-gold" : "bg-[#403b37] group-hover:bg-gold"}`}
       style={{
         WebkitMaskImage: `url(${src})`, maskImage: `url(${src})`,
         WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
@@ -69,7 +72,11 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
     document.getElementById(`findus-tab-${next}`)?.focus();
   };
   return (
-    <div>
+    // flex + order: the mobile artboard puts the view FIRST, then a dot
+    // indicator, then the tab row — the reverse of every larger size. The
+    // DOM keeps tablist-before-tabpanel (correct for assistive tech) and
+    // only the visual order flips.
+    <div className="flex flex-col">
       {/* tab bar — no border here (Figma has none under the tab row itself,
          only the active tab's own underline); row is 70px tall at lg (48px
          at the tablet frame) with content centered, no side padding and no
@@ -80,8 +87,11 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
          in the Figma data (13.01px) — my first pass back-computed this from
          the row's total height instead of using the stated value, and
          landed 4px short, which is what made the tab text sit closer to
-         the card's top edge than the real design. */}
-      <div role="tablist" aria-label="Find us" onKeyDown={onKey} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:gap-2 sm:px-6 md:gap-0 md:px-0 md:py-[13px] lg:py-[19px]">
+         the card's top edge than the real design.
+         Mobile: three equal columns split by 1px vertical rules, each tab
+         stacking its icon above its label — not the stacked full-width
+         rows this used to render below sm. */}
+      <div role="tablist" aria-label="Find us" onKeyDown={onKey} className="order-3 flex items-stretch divide-x divide-divider py-[13px] md:order-1 md:items-center md:divide-x-0 md:py-[13px] lg:py-[19px]">
         {TABS.map((t, i) => {
           const active = tab === i;
           return (
@@ -93,20 +103,38 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
               aria-controls="findus-panel"
               tabIndex={active ? 0 : -1}
               onClick={() => setTab(i)}
-              className={`group flex items-center justify-center text-[16px] uppercase tracking-[0.06em] transition-colors duration-300 sm:flex-1 md:text-[11px] lg:text-[16px] ${
-                active ? "font-bold text-gold" : "font-medium text-[#403b37] hover:text-gold"
+              // Tailwind's preflight sets buttons to cursor:default — the
+              // inactive tabs need cursor-pointer added back explicitly to
+              // show a hand on hover (the active tab doesn't need it, it's
+              // already the current view).
+              className={`group flex flex-1 items-center justify-center text-[10px] uppercase tracking-[0.06em] transition-colors duration-300 md:text-[11px] lg:text-[16px] ${
+                active ? "font-bold text-gold-dark md:text-gold" : "cursor-pointer font-medium text-[#403b37] hover:text-gold"
               }`}
             >
               {/* the gold underline spans icon + label together (Figma:
                  147px, matching the whole content group's own width), not
-                 just the text. */}
-              <span className={`flex items-center gap-2.5 pb-0.5 md:gap-[5px] lg:gap-2.5 ${active ? "border-b-2 border-gold" : ""}`}>
+                 just the text — except on mobile, where the artboard has a
+                 fixed 37px rule sitting under the label instead. */}
+              {/* md:border-b-[1.4px]: the tablet artboard's underline is
+                 1.4px, not the desktop 2px — everything on that frame is a
+                 0.685x scale of desktop, hairlines included. */}
+              <span className={`flex flex-col items-center gap-1 md:flex-row md:gap-[5px] md:pb-0.5 lg:gap-2.5 ${active ? "md:border-b-[1.4px] md:border-gold lg:border-b-2" : ""}`}>
                 <TabIcon src={t.icon} active={active} />
-                <span>{t.label}</span>
+                <span className="md:hidden">{t.short}</span>
+                <span className="hidden md:inline">{t.label}</span>
+                <span aria-hidden className={`h-px w-[37px] md:hidden ${active ? "bg-gold-dark" : "bg-transparent"}`} />
               </span>
             </button>
           );
         })}
+      </div>
+
+      {/* mobile-only position dots (Figma "Frame 302") — the tab row right
+         below is the real control, so these are decorative status only. */}
+      <div aria-hidden className="order-2 flex justify-center gap-3 py-[15px] md:hidden">
+        {TABS.map((t, i) => (
+          <span key={t.label} className={`h-3 w-3 rounded-full transition-colors duration-300 ${tab === i ? "bg-gold-dark" : "bg-[#d9d9d9]"}`} />
+        ))}
       </div>
 
       {/* content below — 16px side padding, no top padding (starts
@@ -118,7 +146,7 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
          narrowing the whole 3-column row (photo included), which is why
          the photo rendered shorter than Figma even though its own
          aspect-ratio math was already correct. */}
-      <div className="px-4 sm:px-6 md:px-[11px] lg:px-4">
+      <div className="order-1 px-1 md:order-2 md:px-[11px] lg:px-4">
         {/* view + directions + first-time card — Figma lays these out as 3
            side-by-side columns (610fr/203fr/278fr, 24px gaps at lg) — and
            the tablet artboard confirms the SAME fr ratio already applies at
@@ -128,7 +156,10 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
            14.4px top padding (not the desktop 24px gap) between the tab
            row and this content — another few px that was inflating the
            card's total height at tablet. */}
-        <div id="findus-panel" ref={panelRef} role="tabpanel" aria-labelledby={`findus-tab-${tab}`} className="mt-6 grid gap-6 md:mt-[14px] md:grid-cols-[610fr_203fr_278fr] md:gap-4 lg:mt-6 lg:gap-6">
+        {/* mt-0 on mobile: the view sits flush at the card's own 4px top
+           padding there (it's the first thing in the card, not something
+           following a tab row). */}
+        <div id="findus-panel" ref={panelRef} role="tabpanel" aria-labelledby={`findus-tab-${tab}`} className="mt-0 grid gap-6 md:mt-[14px] md:grid-cols-[610fr_203fr_278fr] md:gap-4 lg:mt-6 lg:gap-6">
           <div
             className={`relative aspect-[610/348] w-full overflow-hidden rounded-xl border border-divider bg-ink-2 shadow-[0_6px_8.6px_rgba(20,19,18,0.1)] ${tab === 2 ? "lg:col-span-3" : ""}`}
             style={tab === 2 && mapHeight != null ? { height: mapHeight } : undefined}
@@ -140,9 +171,11 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
             )}
           </div>
           {/* hidden on the Google Maps tab — the map takes the full width
-             in their place instead of pushing them below it. */}
-          {tab !== 2 && <div className="lg:col-start-2">{directions}</div>}
-          {tab !== 2 && <div className="lg:col-start-3">{firstTime}</div>}
+             in their place instead of pushing them below it. Also hidden
+             below md: the mobile artboard drops both panels entirely and
+             shows just the view + contact details. */}
+          {tab !== 2 && <div className="hidden md:block lg:col-start-2">{directions}</div>}
+          {tab !== 2 && <div className="hidden md:block lg:col-start-3">{firstTime}</div>}
         </div>
       </div>
     </div>

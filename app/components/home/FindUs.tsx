@@ -24,13 +24,16 @@ const STEPS = [
    Size comes in as a className (not numeric props) so callers can give it
    responsive w-[]/h-[] variants — the tablet frame verifies every one of
    these icons at a smaller size than desktop, not just a uniform scale. */
-function InfoIcon({ src, size }: { src: string; size: string }) {
+function InfoIcon({ src, size, tone = "var(--color-gold-dark)" }: { src: string; size: string; tone?: string }) {
   return (
     <span
       aria-hidden
-      className={`mt-0.5 shrink-0 ${size}`}
+      // the small optical nudge moved out to each caller's `size` string —
+      // the mobile CALL button centres its icon instead and must not
+      // inherit it.
+      className={`shrink-0 ${size}`}
       style={{
-        backgroundColor: "var(--color-gold-dark)",
+        backgroundColor: tone,
         WebkitMaskImage: `url(${src})`, maskImage: `url(${src})`,
         WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
         WebkitMaskSize: "contain", maskSize: "contain",
@@ -56,7 +59,9 @@ function Directions() {
       <p className="text-center font-sans text-[14px] font-semibold text-gold-dark md:text-[10px] md:leading-[7px] lg:text-[14px] lg:leading-normal">Directions</p>
       <ol className="mt-5 flex flex-col gap-5 md:mt-[18px] md:gap-[18px] lg:mt-5 lg:gap-5">
         {STEPS.flatMap((s, i) => [
-          i > 0 && <li key={`div-${i}`} aria-hidden className="h-px w-full bg-[#e1dfdc]" />,
+          // md:h-[0.7px]: Figma's step rules are strokeWeight 0.685 on the
+          // tablet frame vs a full 1px at lg.
+          i > 0 && <li key={`div-${i}`} aria-hidden className="h-px w-full bg-[#e1dfdc] md:h-[0.7px] lg:h-px" />,
           <li key={i} className="flex items-start gap-3 md:gap-[5px] lg:gap-3">
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold-light text-[16px] font-semibold text-gold-light md:h-[19px] md:w-[19px] md:text-[11px] lg:h-7 lg:w-7 lg:text-[16px]">{i + 1}</span>
             {/* md:leading-none: Figma's own line-height here is 10.27px on a
@@ -98,7 +103,7 @@ function FirstTimeCard() {
       <p className="mt-6 text-label text-gold-dark md:mt-8 md:leading-[7px] lg:mt-6 lg:leading-normal">Need Help Finding Us?</p>
       <p className="mt-2 font-sans text-[14px] leading-snug text-[#403b37] md:mt-[11px] md:text-[10px] md:leading-[12px] lg:mt-2 lg:text-[14px] lg:leading-snug">Give us a call and we&rsquo;ll happily guide you to our showroom.</p>
       <a href={PHONE_HREF} className="mt-3 inline-flex items-center gap-2 font-sans text-[20px] font-bold text-ink-text hover:text-gold-dark md:mt-[11px] md:gap-[11px] md:text-[14px] lg:mt-3 lg:gap-2 lg:text-[20px]">
-        <InfoIcon src="/assets/icons/info-phone.svg" size="w-[46px] h-[48px] md:w-[31px] md:h-[32px] lg:w-[46px] lg:h-[48px]" />
+        <InfoIcon src="/assets/icons/info-phone.svg" size="mt-0.5 w-[46px] h-[48px] md:w-[31px] md:h-[32px] lg:w-[46px] lg:h-[48px]" />
         {PHONE_DISPLAY}
       </a>
     </div>
@@ -118,7 +123,16 @@ function FirstTimeCard() {
 // skeleton estimate.
 export default function FindUs() {
   return (
-    <section id="findus" aria-label="Find Us" className="relative overflow-hidden bg-ink pb-16 pt-16 md:pb-20 md:pt-20 lg:pb-[177px] lg:pt-[189px]">
+    // min-h only, no max-h: 1173px is the mobile artboard's height and it
+    // still lands exactly at 390px wide (natural content is a touch under
+    // it), but the card scales with the viewport, so a hard max-h + the
+    // overflow-hidden above was slicing the bottom off the card on any
+    // wider phone — 194px of it gone by 767px.
+    // pt-[102px]/pb-[98.5px]: the mobile section runs 11004 (where the
+    // previous section's bg ends) to 12177 (where the next one's begins) =
+    // 1173px, with "Plan Your Visit" at 11106 — i.e. 102px down, not the
+    // 64px pt-16 was giving. Bottom is the remainder after the card.
+    <section id="findus" aria-label="Find Us" className="relative overflow-hidden bg-ink pb-[98.5px] pt-[102px] min-h-[1173px] md:min-h-0 md:pb-20 md:pt-20 lg:pb-[177px] lg:pt-[189px]">
       {/* blurred storefront backdrop — Figma composites this as a single
          rectangle: solid black fill, then the photo drawn over it at 39%
          opacity (blend normal), then the whole thing blurred. The section's
@@ -132,7 +146,12 @@ export default function FindUs() {
       </div>
 
       <Container className="relative">
-        <div className="text-center">
+        {/* -translate-x-[9.5px]: the mobile artboard sits this whole block
+           (eyebrow + heading + rule, all three share one 179px frame at
+           x=96) at centre 185.5 while the card below is centred at 195.5 —
+           i.e. 9.5px left of the viewport centre. Matching it rather than
+           optically centring. Drop this class to centre it instead. */}
+        <div className="-translate-x-[9.5px] text-center md:translate-x-0">
           {/* measured #b58a47 exactly — closer to --color-gold (#b88c46) than
              either existing Eyebrow tone (gold-dark #9c7430 / gold-light
              #c0985a), so overriding the color precisely here rather than
@@ -151,12 +170,17 @@ export default function FindUs() {
              frame). 32 also happens to match the shared .text-h2 role used
              elsewhere on the page, just applied here as a literal value
              rather than the class, since that class's own lg line-height
-             (64px) would undo the leading-none rule-gap fix above. */}
-          <h2 className="mt-[13px] font-serif text-[34px] font-bold leading-none text-cream-light md:text-[32px] lg:text-[56px]">Find Us</h2>
-          {/* +11px vs the previous 28/7: compensates the h2's margin-top
-             drop (24px -> 13px) so the rule stays exactly where it was
-             (verified against Figma: 291px from the section's true top). */}
-          <GoldRule width={114} center className="mt-[39px] lg:mt-[18px]" />
+             (64px) would undo the leading-none rule-gap fix above.
+             fig-trim: the same cap-trim the Eyebrow above already uses, so
+             this box measures the glyph caps (20px at 32, 35px at 56) exactly
+             like Figma's own boxes do — which is what lets the margins below
+             be Figma's literal numbers instead of leading-compensated
+             guesses. tracking: all three artboards set -0.015em here. */}
+          <h2 className="fig-trim mt-[24px] font-serif text-[32px] font-bold leading-none tracking-[-0.015em] text-cream-light md:mt-[12px] lg:mt-[24px] lg:text-[56px]">Find Us</h2>
+          {/* 28px on every artboard (mobile/tablet/desktop all agree). With
+             the cap-trim above this lands the rule at Figma's exact y —
+             291px from the section top at lg, unchanged from before. */}
+          <GoldRule width={114} center className="mt-[28px]" />
         </div>
 
         {/* mt-20: Figma's real gap from the title rule to the card (80px at
@@ -170,8 +194,12 @@ export default function FindUs() {
            md:-mx-[11px]: the tablet frame actually keeps a 13px side margin
            (not edge-to-edge like desktop) — Container's own md padding is
            still 24px (sm:px-6, no md override there), so cancelling only
-           11px of it leaves the real 13px gap instead of the full bleed. */}
-        <div className="-mx-5 mt-10 overflow-hidden rounded-[18px] border border-divider bg-cream-light sm:-mx-6 md:-mx-[11px] md:mt-[71px] lg:-mx-8 lg:mt-20">
+           11px of it leaves the real 13px gap instead of the full bleed.
+           -mx-[13.5px]/mt-[30px]: the mobile artboard's card is 377 wide in
+           a 390 viewport (6.5px each side) and sits 30px under the rule.
+           The old sm:-mx-6 is gone — at 640px it made the card wider than
+           the viewport, and mobile now runs unbroken up to md. */}
+        <div className="-mx-[13.5px] mt-[28px] overflow-hidden rounded-[18px] border border-divider bg-cream-light md:-mx-[11px] md:mt-[69px] lg:-mx-8 lg:mt-20">
           <FindUsTabs directions={<Directions />} firstTime={<FirstTimeCard />} />
 
           {/* contact info row — its own bordered/tinted box (bg-cream-card +
@@ -181,44 +209,73 @@ export default function FindUs() {
              px-6/py-8 (24/32) below is really the lg-verified value, applied
              everywhere for lack of a tablet-specific override before.
              md:mx-[11px]: matches the same 10.96px inset just fixed on the
-             row above it — this was still inheriting the 24px sm:mx-6. */}
-          <div className="mx-4 mb-4 mt-5 border border-divider bg-cream-card px-6 py-8 sm:mx-6 sm:mb-6 md:mx-[11px] md:px-4 md:py-[22px] lg:mx-4 lg:mb-4 lg:px-6 lg:py-8">
+             row above it — this was still inheriting the 24px sm:mx-6.
+             Mobile: flush to the card's own 4px padding, no gap above (it
+             butts straight onto the tab row), 24/32 padding inside — and no
+             border or tint of its own, since the mobile artboard fills this
+             box with the same #f8f3ea as the card behind it and gives it no
+             stroke, i.e. it reads as plain content on the card. */}
+          <div className="mx-1 mb-1 mt-0 border-0 bg-transparent px-6 py-8 md:mx-[11px] md:mb-4 md:mt-5 md:border md:border-divider md:bg-cream-card md:px-4 md:py-[22px] lg:mx-4 lg:px-6 lg:py-8">
             {/* all 4 columns side-by-side from md — the tablet frame already
                shows Location/Phone+Email/Hours/Open-in in one row, not the
                2-then-4 split this used to do between 768–1023px. md:gap-5:
                the tablet frame's own 20px column gap (24px only kicks in
-               at lg). */}
-            <div className="grid gap-6 md:grid-cols-4 md:gap-5 lg:gap-8">
+               at lg).
+               Mobile: one 257px-wide centred column with 32px between each
+               block, exactly as the mobile artboard stacks them. */}
+            <div className="mx-auto grid max-w-[257px] gap-8 md:max-w-none md:grid-cols-4 md:gap-5 lg:gap-8">
+            {/* hairline above the stack — mobile artboard only (Figma
+               "Frame 304"); display:none at md so it never takes a grid
+               cell in the 4-column layout. */}
+            <span aria-hidden className="h-px w-full bg-divider md:hidden" />
+            {/* the four "LOCATION / PHONE / EMAIL / HOURS" captions are
+               hidden below md — the mobile artboard drops them entirely and
+               leans on the icons alone. */}
             <div className="flex gap-3 md:gap-[8px] lg:gap-3">
-              <InfoIcon src="/assets/icons/info-location.svg" size="w-[23px] h-[32px] md:w-[16px] md:h-[22px] lg:w-[23px] lg:h-[32px]" />
+              <InfoIcon src="/assets/icons/info-location.svg" size="mt-0.5 w-[23px] h-[32px] md:w-[16px] md:h-[22px] lg:w-[23px] lg:h-[32px]" />
               <div>
-                <p className="font-sans text-[16px] font-bold uppercase text-gold-dark md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Location</p>
-                <p className="mt-1.5 font-sans text-[14px] leading-snug text-[#403b37] md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-snug">Fulham Gardens Shopping Centre, Shop 90/457 Tapleys Hill Road, Fulham Gardens SA 5024</p>
+                <p className="hidden font-sans text-[16px] font-bold uppercase text-gold-dark md:block md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Location</p>
+                <p className="font-sans text-[14px] leading-[27px] text-[#403b37] md:mt-1.5 md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-snug">Fulham Gardens Shopping Centre, Shop 90/457 Tapleys Hill Road, Fulham Gardens SA 5024</p>
               </div>
             </div>
 
-            <div className="flex flex-col gap-5 md:gap-[22px] lg:gap-5">
-              <div className="flex gap-3 md:gap-[11px] lg:gap-3">
-                <InfoIcon src="/assets/icons/info-phone.svg" size="w-[30px] h-[32px] md:w-[21px] md:h-[22px] lg:w-[30px] lg:h-[32px]" />
+            <div className="flex flex-col gap-8 md:gap-[22px] lg:gap-5">
+              {/* mobile turns the phone number into a full-width gold CALL
+                 button (Figma reuses its "Frame 149" button here); md+ keeps
+                 the plain icon + caption + number. Only one is ever in the
+                 DOM's accessibility tree — the other is display:none. */}
+              {/* px-4 + nowrap, not Figma's literal 34px padding: at 257px
+                 wide the artboard's own numbers leave exactly 160px for the
+                 label, which the real webfont overruns by a hair and wraps
+                 onto a second line. The button is full-width and centred, so
+                 trimming the side padding changes nothing visually. */}
+              <a href={PHONE_HREF} className="flex items-center justify-center gap-2.5 whitespace-nowrap rounded-lg bg-gold px-4 py-[18px] font-sans text-[14px] font-semibold uppercase leading-[10px] tracking-[0.09em] text-cream-light transition-colors hover:bg-gold-dark md:hidden">
+                <InfoIcon src="/assets/icons/info-phone.svg" size="w-[19px] h-[20px]" tone="var(--color-cream-light)" />
+                Call {PHONE_DISPLAY}
+              </a>
+              <div className="hidden gap-3 md:flex md:gap-[11px] lg:gap-3">
+                <InfoIcon src="/assets/icons/info-phone.svg" size="mt-0.5 w-[30px] h-[32px] md:w-[21px] md:h-[22px] lg:w-[30px] lg:h-[32px]" />
                 <div>
                   <p className="font-sans text-[16px] font-bold uppercase text-gold-dark md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Phone</p>
                   <a href={PHONE_HREF} className="mt-1.5 block font-sans text-[14px] text-[#403b37] hover:text-gold-dark md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-normal">{PHONE_DISPLAY}</a>
                 </div>
               </div>
-              <div className="flex gap-3 md:gap-[11px] lg:gap-3">
-                <InfoIcon src="/assets/icons/info-email.svg" size="w-[32px] h-[23px] md:w-[22px] md:h-[16px] lg:w-[32px] lg:h-[23px]" />
+              <div className="flex items-center gap-4 md:items-start md:gap-[11px] lg:gap-3">
+                <InfoIcon src="/assets/icons/info-email.svg" size="w-[32px] h-[23px] md:mt-0.5 md:w-[22px] md:h-[16px] lg:w-[32px] lg:h-[23px]" />
                 <div>
-                  <p className="font-sans text-[16px] font-bold uppercase text-gold-dark md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Email</p>
-                  <a href="mailto:jeweller@grechjewellers.com.au" className="mt-1.5 block font-sans text-[14px] text-[#403b37] hover:text-gold-dark md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-normal lg:whitespace-nowrap">jeweller@grechjewellers.com.au</a>
+                  <p className="hidden font-sans text-[16px] font-bold uppercase text-gold-dark md:block md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Email</p>
+                  <a href="mailto:jeweller@grechjewellers.com.au" className="block font-sans text-[14px] leading-[30px] text-[#403b37] hover:text-gold-dark md:mt-1.5 md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-normal lg:whitespace-nowrap">jeweller@grechjewellers.com.au</a>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-3 md:gap-[11px] lg:gap-3">
-              <InfoIcon src="/assets/icons/info-hours.svg" size="w-[32px] h-[32px] md:w-[22px] md:h-[22px] lg:w-[32px] lg:h-[32px]" />
-              <div>
-                <p className="font-sans text-[16px] font-bold uppercase text-gold-dark md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Hours</p>
-                <dl className="mt-1.5 space-y-0.5 font-sans text-[14px] text-[#403b37] md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-normal">
+            <div className="flex gap-4 md:gap-[11px] lg:gap-3">
+              <InfoIcon src="/assets/icons/info-hours.svg" size="mt-0.5 w-[32px] h-[32px] md:w-[22px] md:h-[22px] lg:w-[32px] lg:h-[32px]" />
+              <div className="grow">
+                <p className="hidden font-sans text-[16px] font-bold uppercase text-gold-dark md:block md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Hours</p>
+                {/* mobile rows sit 26px apart (leading alone, no extra
+                   spacing) per the mobile artboard. */}
+                <dl className="space-y-0 font-sans text-[14px] leading-[26px] text-[#403b37] md:mt-1.5 md:space-y-0.5 md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-normal">
                   <div className="flex justify-between gap-3"><dt>Mon – Fri</dt><dd>9:00am – 5:00pm</dd></div>
                   <div className="flex justify-between gap-3"><dt>Saturday</dt><dd>9:00am – 1:00pm</dd></div>
                   <div className="flex justify-between gap-3"><dt>Sunday</dt><dd>Closed</dd></div>
@@ -236,16 +293,20 @@ export default function FindUs() {
                carry counterAxisAlignItems:MAX too, same as desktop — this
                was only flipping to right-aligned at lg, so it sat left-
                aligned (wrong side) through the whole tablet range. */}
-            <div className="flex flex-col items-start justify-center gap-[10px] md:items-end md:gap-[7px] lg:gap-[10px]">
+            {/* mobile centres this block (Figma's mobile Frame254/255 are
+               counterAxisAlignItems:CENTER, not MAX) with a 12px inner gap. */}
+            <div className="flex flex-col items-center justify-center gap-[10px] md:items-end md:gap-[7px] lg:gap-[10px]">
               {/* leading-[10px]/[15px]: Figma's cap-trimmed text boxes for
                  these two lines are 10px and 15px tall — the browser's
                  default line-height (~21px/~36px) was inflating this whole
                  column well past Figma's real 101px, which is what was
                  pushing the section's total height past 1216px. */}
-              <div className="flex flex-col items-start gap-[10px] md:items-end md:gap-[7px] lg:gap-[10px]">
+              <div className="flex flex-col items-center gap-3 md:items-end md:gap-[7px] lg:gap-[10px]">
                 <span className="font-sans text-[14px] font-semibold uppercase leading-[10px] tracking-[0.09em] text-gold-dark md:text-[9.6px] md:leading-[7px] lg:text-[14px] lg:leading-[10px]">Open In</span>
                 <span className="font-serif text-[24px] font-semibold leading-[15px] tracking-[0.09em] text-[#403b37] md:text-[16.4px] md:leading-[10px] lg:text-[24px] lg:leading-[15px]">Google Maps</span>
-                <span aria-hidden className="h-0.5 w-12 bg-gold-dark md:w-[33px] lg:w-12" />
+                {/* md:h-[1.4px]: strokeWeight 1.37 on the tablet frame, 2px
+                   at mobile and lg. */}
+                <span aria-hidden className="h-0.5 w-12 bg-gold-dark md:h-[1.4px] md:w-[33px] lg:h-0.5 lg:w-12" />
               </div>
               {/* desktop opens a new tab; mobile navigates same-tab so the OS
                  can intercept it as a universal/app link straight into the

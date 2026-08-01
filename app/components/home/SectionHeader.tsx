@@ -41,6 +41,14 @@ export function Eyebrow({ children, tone = "gold", className = "" }: { children:
 
 export default function SectionHeader({
   eyebrow, title, body, tone = "light", align = "left", ruleWidth = 64, headingId, className = "", children, bodyMaxWidth,
+  // Per-caller margin overrides (each replaces its default wholesale, so a
+  // caller re-states every tier it needs) — added for the per-breakpoint
+  // Figma passes, where a section's own artboard specifies different
+  // element gaps at one tier without changing the shared defaults.
+  titleMargin = "mt-4",
+  ruleMargin = "mt-6 lg:mt-8",
+  bodyMargin = "mt-7",
+  bodyClassName = "",
 }: {
   eyebrow?: ReactNode;
   title: ReactNode;
@@ -52,6 +60,13 @@ export default function SectionHeader({
   className?: string;
   children?: ReactNode; // e.g. a CTA row appended under the body
   bodyMaxWidth?: number; // px override of the default 34rem (544px) — e.g. Reviews' 636px single-line copy
+  titleMargin?: string;
+  ruleMargin?: string;
+  bodyMargin?: string;
+  // Appended last so it can override .text-body — for sections whose board
+  // genuinely diverges from the shared token (e.g. Reviews' 18px mobile
+  // leading vs the token's majority 25px).
+  bodyClassName?: string;
 }) {
   const centered = align === "center";
   const heading = tone === "dark" ? "text-cream-light" : "text-ink-text";
@@ -63,14 +78,14 @@ export default function SectionHeader({
       {eyebrow && <Eyebrow className={centered ? "mx-auto" : ""}>{eyebrow}</Eyebrow>}
       <h2
         id={headingId}
-        className={`fig-trim mt-4 text-h2 ${heading}`}
+        className={`fig-trim ${titleMargin} text-h2 ${heading}`}
       >
         {title}
       </h2>
-      <GoldRule width={ruleWidth} center={centered} className="mt-6 lg:mt-8" />
+      <GoldRule width={ruleWidth} center={centered} className={ruleMargin} />
       {body && (
         <p
-          className={`fig-trim mt-7 ${bodyMaxWidth ? "" : "max-w-[34rem]"} text-body ${bodyColor} ${centered ? "mx-auto" : ""}`}
+          className={`fig-trim ${bodyMargin} ${bodyMaxWidth ? "" : "max-w-[34rem]"} text-body ${bodyColor} ${centered ? "mx-auto" : ""} ${bodyClassName}`}
           style={bodyMaxWidth ? { maxWidth: bodyMaxWidth } : undefined}
         >
           {body}

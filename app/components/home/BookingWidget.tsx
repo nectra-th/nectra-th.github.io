@@ -45,7 +45,7 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
   // against the tablet IDLE STATE directly. Mobile and desktop share the
   // same (larger) scale, confirmed identical against their own references.
   const H3 = { fontFamily: FONT, fontSize: compact ? 20 : 28, fontWeight: 600, lineHeight: compact ? "22px" : "28px", color: "var(--color-ink-text)", margin: 0 } as const;
-  const SUB = { fontFamily: FONT, fontSize: compact ? 11 : 16, lineHeight: compact ? "16px" : "24px", color: "var(--color-body)", marginTop: compact ? 11 : 16 } as const;
+  const SUB = { fontFamily: FONT, fontSize: compact ? 11 : 16, lineHeight: compact ? "16px" : "24px", color: "var(--color-body)", marginTop: compact ? 11 : stacked ? 8 : 16 } as const;
   const [step, setStep] = useState<Step>("select");
   // `today` / `view` depend on the current date, which differs between build time
   // (this island is prerendered) and the visitor's runtime — deriving them during
@@ -136,7 +136,7 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
   void cardWidth;
   const cardChrome = {
     borderRadius: 18, background: "rgba(248,243,234,0.9)", border: "1px solid #d8cbb7", boxShadow: "0 20px 60px -20px rgba(20,19,18,0.25)",
-    backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: stacked ? "26px 20px" : compact ? "27px 34px" : "40px 44px", fontFamily: FONT,
+    backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: stacked ? "40px 20px" : compact ? "27px 34px" : "40px 44px", fontFamily: FONT,
   } as const;
   // 470 is desktop's own natural content height, kept as one shared floor
   // across steps so the card doesn't resize when switching (select/details/
@@ -157,9 +157,9 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
     <div>
       <h3 style={{ ...H3, textAlign: stacked ? "center" : undefined, lineHeight: stacked ? "38px" : H3.lineHeight }}>Preparing for Your<br />Design Consultation</h3>
       <p style={{ ...SUB, textAlign: stacked ? "center" : undefined }}>Everything you need before we meet.</p>
-      <ul style={{ marginTop: stacked ? 8 : compact ? 33 : 48, display: "flex", flexDirection: "column", gap: compact ? 16 : 24 }}>
+      <ul style={{ marginTop: stacked ? 24 : compact ? 33 : 48, display: "flex", flexDirection: "column", gap: compact ? 16 : 24 }}>
         {CHECKLIST.map((c) => (
-          <li key={c} style={{ display: "flex", alignItems: "center", gap: compact ? 5 : 6, height: compact ? 16 : 24 }}>
+          <li key={c} style={{ display: "flex", alignItems: "center", gap: compact ? 5 : stacked ? 8 : 6, height: compact ? 16 : 24 }}>
             <Check style={{ width: compact ? 16 : 24, height: compact ? 16 : 24, flex: "0 0 auto", color: "var(--color-gold)" }} />
             <span style={{ fontFamily: FONT, fontSize: compact ? 11 : 16, fontWeight: 500, color: "var(--color-ink-text)", whiteSpace: stacked ? "normal" : "nowrap" }}>{c}</span>
           </li>
@@ -271,10 +271,13 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
           {/* right — Enter Your Details form */}
           <div>
             <h3 style={{ ...H3, textAlign: stacked ? "left" : "right" }}>Enter Your Details</h3>
-            <div style={{ marginTop: stacked ? 24 : compact ? 19 : 32, display: "flex", flexDirection: "column", gap: compact ? 5 : 8 }}>
-              <Field label="Name *" value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Your name" showLabel={false} compact={compact} />
-              <Field label="Email *" type="email" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} placeholder="Email Address" showLabel={false} compact={compact} />
+            {/* Field labels show on mobile and desktop; only the tablet
+                (compact) column drops them to bare inputs. */}
+            <div style={{ marginTop: stacked ? 24 : compact ? 19 : 24, display: "flex", flexDirection: "column", gap: compact ? 5 : 8 }}>
+              <Field label="Name *" value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Your name" showLabel={!compact} compact={compact} />
+              <Field label="Email *" type="email" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} placeholder="Email Address" showLabel={!compact} compact={compact} />
               <div>
+                {!compact && <FieldLabel>Contact Number*</FieldLabel>}
                 <div style={{ display: "flex" }}>
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: compact ? "0 8px" : "0 12px", height: compact ? 30 : 44, border: "1px solid var(--color-divider)", borderRight: "none", borderRadius: "8px 0 0 8px", background: "var(--color-cream-light)" }}>
                     <span role="img" aria-label="Australia" style={{ width: compact ? 18 : 26, height: compact ? 14 : 20, borderRadius: 2, backgroundImage: "url(/assets/flag-au.png)", backgroundSize: "cover", backgroundPosition: "center" }} />
@@ -317,7 +320,7 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
   const timeSlots: { t: string; disabled: boolean; preview?: boolean }[] = selectedDate ? availableTimes : TIME_SLOTS.map((t) => ({ t, disabled: false, preview: true }));
   return (
     <div style={cardBase}>
-      <div style={{ position: "relative", display: "grid", gridTemplateColumns: stacked ? "1fr" : "1fr 1fr 1fr", columnGap: COL_GAP, rowGap: stacked ? 20 : 0 }}>
+      <div style={{ position: "relative", display: "grid", gridTemplateColumns: stacked ? "1fr" : "1fr 1fr 1fr", columnGap: COL_GAP, rowGap: stacked ? 24 : 0 }}>
         {!stacked && <div style={{ position: "absolute", left: DIV1, top: compact ? 76 : 111, width: 1, height: compact ? 175 : 256, background: "var(--color-divider)" }} />}
         {!stacked && <div style={{ position: "absolute", left: DIV2, top: compact ? 76 : 111, width: 1, height: compact ? 175 : 256, background: "var(--color-divider)" }} />}
 
@@ -333,10 +336,10 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
               <span style={{ fontSize: compact ? 10 : 16, fontWeight: 500, letterSpacing: "0.02em", color: "var(--color-ink-text)", width: compact ? 88 : undefined, textAlign: compact ? "center" : undefined, flex: "0 0 auto" }}>{view ? `${MONTHS[view.m]} ${view.y}` : " "}</span>
               <button aria-label="Next month" onClick={() => setView((v) => (v ? (v.m === 11 ? { y: v.y + 1, m: 0 } : { y: v.y, m: v.m + 1 }) : v))} className="gj-navarrow" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: compact ? 24 : 32, height: compact ? 24 : 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold-dark)", cursor: "pointer", flex: "0 0 auto" }}><ArrowRight style={{ width: compact ? 11 : 15, height: compact ? 11 : 15 }} /></button>
             </div>
-            <div style={{ marginTop: stacked ? 10 : compact ? 0 : 8, display: "grid", gridTemplateColumns: "repeat(7,1fr)", alignItems: "center", height: compact ? 27 : undefined, textAlign: "center" }}>
+            <div style={{ marginTop: stacked ? 0 : compact ? 0 : 8, display: "grid", gridTemplateColumns: "repeat(7,1fr)", alignItems: "center", height: compact ? 27 : stacked ? 40 : undefined, textAlign: "center" }}>
               {WEEKDAYS.map((w) => (<span key={w} style={{ fontSize: compact ? 8.5 : 12, fontWeight: 500, letterSpacing: "0.02em", color: "var(--color-body)", opacity: 0.7 }}>{w}</span>))}
             </div>
-            <div style={{ marginTop: stacked ? 8 : 0, display: "grid", gridTemplateColumns: "repeat(7,1fr)", gridAutoRows: compact ? "27px" : "40px", columnGap: compact ? 5 : 8, rowGap: compact ? 3 : 8, placeItems: "center", minHeight: compact ? 160 : 232 }}>
+            <div style={{ marginTop: 0, display: "grid", gridTemplateColumns: "repeat(7,1fr)", gridAutoRows: compact ? "27px" : "40px", columnGap: compact ? 5 : 8, rowGap: compact ? 3 : 8, placeItems: "center", minHeight: compact ? 160 : 232 }}>
               {cells.map((c, idx) => {
                 const dateStr = c.date && view ? iso(view.y, view.m, c.day) : null;
                 const disabled = dateDisabled(c.date);
@@ -365,13 +368,13 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
         <div style={{ textAlign: "center" }}>
           <h3 style={{ ...H3, fontWeight: 700, textAlign: stacked ? "center" : "right" }}>Select a Time</h3>
           <p style={{ ...SUB, textAlign: stacked ? "center" : "right" }}>Available Appointments</p>
-          <div style={{ marginTop: stacked ? 16 : compact ? 33 : 48, display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: compact ? 6 : 14, rowGap: compact ? 6 : 10 }}>
+          <div style={{ marginTop: stacked ? 16 : compact ? 33 : 48, display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: compact ? 6 : stacked ? 8 : 14, rowGap: compact ? 6 : stacked ? 8 : 10 }}>
             {timeSlots.map(({ t, disabled, preview }) => {
               const on = selectedTime === t;
               return (
                 <button key={t} className={"gj-soft" + (!on && !disabled && !preview ? " gj-timeslot" : "")} disabled={disabled || preview} aria-pressed={on} aria-label={`${spaceTime(t)}${disabled && !preview ? " (unavailable)" : ""}`} onClick={() => setSelectedTime(t)}
                   style={{
-                    height: stacked ? 42 : compact ? 31 : 46, borderRadius: 0, fontSize: compact ? 10 : 15,
+                    height: stacked ? 44 : compact ? 31 : 46, borderRadius: 0, fontSize: compact ? 10 : 15,
                     border: `1px solid ${on ? "#b88c46" : "var(--color-divider)"}`,
                     background: on ? "#b88c46" : disabled ? "var(--color-cream-card)" : "var(--color-cream-light)",
                     color: on ? "#ede5d7" : preview || disabled ? "var(--color-line)" : "#403b37",
@@ -382,18 +385,21 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
               );
             })}
           </div>
-          {/* not in Figma's IDLE STATE at all (that column ends exactly at the
-             time-slot grid, no extra room) — shown only once a time is picked,
-             so the empty/undecided card matches Figma's height exactly. */}
-          {canContinue && (
+          {/* Mobile's own IDLE STATE *does* include these two rows (duration
+             line + a disabled-styled Continue), so they're always present when
+             stacked. Tablet/desktop IDLE ends exactly at the time-slot grid
+             with no extra room, so there they stay hidden until a time is
+             picked and the card keeps Figma's exact height. */}
+          {(stacked || canContinue) && (
             <>
-              <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 8 }}>
-                <Clock style={{ width: 16, height: 16, flex: "0 0 auto", color: "var(--color-gold)" }} />
-                <span style={{ fontSize: compact ? 11 : 14, color: "var(--color-body)" }}>30-45 minute consultation</span>
+              <div style={{ marginTop: stacked ? 29 : 18, display: "flex", alignItems: "center", justifyContent: "flex-start", textAlign: "left", gap: stacked ? 7 : 8 }}>
+                <Clock style={{ width: stacked ? 24 : 16, height: stacked ? 24 : 16, flex: "0 0 auto", color: "var(--color-gold)" }} />
+                <span style={{ fontSize: compact ? 11 : stacked ? 15 : 14, color: "var(--color-body)" }}>30-45 minute consultation</span>
               </div>
-              <button className="gj-primary" onClick={() => setStep("details")}
-                style={{ marginTop: 14, width: "100%", height: 46, borderRadius: 8, fontSize: compact ? 12 : 14, fontWeight: 600, letterSpacing: "0.04em",
-                  background: "#b88c46", color: "var(--color-ink)", cursor: "pointer", border: "none" }}>
+              <button className="gj-primary" onClick={() => setStep("details")} disabled={!canContinue}
+                style={{ marginTop: stacked ? 5 : 14, width: "100%", height: stacked ? 48 : 46, borderRadius: 8, fontSize: compact ? 12 : 14, fontWeight: 600, letterSpacing: "0.04em",
+                  background: canContinue ? "#b88c46" : "#d8cbb7", color: canContinue ? "var(--color-ink)" : "rgba(87,87,87,0.5)",
+                  cursor: canContinue ? "pointer" : "default", border: "none" }}>
                 Continue
               </button>
             </>

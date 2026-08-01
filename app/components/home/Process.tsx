@@ -7,6 +7,11 @@ import QualityStrip from "./QualityStrip";
 
 const PHOTO = "/assets/figma-img/93008b2255e0cb4ff383e1f248edae1148054651.png";
 const SKETCH = "/assets/figma-img/5f6008f58d9a12cc23a117e06c212f06004cb655.png";
+// Mobile's own crop of the ring sketch — a completely different aspect ratio
+// (233×162) from the tablet/desktop crop (272×362/440×585), not a scaled
+// version of it. Exported directly from Figma's "David-Sketch-Alpha-Grey 1"
+// node (Crop fill mode), same as the other two.
+const MOBILE_SKETCH = "/assets/figma-img/mobile-sketch.png";
 
 const STEPS = [
   { n: 1, label: ["Consultation"], icon: "ic-people" },
@@ -27,7 +32,7 @@ function Step({ s }: { s: (typeof STEPS)[number] }) {
          (0 2px 8px rgba(0,0,0,.25)) appears behind it, and the whole step
          (icon + number + label) lifts -2px together — the same lift used
          everywhere else on the site. */}
-      <span className="flex h-16 w-16 items-center justify-center rounded-full border border-divider bg-cream-alt transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:border-gold-dark group-hover:shadow-[0_2px_8px_rgba(0,0,0,0.25)]">
+      <span className="flex h-16 w-16 items-center justify-center rounded-full border border-divider bg-cream-card transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:border-gold-dark group-hover:shadow-[0_2px_8px_rgba(0,0,0,0.25)]">
         <img src={`/assets/icons/${s.icon}.png`} alt="" aria-hidden loading="lazy" decoding="async" className="h-8 w-auto" />
       </span>
       <span className="mt-3 font-sans text-sm font-normal text-gold-dark">{s.n}</span>
@@ -38,7 +43,7 @@ function Step({ s }: { s: (typeof STEPS)[number] }) {
   );
 }
 
-// Column centres in a 4-equal-column row: 12.5%, 37.5%, 62.5%, 87.5%.
+// Column centres in a 4-equal-column row (md+): 12.5%, 37.5%, 62.5%, 87.5%.
 const COL_CENTERS = [12.5, 37.5, 62.5];
 // Figma's 3 line segments stop well short of each circle — measured gaps
 // ranged ~21.5-31px across the row (icon hug-widths vary slightly per step),
@@ -46,23 +51,56 @@ const COL_CENTERS = [12.5, 37.5, 62.5];
 // ends = icon radius (32px) + that margin.
 const SEGMENT_OFFSET = 32 + 25;
 
+// Mobile's 2-column row isn't a plain 50/50 grid — Figma reserves a fixed
+// 80px middle gutter for the connector (124px col + 12px + 56px connector +
+// 12px + 124px col = 328px row), so each column is really 37.8049% wide, not
+// 50%; column centres land at 18.9024%/81.0976%, not 25%/75%. Reproduced via
+// an explicit percentage column-gap (CSS resolves gap % against the
+// container, giving exactly this split) rather than hand-splitting tracks.
+const MOBILE_GAP_PCT = (12 + 56 + 12) / 328 * 100;
+const MOBILE_COL_CENTER = (100 - MOBILE_GAP_PCT) / 2 / 2; // 18.9024
+// Figma's mobile margin (icon edge to connector) measured 42px both sides —
+// tighter and more uniform than the md+ row's ~25px average.
+const MOBILE_SEGMENT_OFFSET = 32 + 42;
+
 function StepRow({ steps, start }: { steps: typeof STEPS; start: number }) {
   return (
-    <ol start={start} className="relative grid grid-cols-2 gap-y-9 md:grid-cols-4">
-      {/* 3 separate segments, one per gap between adjacent icons, each inset
-         from both circles by the icon's radius plus Figma's own ~25px
-         margin — not one continuous line hidden behind the circles (that
+    <ol start={start} className="relative hidden md:grid md:grid-cols-4">
+      {/* 3 segments, one per gap between adjacent icons (4 columns) — each
+         inset from both circles by the icon's radius plus Figma's own ~25px
+         margin, not one continuous line hidden behind the circles (that
          technique left zero gap between the line and each circle, unlike
          the real design). */}
       {COL_CENTERS.map((center) => (
         <span
           key={center}
           aria-hidden
-          className="absolute hidden top-8 h-0.5 bg-[#c8b08a] md:block"
+          className="absolute top-8 h-0.5 bg-[#c8b08a]"
           style={{ left: `calc(${center}% + ${SEGMENT_OFFSET}px)`, width: `calc(25% - ${SEGMENT_OFFSET * 2}px)` }}
         />
       ))}
       {steps.map((s) => <Step key={s.n} s={s} />)}
+    </ol>
+  );
+}
+
+// Mobile renders each pair of steps as its OWN row (matching Figma's actual
+// per-row structure) rather than 4-item rows that wrap via CSS — a single
+// hardcoded connector position can't correctly track a second wrapped row's
+// (variable, label-length-dependent) height, so each row needs its own.
+function MobileStepPair({ pair, start }: { pair: typeof STEPS; start: number }) {
+  return (
+    <ol
+      start={start}
+      className="relative grid grid-cols-2 md:hidden"
+      style={{ columnGap: `${MOBILE_GAP_PCT}%` }}
+    >
+      <span
+        aria-hidden
+        className="absolute top-8 h-0.5 bg-[#c8b08a]"
+        style={{ left: `calc(${MOBILE_COL_CENTER}% + ${MOBILE_SEGMENT_OFFSET}px)`, width: `calc(${100 - MOBILE_COL_CENTER * 2}% - ${MOBILE_SEGMENT_OFFSET * 2}px)` }}
+      />
+      {pair.map((s) => <Step key={s.n} s={s} />)}
     </ol>
   );
 }
@@ -132,7 +170,7 @@ export default function Process() {
           className="object-cover"
         />
       </div>
-      <div className="pb-16 pt-16 md:pb-[74px] md:pt-[330px] lg:pb-[104px] lg:pt-[354px]">
+      <div className="pb-0 pt-[127px] md:pb-[74px] md:pt-[330px] lg:pb-[104px] lg:pt-[354px]">
       {/* max-w-none/px-0 at lg: this Container would otherwise impose its own
          ~402px centred inset, which the header's margin-left below would
          stack on top of (measuring from viewport 0, not from the header's
@@ -144,12 +182,28 @@ export default function Process() {
          margins below (same double-counting bug as the lg-only case), same
          reason those margins are viewport-relative vw fractions. */}
       <Container className="relative md:!max-w-none md:!px-0 lg:!max-w-none lg:!px-0">
-        <div className="grid items-start gap-12 md:block md:gap-0">
+        {/* gap-0 (not a flat gap-12): header-to-steps and steps-to-photo
+           need different, Figma-measured gaps, not one uniform value — each
+           now carries its own explicit margin-top instead. */}
+        <div className="grid items-start gap-0 md:block">
           {/* consultation photo — true mobile only; md and up use the
-             viewport-edge-bled version above instead */}
-          <div className="order-2 md:hidden">
+             viewport-edge-bled version above instead. Figma bleeds this
+             flush to the viewport edges (392px wide, edge-to-edge on a
+             390px artboard) same as tablet/desktop, not just Container's
+             padded width — the negative margins cancel Container's own
+             px-5/sm:px-6 side padding to reach the true edges while staying
+             in normal document flow (unlike tablet/desktop's absolutely-
+             positioned version, mobile's photo sits between the header and
+             steps in the page's actual flow, so it can't be pulled out to
+             position:absolute the same way). */}
+          {/* mt-[78px]: Figma's steps-bottom to photo-top gap. */}
+          <div className="order-2 -mx-5 sm:-mx-6 mt-[78px] md:hidden">
+            {/* no rounded corners on mobile — it bleeds flush on both sides
+               (unlike tablet/desktop's single-side bleed, which keeps a
+               round corner on the non-bled side), so there's no edge left to
+               round. */}
             <div
-              className="relative aspect-[781/664] w-full overflow-hidden rounded-2xl"
+              className="relative aspect-[781/664] w-full overflow-hidden"
               style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.12)" }}
             >
               <Image
@@ -160,6 +214,23 @@ export default function Process() {
                 className="object-cover"
               />
             </div>
+          </div>
+
+          {/* Ring-sketch backdrop, mobile only — Figma places this below the
+             photo (not beside the header like tablet/desktop), centred in
+             the remaining space down to the section's own bottom edge.
+             order-2 (same as the photo, so ties resolve in source order —
+             right after it) puts it correctly last, before the header
+             steals the order-1 slot. */}
+          <div className="order-2 mt-[42px] mb-[42px] md:hidden">
+            <img
+              src={MOBILE_SKETCH}
+              alt=""
+              aria-hidden
+              loading="lazy"
+              decoding="async"
+              className="mx-auto w-[233px]"
+            />
           </div>
 
           {/* header — Figma pins this column's own left edge at the photo's
@@ -189,9 +260,9 @@ export default function Process() {
                   </>
                 }
               />
-              {/* Figma: body-bottom to CTA-top is 24px at desktop, 16px at
-                 tablet — not the same flat 32px at both. */}
-              <div className="mt-8 md:mt-4 lg:mt-6">
+              {/* Figma: body-bottom to CTA-top is 29px at mobile, 24px at
+                 desktop, 16px at tablet — not one flat value everywhere. */}
+              <div className="mt-[29px] md:mt-4 lg:mt-6">
                 <CTAButton href="#book" variant="outlineGoldOnCream">Book a Consultation</CTAButton>
               </div>
             </div>
@@ -205,9 +276,15 @@ export default function Process() {
              lg:ml-[calc(...)] trick below depends on staying that width at
              lg specifically, since that calc's "12.5%" resolves against THIS
              element's containing block. */}
-          {/* Figma: CTA-bottom to steps-top is 71px at desktop, 69px at
-             tablet — not the flat 56px (mt-14) this used before. */}
-          <div className="mt-14 md:mt-[69px] md:!ml-[min(12.7098vw,106px)] md:!w-[min(79.1367vw,660px)] lg:mt-[71px] lg:!ml-[min(46.6146vw,895px)] lg:!w-[min(35.2083vw,676px)]">
+          {/* Figma: CTA-bottom to steps-top is 72px at mobile, 71px at
+             desktop, 69px at tablet — not the flat 56px (mt-14) this used
+             before. */}
+          {/* order-1: must render after the header (order-1, same value —
+             ties resolve in source order, and this comes after it in the
+             JSX) but before the mobile photo (order-2) — without an
+             explicit order this defaulted to 0, jumping it ahead of even
+             the header. */}
+          <div className="order-1 mt-[72px] md:mt-[69px] md:!ml-[min(12.7098vw,106px)] md:!w-[min(79.1367vw,660px)] lg:mt-[71px] lg:!ml-[min(46.6146vw,895px)] lg:!w-[min(35.2083vw,676px)]">
             {/* lg:ml: each row is 4 equal-width cells with its icon centred
                in each — meaning icon 1 sits inset by half a cell (minus its
                own half-width) from the row's left edge, not flush with it.
@@ -223,7 +300,22 @@ export default function Process() {
                (browsers expand an auto-width block to fill the remaining
                space after a negative margin), silently changing the cell
                width the whole calc above assumes. */}
-            <div className="space-y-10 lg:ml-[calc(32px-12.5%)] lg:w-[min(35.2083vw,676px)]">
+            {/* Two separate wrapping groups, not one shared space-y — mixing
+               CSS-hidden (display:none) and visible siblings under a single
+               Tailwind `space-y` breaks, since its `:not([hidden])` selector
+               only excludes the HTML hidden ATTRIBUTE, not display:none via
+               class, so a "hidden" sibling still counts as a preceding
+               sibling for the next element's margin-top. */}
+            {/* space-y-8: Figma's mobile row-to-row gap (32px, verified via
+               Frame294's own gap). */}
+            <div className="space-y-8 md:hidden">
+              <MobileStepPair pair={STEPS.slice(0, 2)} start={1} />
+              <MobileStepPair pair={STEPS.slice(2, 4)} start={3} />
+              <MobileStepPair pair={STEPS.slice(4, 6)} start={5} />
+              <MobileStepPair pair={STEPS.slice(6, 8)} start={7} />
+            </div>
+            {/* space-y-10: previously-verified 40px desktop/tablet value. */}
+            <div className="hidden md:block md:space-y-10 lg:ml-[calc(32px-12.5%)] lg:w-[min(35.2083vw,676px)]">
               <StepRow steps={STEPS.slice(0, 4)} start={1} />
               <StepRow steps={STEPS.slice(4, 8)} start={5} />
             </div>
@@ -240,10 +332,12 @@ export default function Process() {
          positioning this wrapper to match the text's own real Figma box
          reproduces that, without needing a left-align variant on the shared
          component (Four Pillars' usage, centred in its own differently-sized
-         box, is unaffected). */}
-      <Container className="relative lg:!max-w-none lg:!px-0">
+         box, is unaffected). Mobile has no equivalent element at all in
+         Figma — hidden below md rather than guessing a mobile treatment for
+         it. */}
+      <Container className="relative hidden lg:!max-w-none lg:!px-0 md:block">
         <div className="lg:!ml-[min(48.9063vw,939px)] lg:w-[min(26.6146vw,511px)]">
-          <QualityStrip className="mt-16 md:mt-[75px] lg:mt-[184px]" />
+          <QualityStrip className="md:mt-[75px] lg:mt-[184px]" />
         </div>
       </Container>
       </div>

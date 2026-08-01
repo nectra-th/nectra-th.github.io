@@ -15,7 +15,11 @@ import HeroVideo from "./HeroVideo";
    stays in the grid. */
 export default function Hero() {
   return (
-    <section id="top" aria-label="Hero" className="relative overflow-hidden bg-ink border-b-4 border-[#c8b08a] md:z-20 md:min-h-[469px] md:overflow-visible lg:min-h-[988px]">
+    // overflow stays visible at every tier (the video/wash wrapper clips
+    // itself) so the seam-straddling ring below is never cut; z-20 lifts the
+    // whole section above Why Grech's positioned subtree at every tier for
+    // the same reason.
+    <section id="top" aria-label="Hero" className="relative z-20 bg-ink border-b-4 border-[#c8b08a] min-h-[907px] max-h-[907px] md:min-h-[469px] md:max-h-none lg:min-h-[988px]">
       {/* full-bleed background video + dark wash (clipped to the hero band) */}
       <div className="absolute inset-0 overflow-hidden">
         <HeroVideo />
@@ -41,28 +45,42 @@ export default function Hero() {
       </div>
 
       <Container className="relative lg:!px-[24px]">
-        <div className="grid grid-cols-1 items-center gap-10 pb-16 pt-28 sm:pt-32 md:pb-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-0 lg:pb-0 lg:pt-0">
+        {/* pt: base 464px is the mobile artboard's own copy-block top
+           (eyebrow at y=464 of the 907px band — the mobile design places
+           the copy in the band's LOWER half, not near the header); md:pt-32
+           (128px) is tablet's verified top; desktop positions via the copy
+           div's own lg:pt instead. */}
+        <div className="grid grid-cols-1 items-center gap-10 pb-16 pt-[464px] md:pb-20 md:pt-32 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-0 lg:pb-0 lg:pt-0">
           {/* copy — Figma component's own Top:377/Left:394 (Left comes from the
              Container's 24px inset) at desktop; Top:128/width:547 at tablet
              (both verified per-breakpoint against their own Figma frame —
              tablet's gaps between elements are also its own, not desktop's:
              eyebrow-to-h1 16px (already matched by mt-4), h1-to-rule 16px,
              rule-to-body 26px, body-to-buttons only 9px — tight, but real,
-             since the tablet copy runs 5 lines instead of desktop's 3). */}
+             since the tablet copy runs 5 lines instead of desktop's 3).
+             Mobile gaps are their own too (verified against mobile.1_4213):
+             eyebrow-to-h1 8, h1-to-rule 11, rule-to-body 9, body-to-buttons
+             24 — hence the base margins below. */}
           <div className="max-w-[520px] md:max-w-[547px] lg:max-w-[497px] lg:self-start lg:pt-[377px]">
             <Eyebrow>Since 1978</Eyebrow>
-            <h1 className="fig-trim mt-4 text-h1 text-cream-light">
+            <h1 className="fig-trim mt-2 text-h1 text-cream-light md:mt-4">
               Expert Craftsmanship.
               <br />
               Personally Made.
             </h1>
-            <GoldRule width={114} className="mt-6 md:mt-4 lg:mt-8" />
+            {/* base mt: Figma's box-to-box gap is 11px, but our fig-trim h1
+               box is 13.5px shorter than Figma's untrimmed one — 24.5px
+               lands the rule at the artboard's absolute y=565. */}
+            <GoldRule width={114} className="mt-[24.5px] md:mt-4 lg:mt-8" />
             {/* md:max-w/tracking — Figma's tablet text box for this exact copy
                is 319px wide with 0.28px tracking (both verified against
                tablet.1_4838.json), narrower/looser than mobile's and desktop's
                480px/no-tracking box, so it wraps onto Figma's own line breaks
-               here instead of inheriting the wider boxes' wrap. */}
-            <p className="fig-trim mt-7 max-w-[480px] text-body text-cream-light/75 md:mt-[26px] md:max-w-[319px] md:tracking-[0.28px] lg:mt-7 lg:max-w-[480px] lg:tracking-normal lg:text-[#cfc6b8]">
+               here instead of inheriting the wider boxes' wrap. Mobile shares
+               tablet's 0.28px tracking but has its own 22px line-height
+               (explicit here since a plain utility would outrank the token's
+               own md/lg line-heights, they're restated per tier). */}
+            <p className="fig-trim mt-[7px] max-w-[480px] text-body leading-[22px] tracking-[0.28px] text-cream-light/75 md:mt-[26px] md:max-w-[319px] md:leading-[18px] lg:mt-7 lg:max-w-[480px] lg:leading-[27px] lg:tracking-normal lg:text-[#cfc6b8]">
               Since 1978, Grech Jewellers has combined traditional craftsmanship with
               modern design technology to create custom jewellery that&rsquo;s personally
               designed, precision manufactured and made to last for generations.
@@ -77,27 +95,32 @@ export default function Hero() {
                !important to beat CTAButton's own base classes, so a plain
                md: version would ALSO beat the non-important lg: desktop
                classes and drag the tablet sizing up into desktop. */}
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row md:mt-[9px] md:gap-2 lg:mt-6 lg:gap-3">
-              <CTAButton href="#book" variant="gold" className="md:max-lg:!h-[41px] md:max-lg:!px-5 md:max-lg:!py-0 md:max-lg:!text-[12px] md:max-lg:!font-medium md:max-lg:!tracking-normal lg:!h-14">Book a Consultation</CTAButton>
-              <CTAButton href="#featured" variant="dark" className="md:max-lg:!h-[41px] md:max-lg:!px-5 md:max-lg:!py-0 md:max-lg:!text-[12px] md:max-lg:!font-medium md:max-lg:!tracking-normal lg:!h-14 lg:!px-[42px]">See Our Work</CTAButton>
+            {/* base: mobile buttons are Figma's own 53px-tall full-width
+               stack with a 16px gap (max-md:!h/!py-0 — same !important
+               range-scoping reasoning as the tablet overrides). */}
+            <div className="mt-9 flex flex-col gap-4 sm:flex-row md:mt-[9px] md:gap-2 lg:mt-6 lg:gap-3">
+              <CTAButton href="#book" variant="gold" className="max-md:!h-[53px] max-md:!py-0 md:max-lg:!h-[41px] md:max-lg:!px-5 md:max-lg:!py-0 md:max-lg:!text-[12px] md:max-lg:!font-medium md:max-lg:!tracking-normal lg:!h-14">Book a Consultation</CTAButton>
+              <CTAButton href="#featured" variant="dark" className="max-md:!h-[53px] max-md:!py-0 md:max-lg:!h-[41px] md:max-lg:!px-5 md:max-lg:!py-0 md:max-lg:!text-[12px] md:max-lg:!font-medium md:max-lg:!tracking-normal lg:!h-14 lg:!px-[42px]">See Our Work</CTAButton>
             </div>
           </div>
 
-          {/* intersecting rings — in-flow on mobile only; tablet and desktop
-             each get their own Figma-exact bled/absolute version below. */}
-          <div className="pointer-events-none relative mx-auto w-full max-w-[520px] md:hidden">
-            <Image
-              src="/assets/hero-rings.png"
-              alt="Grech Jewellers diamond engagement ring and matching wedding band"
-              width={720}
-              height={720}
-              priority
-              sizes="90vw"
-              className="h-auto w-full drop-shadow-2xl"
-            />
-          </div>
         </div>
       </Container>
+
+      {/* intersecting rings, mobile — Figma's box (x=39, 303×303) against the
+         390px reference artboard: left 10vw, width 77.6923vw capped at 303px.
+         Same seam-centring technique as the tablet/desktop versions below
+         (top-full + border-compensated translateY) per request — the ring
+         straddles the Hero/Why-Grech boundary at every breakpoint. */}
+      <Image
+        src="/assets/hero-rings.png"
+        alt="Grech Jewellers diamond engagement ring and matching wedding band"
+        width={720}
+        height={720}
+        priority
+        sizes="303px"
+        className="pointer-events-none absolute left-[10vw] top-full block w-[min(77.6923vw,303px)] drop-shadow-2xl [transform:translateY(calc(-50%+4px))] md:hidden"
+      />
 
       {/* intersecting rings, tablet — Figma's box (x=484 rel, y=314, 310×310)
          against the 834px reference artboard: left/width as vw fractions

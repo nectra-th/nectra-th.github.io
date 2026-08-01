@@ -69,22 +69,31 @@ export default function Booking() {
   }, []);
 
   return (
-    <section id="book" aria-label="Book a Design Consultation" className="relative overflow-hidden bg-cream min-h-[1919px] md:min-h-[837px] lg:min-h-[1247px]">
+    <section id="book" aria-label="Book a Design Consultation" className="relative overflow-hidden bg-cream min-h-[1919px] max-h-[1919px] md:min-h-[837px] md:max-h-none lg:min-h-[1247px]">
       {/* copy — normal-flow Container; width/typography step at each tier
          per the Figma numbers above. `lg:!px-0` cancels the Container's own
          32px gutter at desktop only — tablet's sm:px-6 (24px) already
          matches Figma's x=24 there. */}
       <Container className="relative z-10 lg:!px-0">
-        <div className="pt-8 md:max-w-[235px] md:pt-[80px] lg:max-w-[400px] lg:pt-[244px]">
+        <div className="pt-16 md:max-w-[235px] md:pt-[80px] lg:max-w-[400px] lg:pt-[244px]">
+          {/* Eyebrow breaks after "Design" below lg — mobile and tablet both
+             carry an explicit "Book A Design\nConsultation" in Figma, while
+             desktop keeps it on one line. */}
           <Eyebrow className="fig-trim font-serif font-semibold [font-variant:small-caps] leading-[115%] tracking-[0.12em] text-[16px] lg:text-[22px]">
-            Book A Design Consultation
+            Book A Design<br className="lg:hidden" /> Consultation
           </Eyebrow>
           <h2 className="fig-trim mt-4 font-serif font-bold leading-[1.08] text-[32px] text-ink-text lg:mt-6 lg:text-[56px] lg:font-semibold lg:leading-[64px]">
             Every Meaningful<br />Piece Begins With<br /><span className="text-gold">A Conversation</span>
           </h2>
           <GoldRule width={114} className="mt-6 lg:mt-8" />
-          <p className="fig-trim mt-6 max-w-[26rem] font-sans text-[16px] font-medium leading-relaxed text-[#403b37] md:text-[14px] lg:mt-7 lg:text-[18px] lg:font-normal lg:leading-[27px]">
-            Meet directly with the jeweller to discuss your ideas, explore options and receive honest, obligation-free advice tailored to you.
+          {/* Body line breaks are per-tier in Figma, not one shared wrap:
+             desktop breaks after "discuss" and "honest," (3 lines in a 390px
+             box); mobile/tablet instead run on and break only before
+             "tailored to you." (5 lines in a 233px/209px box). The max-widths
+             match those Figma text-box widths — the old shared 26rem (416px)
+             was far wider than any tier and wrapped nothing like the design. */}
+          <p className="fig-trim mt-6 max-w-[233px] font-sans text-[16px] font-medium leading-relaxed text-[#403b37] md:max-w-[209px] md:text-[14px] lg:mt-7 lg:max-w-[390px] lg:text-[18px] lg:font-normal lg:leading-[27px]">
+            Meet directly with the jeweller to discuss<br className="hidden lg:block" /> your ideas, explore options and receive honest,<br className="hidden lg:block" /> obligation-free advice<br className="lg:hidden" /> tailored to you.
           </p>
         </div>
       </Container>

@@ -85,11 +85,15 @@
      verified against figma-data/tablet.1_4838.json: 36px, and the weight
      genuinely drops to Regular at this breakpoint (not a copy-paste guess —
      reset back to 600 at lg where desktop is SemiBold again). */
+  /* Base verified against mobile.1_4213.json: 36px BOLD with a 100%
+     line-height (not the 34px/600/1.05 originally copied from the call
+     site) — weight then drops to Regular at md and back to SemiBold at lg,
+     per each artboard's own spec. */
   .text-h1 {
     font-family: var(--font-serif);
-    font-weight: 600;
-    font-size: 34px;
-    line-height: 1.05;
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 36px;
   }
   @media (min-width: 48rem) { .text-h1 { font-size: 36px; font-weight: 400; line-height: 1; } }
   @media (min-width: 64rem) { .text-h1 { font-size: 56px; font-weight: 600; line-height: 64px; } }
@@ -97,15 +101,21 @@
   /* H2 — section title (SectionHeader's shared h2: Booking/Featured/Process/
      Reviews/WhatWeDo/WhyIntro, 6 callers). Tablet verified against all 6
      instances: fontSize stays 32px (same as mobile, not 44 as previously
-     guessed) but weight is Bold here, not SemiBold — reset to 600 at lg. */
+     guessed) but weight is Bold here, not SemiBold — reset to 600 at lg.
+     Mobile verified against all 8 instances on the 390 board: Bold (700) as
+     well, not SemiBold — the base weight had been carrying desktop's 600.
+     Both small boards also carry -0.48px tracking (-0.015em at 32px), which
+     was missing entirely; without it "What Our Clients Say" needed 278px in
+     Figma's own 270px box and wrapped to two lines. Desktop is 600/0. */
   .text-h2 {
     font-family: var(--font-serif);
-    font-weight: 600;
+    font-weight: 700;
     font-size: 32px;
     line-height: 1.08;
+    letter-spacing: -0.015em;
   }
   @media (min-width: 48rem) { .text-h2 { font-size: 32px; font-weight: 700; line-height: 1.125; } }
-  @media (min-width: 64rem) { .text-h2 { font-size: 56px; font-weight: 600; line-height: 64px; } }
+  @media (min-width: 64rem) { .text-h2 { font-size: 56px; font-weight: 600; line-height: 64px; letter-spacing: normal; } }
 
   /* H2 caps — small-caps banner title (Four Pillars + Brands). Harmonized:
      Brands was 26px on mobile, moved to match Four Pillars' 28px (md/lg/
@@ -121,26 +131,36 @@
      so this class keeps the Four Pillars values and Brands stays a close
      approximation at md — flagging rather than silently forcing one number
      to cover both. */
+  /* Base verified against mobile.1_4213.json's Four Pillars title: 36px at
+     110% leading (the 28px originally here was never mobile-verified) —
+     0.04em tracking holds (1.44px at 36 = Figma's literal value). Brands
+     rides the same shared scale per the harmonization note above. */
   .text-h2-caps {
     font-family: var(--font-serif);
     font-weight: 600;
     font-variant: small-caps;
-    font-size: 28px;
-    line-height: 115%;
+    font-size: 36px;
+    line-height: 110%;
     letter-spacing: 0.04em;
   }
   @media (min-width: 48rem) { .text-h2-caps { font-size: 24px; line-height: 110%; } }
   @media (min-width: 64rem) { .text-h2-caps { font-size: 36px; line-height: 115%; } }
 
-  /* H2 closing — Closing CTA's own larger scale (28/34/40, 121% leading) —
+  /* H2 closing — Closing CTA's own larger scale (32/24/40, 121.1% leading) —
      kept separate from .text-h2-caps: genuinely different at md/lg, not a
-     copy-paste drift. */
+     copy-paste drift. Mobile verified: 32px (not 28px) and the scale is
+     genuinely non-monotonic — mobile 32 > tablet 24 < desktop 40, because
+     tablet squeezes this heading into a narrow middle column between the
+     ring and stamp while mobile gives it the full content width. */
   .text-h2-closing {
     font-family: var(--font-serif);
     font-weight: 600;
     font-variant: small-caps;
-    font-size: 28px;
-    line-height: 121%;
+    font-size: 32px;
+    line-height: 121.1%;
+    /* 0.03em holds at every tier (0.96 / 0.72 / 1.2px) — was missing
+       entirely, so this heading rendered at 0 tracking on all breakpoints. */
+    letter-spacing: 0.03em;
   }
   @media (min-width: 48rem) { .text-h2-closing { font-size: 24px; line-height: 108.33%; } }
   @media (min-width: 64rem) { .text-h2-closing { font-size: 40px; line-height: 121%; } }
@@ -150,12 +170,15 @@
      tablet arrangement packs Four Pillars into a tighter 2-column grid than
      the 1-column mobile stack, so the card title genuinely shrinks at md
      before growing again to 24px on the 4-across desktop row. */
+  /* Base verified against mobile.1_4213.json: 24px at 130% leading across 3
+     of the 4 cards ("Trusted Expertise" is authored at 22px — a drift, the
+     majority value wins, same policy as every other shared role). */
   .text-h3-card {
     font-family: var(--font-serif);
     font-weight: 600;
     font-variant: small-caps;
-    font-size: 22px;
-    line-height: 115%;
+    font-size: 24px;
+    line-height: 130%;
   }
   @media (min-width: 48rem) { .text-h3-card { font-size: 18px; line-height: 130%; } }
   @media (min-width: 64rem) { .text-h3-card { font-size: 24px; line-height: 115%; } }
@@ -198,28 +221,33 @@
   @media (min-width: 64rem) { .text-eyebrow { font-size: 22px; } }
 
   /* Eyebrow (gold-light tone: Find Us) + Closing CTA's hand-rolled eyebrow,
-     harmonized onto the same class — md/lg already matched exactly (20/24),
-     mobile size (18px→17px) and leading (100%→115%) were the only drift. */
+     harmonized onto the same class. Mobile verified against BOTH instances
+     ("Plan Your Visit" and "We Look Forward to Meeting You") — they agree
+     exactly at 16px / 0.12em / 121.1%, so the base below is that shared
+     value, not a compromise. Base now equals the md step, so md needs no
+     override; only lg diverges (24px / 0.03em). */
   .text-eyebrow-lg {
     font-family: var(--font-serif);
     font-weight: 600;
     font-variant: small-caps;
-    line-height: 115%;
-    letter-spacing: 0.03em;
-    font-size: 17px;
+    line-height: 121.1%;
+    letter-spacing: 0.12em;
+    font-size: 16px;
   }
-  /* Tablet verified: this role's tracking actually converges onto
-     .text-eyebrow's at md (16px / 0.12em — identical to that class), then
-     diverges back to its own 0.03em step once lg's 24px kicks in. */
-  @media (min-width: 48rem) { .text-eyebrow-lg { font-size: 16px; letter-spacing: 0.12em; } }
   @media (min-width: 64rem) { .text-eyebrow-lg { font-size: 24px; letter-spacing: 0.03em; } }
 
   /* Body — SectionHeader's shared body copy + Hero's body (same values,
      previously hand-duplicated instead of shared) */
+  /* Base verified against mobile.1_4213.json: 14px MEDIUM (not the
+     15px/400/relaxed originally copied from the call site) — the mobile
+     bodies' line-heights vary slightly per section (hero 22, why/what-we-do
+     25, process 24), so the majority 25px is the token base and the hero
+     overrides its own. */
   .text-body {
     font-family: var(--font-sans);
-    font-size: 15px;
-    line-height: 1.625; /* Tailwind's leading-relaxed */
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 25px;
   }
   /* Tablet verified across 6 instances: 14px (down from the 15px mobile
      size) and Medium weight — 5 of 6 agree exactly, only the Reviews body
@@ -231,13 +259,16 @@
   @media (min-width: 48rem) { .text-body { font-size: 14px; font-weight: 500; line-height: 18px; } }
   @media (min-width: 64rem) { .text-body { font-size: 18px; line-height: 27px; font-weight: 400; } }
 
-  /* Body small — Four Pillars card description (13.5px → 14px at lg).
-     Tablet verified across all 4 cards: 12px and Light weight (down from
-     Regular) — reset to Regular at lg where desktop is Regular again. */
+  /* Body small — Four Pillars card description. Base verified against
+     mobile.1_4213.json: 15px Light at 22px leading (3 of 4 cards; card 1 is
+     authored at 24px leading — majority wins). Tablet verified across all 4
+     cards: 12px and Light weight — reset to Regular at lg where desktop is
+     Regular again. */
   .text-body-sm {
     font-family: var(--font-sans);
-    font-size: 13.5px;
-    line-height: 1.625;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 22px;
   }
   /* line-height verified as an exact px value at both tiers (not the base's
      1.625 multiplier) — tablet's 16px (133.33% of 12px) was rendering
