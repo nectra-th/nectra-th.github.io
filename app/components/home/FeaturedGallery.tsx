@@ -71,7 +71,10 @@ export default function FeaturedGallery() {
          selected stays gold even if also hovered, it doesn't fall back to the
          hover colour. Non-selected, non-hovered thumbs sit at 63% opacity;
          hovering (any thumb) or being the active one brings it to 100%. */}
-      <div className="no-scrollbar mt-2 flex gap-1 overflow-x-auto">
+      {/* image-to-thumbnail gap differs by breakpoint in Figma: ~2px on the
+         834px tablet reference vs 8px on desktop — not the same value scaled,
+         two genuinely different measurements. */}
+      <div className="no-scrollbar mt-[2px] flex gap-1 overflow-x-auto lg:mt-2">
         {IMAGES.map((src, i) => (
           <button
             key={src}

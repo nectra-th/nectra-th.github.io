@@ -33,13 +33,7 @@ function TestimonialCard({ r }: { r: Review }) {
    dot pager on tablet and mobile. */
 export default function Reviews() {
   return (
-    // Figma's section band runs Line19 (y=6604) to Line20 (y=7372, 768px
-    // total, matching the original skeleton height) with the content block
-    // (Frame 341) inset 148px from the top. Bottom padding is measured from
-    // the cards row now (225px = the 188px that was tuned against the dot
-    // pager's bottom edge, plus the 37px of gap+height the dots used to take
-    // up — kept so removing the dots doesn't leave the section shorter).
-    <section id="reviews" aria-label="Reviews" className="bg-cream border-b-4 border-[#c8b08a] pt-16 pb-16 md:pt-20 md:pb-20 lg:pt-[148px] lg:pb-[225px]">
+    <section id="reviews" aria-label="Reviews" className="bg-cream border-b-4 border-[#c8b08a] pt-16 pb-16 md:pt-20 md:pb-20 lg:py-10">
       <Container>
         <div>
           <SectionHeader
@@ -52,11 +46,18 @@ export default function Reviews() {
           />
         </div>
 
-        {/* tablet + mobile: carousel with dots */}
+        {/* tablet + mobile: carousel with dots.
+           cardClassName uses vw, not %: the track spans edge-to-edge
+           (100vw) at these breakpoints, but its width is also dynamically
+           padded (see Carousel) so the first/last card can centre — a %
+           width would be relative to that same padded content-box, so
+           growing the padding would shrink the card, which would demand
+           more padding, with no stable point short of the card collapsing
+           to nothing. vw sidesteps that entirely. */}
         <div className="mt-12 lg:hidden">
           <Carousel
             ariaLabel="Client reviews"
-            cardClassName="w-[86%] sm:w-[64%] md:w-[48%]"
+            cardClassName="w-[86vw] sm:w-[64vw] md:w-[48vw]"
             snap="center"
             slides={REVIEWS.map((r, i) => <TestimonialCard key={i} r={r} />)}
           />

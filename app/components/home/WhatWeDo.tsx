@@ -24,25 +24,36 @@ const SERVICES = [
 function ServiceCard({ s }: { s: (typeof SERVICES)[number] }) {
   return (
     <li className="group w-[80%] shrink-0 snap-center sm:w-auto">
-      <div className="flex gap-4 rounded-[20px] border border-transparent px-3 py-4 transition-[transform,background-color,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] will-change-transform group-hover:[transform:translateY(-2px)] group-hover:border-[#39342e] group-hover:bg-ink-2 group-hover:shadow-[0_28px_32px_rgba(0,0,0,0.25)] md:gap-4">
+      {/* Explicit request: 10px horizontal padding per card, overriding the
+         ~1px ceiling the strict Figma proportions allow (image + gap +
+         "Engagement & Wedding Rings"' own 136.12px content need already
+         consume the full card width at 277.17px) — this reintroduces that
+         heading's second wrap (back to 3-4 lines) as a known, accepted
+         trade-off for visible left/right breathing room on every card. */}
+      <div className="flex gap-4 rounded-[20px] border border-transparent px-3 py-4 transition-[transform,background-color,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] will-change-transform group-hover:[transform:translateY(-2px)] group-hover:border-[#39342e] group-hover:bg-ink-2 group-hover:shadow-[0_28px_32px_rgba(0,0,0,0.25)] md:h-[192px] md:gap-[10.84px] md:py-[10.84px] md:px-[10px] xl:h-auto xl:px-3 xl:py-4">
         {/* pre-cropped via scripts/crop-service-images.mjs against Figma's own
            imageTransform window for each photo (an independent, non-uniform
            X/Y crop per image — none of them is a plain centred crop), then
            object-fill (not object-cover) to reproduce Figma's scaleMode
            STRETCH exactly — a generic aspect-preserving cover crop would trim
-           part of the framing this was cropped to already, or letterbox it. */}
-        <div className="relative aspect-[188/240] w-[110px] shrink-0 overflow-hidden rounded-[14px] sm:w-[140px] xl:w-[188px]">
-          <Image src={s.img} alt={s.title.join(" ")} fill sizes="(min-width: 1280px) 188px, (min-width: 640px) 140px, 110px" className="object-fill" />
+           part of the framing this was cropped to already, or letterbox it.
+           Tablet verified across all 6 cards: same 67.7211% scale as the
+           type tokens — 127.32px image (aspect ratio unchanged, so height
+           derives correctly) and a 9.48px radius, down from 14px. */}
+        <div className="relative aspect-[188/240] w-[110px] shrink-0 overflow-hidden rounded-[14px] sm:w-[140px] md:w-[127.32px] md:rounded-[9.48px] xl:w-[188px] xl:rounded-[14px]">
+          <Image src={s.img} alt={s.title.join(" ")} fill sizes="(min-width: 1280px) 188px, (min-width: 768px) 127.32px, (min-width: 640px) 140px, 110px" className="object-fill" />
         </div>
         <div className="min-w-0 flex-1">
-          <img src={`/assets/icons/${s.icon}.png`} alt="" aria-hidden loading="lazy" decoding="async" className="h-9 w-auto xl:h-12" />
-          <h3 className="fig-trim mt-4 text-h3-service text-cream-light">
+          {/* icon 32.51px at tablet (48px at xl) — same scale factor again */}
+          <img src={`/assets/icons/${s.icon}.png`} alt="" aria-hidden loading="lazy" decoding="async" className="h-9 w-auto md:h-[32.51px] xl:h-12" />
+          <h3 className="fig-trim mt-4 text-h3-service text-cream-light md:mt-[10.84px]">
             {s.title.map((t, i) => (
               <span key={i} className="block">{t}</span>
             ))}
           </h3>
-          <span aria-hidden className="mt-[18px] block h-px w-[41px] bg-gold-dark" />
-          <p className="mt-5 text-body-xs text-line">{s.desc}</p>
+          {/* rule 27.77px wide at tablet (41px at xl) */}
+          <span aria-hidden className="mt-[18px] block h-px w-[41px] bg-gold-dark md:mt-[12.19px] md:w-[27.77px]" />
+          <p className="mt-5 text-body-xs text-line md:mt-[13.54px]">{s.desc}</p>
         </div>
       </div>
     </li>
@@ -58,15 +69,30 @@ function ServiceCard({ s }: { s: (typeof SERVICES)[number] }) {
    values so it can't overflow or outgrow Figma's size. */
 export default function WhatWeDo() {
   return (
-    <section id="whatwedo" aria-label="What We Do" className="relative overflow-hidden bg-ink border-b-4 border-[#c8b08a] py-16 md:py-24 xl:pt-[348px] xl:pb-[220px]">
+    // Explicit request: cards grid row-gap 42.66px→10px at md, so the grid
+    // is now 2×32.66px=65.32px shorter — added onto md's own bottom padding
+    // (96px→161.32px) instead of top, so the section's total height stays
+    // the same as before this change without touching the row-gap's own
+    // Figma-verified value anywhere else (xl is untouched).
+    <section id="whatwedo" aria-label="What We Do" className="relative overflow-hidden bg-ink border-b-4 border-[#c8b08a] py-16 md:pt-24 md:pb-[161.32px] xl:pt-[348px] xl:pb-[220px]">
       {/* faint ring blueprint, bleeding off the left edge — 45% opacity per
          Figma (not the 20% previously guessed), bottom-anchored since the
          section's real height is content-driven, not the fixed px Figma
-         measured it against. Figma sits it 205px left of the content block's
-         own left edge (165 vs 370) — anchored to that same edge (the
-         content's margin-left formula below) rather than an independent vw
-         value, so it tracks the content instead of staying glued to the
-         viewport edge once the content re-centres on ultra-wide screens. */}
+         measured it against. Confirmed present at tablet too (previously
+         `xl:block`-only was a real gap — the Figma-ipad reference clearly
+         shows it), but tablet's content sits at a plain fixed inset (the
+         standard Container's own sm:px-6 padding, not the vw-fraction
+         formula xl needs), so it's simplest as a separate element with a
+         flat px position rather than forcing one element to cover both a
+         fixed and a dynamic breakpoint. */}
+      <img
+        src={BLUEPRINT}
+        alt=""
+        aria-hidden
+        loading="lazy"
+        decoding="async"
+        className="pointer-events-none absolute bottom-0 left-[-71px] hidden w-[374px] opacity-[0.45] md:block xl:hidden"
+      />
       <img
         src={BLUEPRINT}
         alt=""
@@ -88,8 +114,28 @@ export default function WhatWeDo() {
            services grid's left edge — near-zero, but keeping that gap tiny
            (rather than a "nicer" round value) is what lets the grid column
            render at its true 866px/425px-per-card size within this section's
-           measured 1263px band; a bigger gap would shrink every card. */}
-        <div className="grid gap-12 xl:grid-cols-[393px_1fr] xl:gap-x-1">
+           measured 1263px band; a bigger gap would shrink every card.
+           Tablet is ALSO side-by-side, not stacked — a first pass read this
+           as stacked because the header's own node width (347px) overlaps
+           the cards' start, but that 347px is a loose box, not tightly
+           hugged; visually cropping the actual figma-ipad.jpg reference
+           confirmed no overlap. Column width is the body text's own
+           explicit, exact 198px (textAutoResize: HEIGHT — a real fixed-
+           width constraint, not a hug value like the heading's 347px) —
+           an earlier pass used a rougher 228px (eyeballed from where the
+           cards visually start in a screenshot) instead of this precise
+           figma value, making the column wider than Figma's real one and
+           leaving less room than it should for the cards. No separate
+           gap-x at md. Column is 210px, not literally 198 — "Crafted
+           Around" (the hardcoded first line of the heading) measures
+           203.75px at this weight/size with the real fonts loaded, so 198px
+           wrapped it a second time into 3 lines total. Figma's body is a
+           touch narrower still (198px, its own explicit width) but
+           SectionHeader's bodyMaxWidth applies unconditionally (not just at
+           this breakpoint) — using it here would also force desktop's body
+           down to 198px inside its real 393px column. Left unset; body
+           wraps at the full 210px column, ~12px past Figma's exact value. */}
+        <div className="grid gap-12 md:grid-cols-[210px_1fr] md:items-start md:gap-x-0 md:gap-y-0 xl:grid-cols-[393px_1fr] xl:gap-x-1">
           <div>
             <SectionHeader
               tone="dark"
@@ -103,7 +149,7 @@ export default function WhatWeDo() {
           <ul
             tabIndex={0}
             aria-label="Our services"
-            className="no-scrollbar -mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-x-4 sm:gap-y-8 sm:overflow-visible sm:px-0 xl:gap-x-4 xl:gap-y-8"
+            className="no-scrollbar -mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-x-4 sm:gap-y-8 sm:overflow-visible sm:px-0 md:gap-x-[21.67px] md:gap-y-[10px] xl:gap-x-4 xl:gap-y-8"
           >
             {SERVICES.map((s) => (
               <ServiceCard key={s.title.join(" ")} s={s} />

@@ -101,22 +101,27 @@ export default function Process() {
          section (full viewport width) rather than nested inside the
          Container/grid, using the same vw-fraction technique as the other
          bleeding photos. */}
+      {/* Ring-sketch backdrop — tablet (834px reference) pins it at x=615,
+         y=9, 272×362 (32.6139vw); desktop (1920px reference) at x=1340,
+         y=62, 440×585 (22.9167vw). Different position/size per breakpoint,
+         not just a scaled-down version of the same numbers. */}
       <img
         src={SKETCH}
         alt=""
         aria-hidden
         loading="lazy"
         decoding="async"
-        className="pointer-events-none absolute top-[62px] left-[min(69.7917vw,1340px)] hidden w-[min(22.9167vw,440px)] lg:block"
+        className="pointer-events-none absolute hidden md:block md:left-[min(73.741vw,615px)] md:top-[9px] md:w-[min(32.6139vw,272px)] lg:left-[min(69.7917vw,1340px)] lg:top-[62px] lg:w-[min(22.9167vw,440px)]"
       />
-      {/* Consultation photo (desktop) — Figma pins it at x=-1,y=4538 (446px
-         below this section's own top), 781×664, i.e. bled flush against the
-         viewport's left edge, not just the Container's. The in-grid <Image>
-         below stays for mobile/tablet (where there's no equivalent Figma
-         reference to bleed against) and is hidden at lg in favour of this. */}
+      {/* Consultation photo — bleeds flush against the viewport's left edge
+         at both tablet and desktop (not just the Container's), each with its
+         own Figma position: tablet x=0,y=71, 526×447 (63.0695vw); desktop
+         x=-1,y=446, 781×664 (40.6771vw). The in-grid <Image> below stays for
+         true mobile (no equivalent Figma reference to bleed against) and is
+         hidden from md up in favour of this. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-0 top-[446px] hidden aspect-[781/664] w-[min(40.6771vw,781px)] overflow-hidden rounded-r-2xl border border-divider lg:block"
+        className="pointer-events-none absolute left-0 hidden aspect-[781/664] overflow-hidden rounded-r-2xl border border-divider md:block md:top-[71px] md:w-[min(63.0695vw,526px)] lg:top-[446px] lg:w-[min(40.6771vw,781px)]"
         style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.12)" }}
       >
         <Image
@@ -127,18 +132,22 @@ export default function Process() {
           className="object-cover"
         />
       </div>
-      <div className="pb-16 pt-16 md:pb-20 md:pt-20 lg:pb-[111px] lg:pt-[354px]">
+      <div className="pb-16 pt-16 md:pb-[74px] md:pt-[330px] lg:pb-[104px] lg:pt-[354px]">
       {/* max-w-none/px-0 at lg: this Container would otherwise impose its own
          ~402px centred inset, which the header's margin-left below would
          stack on top of (measuring from viewport 0, not from the header's
          normal in-flow position) — cancelling it here makes the margin
          genuinely viewport-relative, matching the ring-sketch/photo technique.
          Mobile/tablet keep the normal centred Container untouched. */}
-      <Container className="relative lg:!max-w-none lg:!px-0">
-        <div className="grid items-start gap-12 lg:block lg:gap-0">
-          {/* consultation photo — mobile/tablet only; lg uses the
+      {/* md:!max-w-none/!px-0 too, not just lg: — without it, Container's own
+         ~24px side padding at this width stacks on top of the header/steps
+         margins below (same double-counting bug as the lg-only case), same
+         reason those margins are viewport-relative vw fractions. */}
+      <Container className="relative md:!max-w-none md:!px-0 lg:!max-w-none lg:!px-0">
+        <div className="grid items-start gap-12 md:block md:gap-0">
+          {/* consultation photo — true mobile only; md and up use the
              viewport-edge-bled version above instead */}
-          <div className="order-2 lg:hidden">
+          <div className="order-2 md:hidden">
             <div
               className="relative aspect-[781/664] w-full overflow-hidden rounded-2xl"
               style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.12)" }}
@@ -153,35 +162,52 @@ export default function Process() {
             </div>
           </div>
 
-          {/* header + steps — Figma pins this column's own left edge at
-             x=895 (the photo's real right edge, 781px, plus its gap to this
-             column), independent of the photo's now-absolute positioning, so
-             it's a direct vw-based margin rather than a shared grid fr-split
-             (fr-ratios don't scale 1:1 with vw across breakpoints/max-width
-             capping the way two independent vw values do). Width is capped
-             at 676px (35.2083vw) — the "Our Process" steps instance's own
-             width in Figma — since without an explicit cap this column now
-             stretches to fill whatever space margin-left leaves, spreading
-             the step icons out edge-to-edge on wide screens. */}
-          <div className="relative order-1 lg:order-2 lg:!ml-[min(46.6146vw,895px)] lg:w-[min(35.2083vw,676px)]">
+          {/* header — Figma pins this column's own left edge at the photo's
+             real right edge plus its gap to this column: tablet x=544
+             (65.2278vw), desktop x=895 (46.6146vw), independent of the
+             photo's now-absolute positioning, so it's a direct vw-based
+             margin rather than a shared grid fr-split (fr-ratios don't scale
+             1:1 with vw across breakpoints/max-width capping the way two
+             independent vw values do). Width is likewise each breakpoint's
+             own column width (240px tablet, 676px desktop) — without an
+             explicit cap this column stretches to fill whatever space
+             margin-left leaves, spreading things out on wide screens. */}
+          <div className="relative order-1 md:order-2 md:!ml-[min(65.2278vw,544px)] md:!w-[min(28.777vw,240px)] lg:!ml-[min(46.6146vw,895px)] lg:!w-[min(35.2083vw,676px)]">
             <div className="relative">
               <SectionHeader
                 eyebrow="Our Process"
                 title={<>From Concept<br />to Creation</>}
                 body={
                   <>
-                    Every custom piece follows a carefully considered<br />
-                    process, combining traditional craftsmanship<br />
-                    with modern design technology to ensure<br />
+                    Every custom piece follows a carefully considered{" "}
+                    <br className="hidden lg:block" />
+                    process, combining traditional craftsmanship{" "}
+                    <br className="hidden lg:block" />
+                    with modern design technology to ensure{" "}
+                    <br className="hidden lg:block" />
                     exceptional quality from beginning to end.
                   </>
                 }
               />
-              <div className="mt-8">
+              {/* Figma: body-bottom to CTA-top is 24px at desktop, 16px at
+                 tablet — not the same flat 32px at both. */}
+              <div className="mt-8 md:mt-4 lg:mt-6">
                 <CTAButton href="#book" variant="outlineGoldOnCream">Book a Consultation</CTAButton>
               </div>
             </div>
+          </div>
 
+          {/* steps — a sibling of the header column, not nested inside it:
+             Figma's tablet steps grid (660px, x=106 → 12.71vw/79.14vw) is far
+             wider than the header column (240px) and isn't indented to match
+             it at all, unlike desktop where the steps column shares the
+             header's own width (676px, x=895 → 46.6146vw/35.2083vw) — the
+             lg:ml-[calc(...)] trick below depends on staying that width at
+             lg specifically, since that calc's "12.5%" resolves against THIS
+             element's containing block. */}
+          {/* Figma: CTA-bottom to steps-top is 71px at desktop, 69px at
+             tablet — not the flat 56px (mt-14) this used before. */}
+          <div className="mt-14 md:mt-[69px] md:!ml-[min(12.7098vw,106px)] md:!w-[min(79.1367vw,660px)] lg:mt-[71px] lg:!ml-[min(46.6146vw,895px)] lg:!w-[min(35.2083vw,676px)]">
             {/* lg:ml: each row is 4 equal-width cells with its icon centred
                in each — meaning icon 1 sits inset by half a cell (minus its
                own half-width) from the row's left edge, not flush with it.
@@ -197,7 +223,7 @@ export default function Process() {
                (browsers expand an auto-width block to fill the remaining
                space after a negative margin), silently changing the cell
                width the whole calc above assumes. */}
-            <div className="mt-14 space-y-10 lg:ml-[calc(32px-12.5%)] lg:w-[min(35.2083vw,676px)]">
+            <div className="space-y-10 lg:ml-[calc(32px-12.5%)] lg:w-[min(35.2083vw,676px)]">
               <StepRow steps={STEPS.slice(0, 4)} start={1} />
               <StepRow steps={STEPS.slice(4, 8)} start={5} />
             </div>
@@ -205,16 +231,19 @@ export default function Process() {
         </div>
       </Container>
 
-      {/* Figma positions this text at a fixed x=939, width=511 (48.906vw /
-         26.615vw) — not centred in the section at all (its real centre sits
-         ~234px right of true centre). QualityStrip centres its text WITHIN
-         whatever box wraps it, so sizing/positioning this wrapper to match
-         the text's own real Figma box reproduces that exactly, without
-         needing a left-align variant on the shared component (Four Pillars'
-         usage, centred in its own differently-sized box, is unaffected). */}
+      {/* Tablet has this text genuinely centred (103px margin both sides of
+         a 834px artboard) — QualityStrip already centres itself within
+         whatever wraps it, so no offset override needed there, just the
+         Figma-measured gap above it. Desktop positions this text at a fixed
+         x=939, width=511 (48.906vw/26.615vw) — not centred in the section at
+         all (its real centre sits ~234px right of true centre); sizing/
+         positioning this wrapper to match the text's own real Figma box
+         reproduces that, without needing a left-align variant on the shared
+         component (Four Pillars' usage, centred in its own differently-sized
+         box, is unaffected). */}
       <Container className="relative lg:!max-w-none lg:!px-0">
         <div className="lg:!ml-[min(48.9063vw,939px)] lg:w-[min(26.6146vw,511px)]">
-          <QualityStrip className="mt-16 lg:mt-[184px]" />
+          <QualityStrip className="mt-16 md:mt-[75px] lg:mt-[184px]" />
         </div>
       </Container>
       </div>

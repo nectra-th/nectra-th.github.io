@@ -1,5 +1,5 @@
 import { Container } from "./ui";
-import SectionHeader from "./SectionHeader";
+import { Eyebrow, GoldRule } from "./SectionHeader";
 import FeaturedGallery from "./FeaturedGallery";
 
 /* eslint-disable @next/next/no-img-element */
@@ -11,7 +11,7 @@ const SKETCH = "/assets/figma-img/7b3544a57ad8f231118674e34b269ea5bd3fd189.png";
    centred under the gallery column specifically (not the full width). */
 export default function Featured() {
   return (
-    <section id="featured" aria-label="Our Work" className="relative overflow-hidden bg-ink border-b-4 border-[#c8b08a] py-16 md:py-24 lg:pb-[70px] lg:pt-[198px]">
+    <section id="featured" aria-label="Our Work" className="relative overflow-hidden bg-ink border-b-4 border-[#c8b08a] py-16 md:py-[70px] lg:pb-[70px] lg:pt-[198px]">
       {/* Figma's real box: x=-366 y=+342(rel) w=1064 h=734 on a 1920/1088
          reference, plus its actual fill: image at 55% opacity + a
          top-to-bottom transparent→ink gradient (not a flat low opacity) so
@@ -41,17 +41,25 @@ export default function Featured() {
       <Container className="relative lg:!px-0">
         {/* Figma's columns are 298px copy / 850px gallery (not an even fr
            split) with a 30px gap; the copy column starts 66px lower than the
-           gallery, not vertically centred against it. */}
-        <div className="grid items-start gap-12 lg:grid-cols-[298fr_850fr] lg:gap-x-[30px]">
-          <div className="lg:mt-[66px]">
-            <SectionHeader
-              tone="dark"
-              eyebrow="Our Work"
-              title={<>Featured<br />Creations</>}
-              body="Explore a selection of custom jewellery designed and handcrafted for our clients, each piece reflecting a unique story, style and vision."
-              ruleWidth={114}
-            />
-            <p className="mt-6 max-w-[22rem] font-sans text-[15px] italic leading-relaxed text-gold lg:text-[18px]">
+           gallery, not vertically centred against it. Below lg the tablet
+           layout (834px reference) is a completely different, fully centred
+           single-line/single-column treatment — not just a scaled-down
+           version of the desktop 2-line left-aligned block — so this copy
+           block is built by hand instead of reusing SectionHeader's shared
+           scale, which doesn't have a 32px/centred/single-line variant. */}
+        <div className="grid items-start gap-9 lg:grid-cols-[298fr_850fr] lg:gap-x-[30px] lg:gap-y-0">
+          <div className="text-center lg:mt-[66px] lg:text-left" data-reveal>
+            <Eyebrow className="mx-auto lg:mx-0 lg:text-[22px]">Our Work</Eyebrow>
+            <h2 className="fig-trim mt-3 font-serif font-semibold text-[28px] leading-[1.08] text-cream-light sm:text-[32px] lg:mt-4 lg:text-[56px] lg:leading-[64px]">
+              Featured<span className="lg:hidden"> </span>
+              <br className="hidden lg:block" />
+              Creations
+            </h2>
+            <GoldRule width={114} className="mx-auto mt-7 lg:mx-0 lg:mt-6" />
+            <p className="fig-trim mx-auto mt-5 max-w-[28rem] font-sans text-[14px] leading-relaxed text-line lg:mx-0 lg:mt-7 lg:max-w-[34rem] lg:text-[18px] lg:leading-[27px]">
+              Explore a selection of custom jewellery designed and handcrafted for our clients, each piece reflecting a unique story, style and vision.
+            </p>
+            <p className="mx-auto mt-2 max-w-[28rem] font-sans text-[14px] italic leading-relaxed text-gold lg:mx-0 lg:mt-6 lg:max-w-[22rem] lg:text-[18px]">
               No two stories are the same. Neither are our creations.
             </p>
           </div>
@@ -63,8 +71,8 @@ export default function Featured() {
                column (698-1548), 28px below it — not full section width.
                Rule stroke is #d8cbb7 (divider) at 1px, caption fill is solid
                #625b52 (body-2) — neither is a translucent cream-light blend. */}
-            <div className="relative mt-7 border-t border-divider pt-[29px]">
-              <p className="text-center font-serif text-[16px] tracking-[0.1em] text-body-2 [font-variant:small-caps] lg:text-[20px]">
+            <div className="relative mt-7 border-t border-divider pt-[23px] lg:pt-[29px]">
+              <p className="text-center font-serif text-[18px] tracking-[0.1em] text-body-2 [font-variant:small-caps] lg:text-[20px]">
                 each piece is unique, just like the person who wears it.
               </p>
             </div>

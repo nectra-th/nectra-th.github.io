@@ -5,11 +5,17 @@ import HeroVideo from "./HeroVideo";
 
 /* Hero — a cinematic dark band with the workshop video playing behind the copy.
    The intersecting-rings product shot is decorative and straddles the dark→cream
-   seam on desktop (absolute, `pointer-events-none`); on tablet/mobile it simply
-   flows below the copy. Structural content (text + CTAs) stays in the grid. */
+   seam on both tablet (verified against figma-data/tablet.1_4838.json: the
+   "Video Demo" band is 469px tall at the 834px reference, ring 310×310 at
+   left 484px/top 314px) and desktop (988px band, ring 720×720 at 916/652) —
+   absolute, `pointer-events-none`, each its own breakpoint-exact position/
+   size, not a shared scale of one another (Figma re-composed each
+   breakpoint independently, not a linear scale-down). Only mobile still
+   flows the ring in-flow below the copy. Structural content (text + CTAs)
+   stays in the grid. */
 export default function Hero() {
   return (
-    <section id="top" aria-label="Hero" className="relative overflow-hidden bg-ink border-b-4 border-[#c8b08a] lg:z-20 lg:min-h-[988px] lg:overflow-visible">
+    <section id="top" aria-label="Hero" className="relative overflow-hidden bg-ink border-b-4 border-[#c8b08a] md:z-20 md:min-h-[469px] md:overflow-visible lg:min-h-[988px]">
       {/* full-bleed background video + dark wash (clipped to the hero band) */}
       <div className="absolute inset-0 overflow-hidden">
         <HeroVideo />
@@ -37,41 +43,90 @@ export default function Hero() {
       <Container className="relative lg:!px-[24px]">
         <div className="grid grid-cols-1 items-center gap-10 pb-16 pt-28 sm:pt-32 md:pb-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-0 lg:pb-0 lg:pt-0">
           {/* copy — Figma component's own Top:377/Left:394 (Left comes from the
-             Container's 24px inset), not vertically centred in the section. */}
-          <div className="max-w-[520px] lg:max-w-[497px] lg:self-start lg:pt-[377px]">
+             Container's 24px inset) at desktop; Top:128/width:547 at tablet
+             (both verified per-breakpoint against their own Figma frame —
+             tablet's gaps between elements are also its own, not desktop's:
+             eyebrow-to-h1 16px (already matched by mt-4), h1-to-rule 16px,
+             rule-to-body 26px, body-to-buttons only 9px — tight, but real,
+             since the tablet copy runs 5 lines instead of desktop's 3). */}
+          <div className="max-w-[520px] md:max-w-[547px] lg:max-w-[497px] lg:self-start lg:pt-[377px]">
             <Eyebrow>Since 1978</Eyebrow>
             <h1 className="fig-trim mt-4 text-h1 text-cream-light">
               Expert Craftsmanship.
               <br />
               Personally Made.
             </h1>
-            <GoldRule width={114} className="mt-6 lg:mt-8" />
-            <p className="fig-trim mt-7 max-w-[480px] text-body text-cream-light/75 lg:text-[#cfc6b8]">
+            <GoldRule width={114} className="mt-6 md:mt-4 lg:mt-8" />
+            {/* md:max-w/tracking — Figma's tablet text box for this exact copy
+               is 319px wide with 0.28px tracking (both verified against
+               tablet.1_4838.json), narrower/looser than mobile's and desktop's
+               480px/no-tracking box, so it wraps onto Figma's own line breaks
+               here instead of inheriting the wider boxes' wrap. */}
+            <p className="fig-trim mt-7 max-w-[480px] text-body text-cream-light/75 md:mt-[26px] md:max-w-[319px] md:tracking-[0.28px] lg:mt-7 lg:max-w-[480px] lg:tracking-normal lg:text-[#cfc6b8]">
               Since 1978, Grech Jewellers has combined traditional craftsmanship with
               modern design technology to create custom jewellery that&rsquo;s personally
               designed, precision manufactured and made to last for generations.
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row lg:mt-6">
-              <CTAButton href="#book" variant="gold" className="lg:!h-14">Book a Consultation</CTAButton>
-              <CTAButton href="#featured" variant="dark" className="lg:!h-14 lg:!px-[42px]">See Our Work</CTAButton>
+            {/* md: button row/size — Figma's tablet buttons are 20px/16px
+               padding (not the desktop-ish 28px/14px default), Medium weight
+               with no letter-spacing (not Bold/0.06em), 41px tall, with only
+               an 8px gap between them — all verified against the "Button /
+               Tablet" component instances, distinct from both the base
+               (mobile) and lg (desktop) button styling. The overrides are
+               `md:max-lg:` (tablet-range ONLY), not plain `md:` — these use
+               !important to beat CTAButton's own base classes, so a plain
+               md: version would ALSO beat the non-important lg: desktop
+               classes and drag the tablet sizing up into desktop. */}
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row md:mt-[9px] md:gap-2 lg:mt-6 lg:gap-3">
+              <CTAButton href="#book" variant="gold" className="md:max-lg:!h-[41px] md:max-lg:!px-5 md:max-lg:!py-0 md:max-lg:!text-[12px] md:max-lg:!font-medium md:max-lg:!tracking-normal lg:!h-14">Book a Consultation</CTAButton>
+              <CTAButton href="#featured" variant="dark" className="md:max-lg:!h-[41px] md:max-lg:!px-5 md:max-lg:!py-0 md:max-lg:!text-[12px] md:max-lg:!font-medium md:max-lg:!tracking-normal lg:!h-14 lg:!px-[42px]">See Our Work</CTAButton>
             </div>
           </div>
 
-          {/* intersecting rings — in-flow on mobile/tablet; hidden at lg in
-             favour of the exact-position version below. */}
-          <div className="pointer-events-none relative mx-auto w-full max-w-[520px] md:max-w-[600px] lg:hidden">
+          {/* intersecting rings — in-flow on mobile only; tablet and desktop
+             each get their own Figma-exact bled/absolute version below. */}
+          <div className="pointer-events-none relative mx-auto w-full max-w-[520px] md:hidden">
             <Image
               src="/assets/hero-rings.png"
               alt="Grech Jewellers diamond engagement ring and matching wedding band"
               width={720}
               height={720}
               priority
-              sizes="(min-width: 768px) 600px, 90vw"
+              sizes="90vw"
               className="h-auto w-full drop-shadow-2xl"
             />
           </div>
         </div>
       </Container>
+
+      {/* intersecting rings, tablet — Figma's box (x=484 rel, y=314, 310×310)
+         against the 834px reference artboard: left/width as vw fractions
+         (58.0336vw / 37.1703vw), capped at 310px, so it settles at Figma's
+         exact position/size at 834 while scaling down at narrower md widths
+         (768–833) instead of overflowing. Distinct ratios from desktop's
+         (47.7083vw/37.5vw) — Figma re-composed this breakpoint by hand, not
+         a linear scale of the desktop numbers. Vertically, the ring must sit
+         exactly centred on the Hero/Why-Grech seam regardless of the
+         section's actual (content-driven) height — a fixed top-[314px]
+         only lines up with that seam when the section renders at exactly
+         Figma's own 469px, so `top-full` + a translateY is used instead: it
+         anchors to the section's real bottom edge (its nearest positioned
+         ancestor) and centres the image on it, self-correcting whenever the
+         section is taller than 469px. The translateY is `-50% + 4px`, not a
+         plain -50%, because `top:100%` resolves against the section's
+         padding box (border excluded) while the visible seam is the far
+         edge of its 4px border-b — without the +4px the ring's centre
+         would sit 4px short of the actual line between the two sections.
+         Hidden at lg in favour of the desktop version below. */}
+      <Image
+        src="/assets/hero-rings.png"
+        alt="Grech Jewellers diamond engagement ring and matching wedding band"
+        width={720}
+        height={720}
+        priority
+        sizes="310px"
+        className="pointer-events-none absolute hidden drop-shadow-2xl md:top-full md:block md:left-[58.0336vw] md:w-[min(37.1703vw,310px)] md:[transform:translateY(calc(-50%+4px))] lg:hidden"
+      />
 
       {/* intersecting rings, desktop — Figma's box (x=916, y=652, 720×720) is
          page-absolute against a 1920-wide reference artboard, so left/width
@@ -80,10 +135,11 @@ export default function Hero() {
          exceed the viewport at ANY size — reproduces Figma exactly at 1920
          while scaling down (instead of overflowing) at narrower lg widths
          (1024–1919). Width is capped at 720px so it doesn't grow past Figma's
-         intended size on ultra-wide screens. Top stays a fixed offset off the
-         section (its height doesn't scale with viewport width); the seam
-         bleed is proportionally smaller at narrower lg widths, which is an
-         acceptable trade-off for real responsiveness. */}
+         intended size on ultra-wide screens. Vertically centred on the
+         Hero/Why-Grech seam via top-full + the same border-compensated
+         translateY as the tablet version above, rather than a fixed top
+         offset, so it stays centred on the seam even when the section
+         renders taller than 988px. */}
       <Image
         src="/assets/hero-rings.png"
         alt="Grech Jewellers diamond engagement ring and matching wedding band"
@@ -91,7 +147,7 @@ export default function Hero() {
         height={720}
         priority
         sizes="720px"
-        className="pointer-events-none absolute hidden drop-shadow-2xl lg:top-[652px] lg:block lg:left-[47.7083vw] lg:w-[min(37.5vw,720px)]"
+        className="pointer-events-none absolute hidden drop-shadow-2xl lg:top-full lg:block lg:left-[47.7083vw] lg:w-[min(37.5vw,720px)] lg:[transform:translateY(calc(-50%+4px))]"
       />
     </section>
   );

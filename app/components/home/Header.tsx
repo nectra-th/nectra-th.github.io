@@ -97,22 +97,26 @@ export default function Header() {
 
   return (
     <header className="absolute inset-x-0 top-0 z-50 bg-ink/[0.72]">
-      <Container className="flex h-[72px] items-center justify-between lg:h-[108px] lg:!px-0">
+      <Container className="flex h-[72px] items-center justify-between md:h-20 lg:h-[108px] lg:!px-0">
         <a href="#top" aria-label="Grech Jewellers — home" className="shrink-0">
-          <img src="/assets/logo-header.svg" alt="Grech Jewellers" width={238} height={65} className="h-8 w-auto lg:h-[65px]" />
+          <img src="/assets/logo-header.svg" alt="Grech Jewellers" width={238} height={65} className="h-8 w-auto md:h-9 lg:h-[65px]" />
         </a>
 
         {/* nav + CTA — one flush-right group so the 30px gap between them is
             exact and the group's left edge auto-consumes the remaining space
-            next to the logo (reproducing the 205px gap at 1920 width). */}
-        <div className="hidden lg:flex lg:items-center lg:gap-[30px]">
-          <nav aria-label="Primary" className="flex items-center gap-8">
+            next to the logo (reproducing the 205px gap at 1920 width). Below
+            lg this is a real desktop-style bar too (not the mobile hamburger
+            menu — tablet is a full-featured layout, not a shrunk phone one),
+            just with its own tighter gaps/CTA size so 5 links + a button
+            still fit next to the logo down to 768px. */}
+        <div className="hidden md:flex md:items-center md:gap-3 lg:gap-[30px]">
+          <nav aria-label="Primary" className="flex items-center gap-3 lg:gap-8">
             {NAV.map((n) => (
               <a
                 key={n.href}
                 href={n.href}
                 onClick={(e) => scrollToNavTarget(e, n.href)}
-                className="gj-navlink link-underline text-[12px] font-medium uppercase text-cream-light/85"
+                className="gj-navlink link-underline whitespace-nowrap text-[11px] font-medium uppercase text-cream-light/85 lg:text-[12px]"
               >
                 {n.label}
               </a>
@@ -124,7 +128,7 @@ export default function Header() {
             onClick={(e) => scrollToNavTarget(e, "#book")}
             variant="outlineGold"
             radius="rounded-[4px]"
-            className="lg:!h-12 lg:!px-[18px] lg:!py-0 lg:!text-[14px] lg:!font-medium lg:!tracking-[1px]"
+            className="!h-10 !px-3 !py-0 !text-[11px] !font-medium !tracking-[0.5px] lg:!h-12 lg:!px-[18px] lg:!py-0 lg:!text-[14px] lg:!font-medium lg:!tracking-[1px]"
           >
             Book a Consultation
           </CTAButton>
@@ -138,7 +142,7 @@ export default function Header() {
           aria-expanded={open}
           aria-controls="mobile-menu"
           onClick={() => setOpen(true)}
-          className="flex h-11 w-11 items-center justify-center lg:hidden"
+          className="flex h-11 w-11 items-center justify-center md:hidden"
         >
           <span className="relative block h-4 w-6">
             <span className="absolute left-0 top-0 h-0.5 w-full bg-cream-light" />

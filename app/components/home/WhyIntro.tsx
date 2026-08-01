@@ -11,42 +11,52 @@ const RINGS = ["/assets/figma-img/ring-rot-1.png", "/assets/figma-img/ring-rot-2
 
 /* Why Grech — copy left (the same reusable "DESKTOP" component as the Hero:
    eyebrow/heading/rule/body/2-CTA pattern, verified against the Figma
-   instance's `characters` overrides). On desktop the workshop photo bleeds
-   to the viewport's right edge (Figma: x=1190 w=731, right edge ≈ viewport
-   edge) — positioned off the section like the Hero ring, with a vw-based
-   width so it scales down instead of overflowing at narrower lg widths. The
-   rotating "David Ring" media card overlaps its lower-left corner at the
-   exact Figma offset, expressed as % of the photo box so it scales with it.
-   A pen-sketch bleeds off the left as a decorative backdrop (Figma: full
-   opacity — the line art is faint on its own, no CSS fade needed) and bleeds
-   down past this section's own bottom into Four Pillars below (same cream
-   background, so the seam is invisible) — needs `lg:overflow-visible` on the
-   section so it isn't clipped early; the photo/card don't rely on clipping
-   for their own bounds so this is safe. Stacks in-flow on mobile/tablet. */
+   instance's `characters` overrides). Verified against tablet.1_4838.json:
+   tablet is NOT a stacked mobile layout — the workshop photo sits beside the
+   copy, bled to the tablet artboard's own right edge (x=444.57, w=389.38 of
+   834 ≈ flush), same idea as desktop's bleed-to-1920-edge just at its own
+   reference size. The rotating "David Ring" media card's position/size as a
+   % of the photo box is (within Figma's own rounding) identical between
+   tablet and desktop — -11.19%/73.94%/31.18% here vs desktop's
+   -11.22%/73.92%/31.19% — so it reuses the same relative style. A pen-sketch
+   bleeds off the left as a decorative backdrop (Figma: full opacity — the
+   line art is faint on its own, no CSS fade needed) and bleeds down past
+   this section's own bottom into Four Pillars below (same cream background,
+   so the seam is invisible) — needs `lg:overflow-visible` on the section so
+   it isn't clipped early; the photo/card don't rely on clipping for their
+   own bounds so this is safe. Only true mobile still stacks in-flow. */
 export default function WhyIntro() {
   return (
-    <section id="why" aria-label="Why Grech" className="relative overflow-hidden bg-cream py-16 md:py-24 lg:min-h-[1014px] lg:overflow-visible lg:py-0">
-      {/* decorative pen-sketch backdrop — Figma x=-261 y=808(rel) w=1115 h=836.
-         Explicit z-0: this section is `position:relative` (for the photo/ring
-         below), which — regardless of DOM order — paints its whole subtree
-         above Four Pillars' plain static section next door, so without a
-         z-index the sketch would sit on top of Four Pillars' card text where
-         it bleeds through. Four Pillars' own Container is z-10 to sit above
-         this, while Four Pillars' section background (non-positioned) stays
-         beneath it so the bleed still shows. */}
+    <section id="why" aria-label="Why Grech" className="relative overflow-hidden bg-cream py-16 md:overflow-visible md:py-0 md:pb-[80px] lg:min-h-[1014px] lg:overflow-visible lg:pb-0">
+      {/* decorative pen-sketch backdrop — Figma x=-261 y=806(rel) w=1115 h=836
+         at desktop; x=-114 y=790(rel) w=603 h=452 at tablet (verified against
+         tablet.1_4838.json — its own composition, not a scale of desktop's).
+         Bleeds off the left at both tiers and, at both tiers, down past this
+         section's own bottom into Four Pillars below — `overflow-visible` is
+         needed on the section at md too (not just lg) or the tablet version
+         gets clipped early. Explicit z-0: this section is `position:relative`
+         (for the photo/ring below), which — regardless of DOM order — paints
+         its whole subtree above Four Pillars' plain static section next
+         door, so without a z-index the sketch would sit on top of Four
+         Pillars' card text where it bleeds through. Four Pillars' own
+         Container is z-10 to sit above this, while Four Pillars' section
+         background (non-positioned) stays beneath it so the bleed still
+         shows. */}
       <img
         src={SKETCH}
         alt=""
         aria-hidden
         loading="lazy"
         decoding="async"
-        className="pointer-events-none absolute z-0 hidden lg:block lg:left-[-261px] lg:top-[806px] lg:h-[836px] lg:w-[1115px]"
+        className="pointer-events-none absolute z-0 hidden md:block md:left-[-13.669vw] md:top-[790px] md:h-[452px] md:w-[min(72.302vw,603px)] lg:left-[-261px] lg:top-[806px] lg:h-[836px] lg:w-[1115px]"
       />
 
       <Container className="relative lg:!px-[20px]">
         <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-[543px_1fr] lg:items-start lg:gap-0">
-          {/* copy — Figma component's own Top:433 (relative to section top) */}
-          <div className="lg:max-w-[543px] lg:self-start lg:pt-[433px]">
+          {/* copy — Figma component's own Top:433 (relative to section top) at
+             desktop, Top:155/width:352 at tablet (both verified per-breakpoint,
+             not a scale of one another). */}
+          <div className="md:max-w-[352px] md:pt-[155px] lg:max-w-[543px] lg:self-start lg:pt-[433px]">
             <SectionHeader
               eyebrow="Why Grech"
               title={<>Adelaide&rsquo;s Trusted<br />Manufacturing<br />Jeweller</>}
@@ -60,9 +70,9 @@ export default function WhyIntro() {
             </SectionHeader>
           </div>
 
-          {/* imagery — in-flow, contained on mobile/tablet; hidden at lg in
-             favour of the bleed-to-edge version below. */}
-          <div className="lg:hidden">
+          {/* imagery — in-flow, contained on mobile only; tablet and desktop
+             each get their own Figma-exact bled/absolute version below. */}
+          <div className="md:hidden">
             <div className="relative mx-auto w-full max-w-[560px]">
               <div
                 data-scroll-image="why"
@@ -73,7 +83,7 @@ export default function WhyIntro() {
                   src={WORKSHOP}
                   alt="A Grech jeweller at the workshop bench with tools and design sketches"
                   fill
-                  sizes="(min-width: 1024px) 560px, 90vw"
+                  sizes="90vw"
                   className="object-cover"
                 />
               </div>
@@ -88,6 +98,37 @@ export default function WhyIntro() {
           </div>
         </div>
       </Container>
+
+      {/* workshop photo + media card, tablet — Figma's exact box (x=444.57,
+         y=590 rel, 389.38×283.77) bleeds to the RIGHT EDGE OF THE 834
+         REFERENCE ARTBOARD (444.57+389.38=833.95 ≈ 834), same wrapper
+         technique as desktop but capped at the tablet reference instead of
+         1920. Top is a fixed 121px off the section's own top (measured from
+         where Hero's 469px band ends), not vw-scaled — same convention as
+         desktop's fixed top offset. Hidden at lg in favour of the desktop
+         version below. */}
+      <div className="absolute inset-x-0 top-0 mx-auto hidden h-0 max-w-[834px] md:block lg:hidden">
+        <div className="absolute right-0 top-[121px] aspect-[389/284] w-[min(46.6882vw,389px)]">
+          <div data-scroll-image="why" className="relative h-full w-full overflow-hidden rounded-l-2xl border border-[#d8cbb7]" style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.14)" }}>
+            <Image
+              src={WORKSHOP}
+              alt="A Grech jeweller at the workshop bench with tools and design sketches"
+              fill
+              sizes="389px"
+              className="object-cover"
+            />
+          </div>
+          <div
+            className="gj-lift absolute overflow-hidden rounded-xl border border-divider bg-black"
+            style={{
+              left: "-11.22%", top: "73.92%", width: "31.19%", aspectRatio: "228 / 190",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.25)", boxSizing: "border-box",
+            }}
+          >
+            <RotatingImage srcs={RINGS} bgSize="cover" bgPos="center" />
+          </div>
+        </div>
+      </div>
 
       {/* workshop photo + media card, desktop — Figma's exact box (x=1190,
          y=315 relative, 731×533) bleeds to the RIGHT EDGE OF THE 1920

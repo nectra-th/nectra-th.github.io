@@ -37,10 +37,15 @@ type Status = "idle" | "submitting" | "error";
 type Step = "select" | "details" | "success";
 
 const FONT = "var(--font-manrope), system-ui, sans-serif";
-const H3 = { fontFamily: FONT, fontSize: 28, fontWeight: 600, lineHeight: "28px", color: "var(--color-ink-text)", margin: 0 } as const;
-const SUB = { fontFamily: FONT, fontSize: 16, lineHeight: "24px", color: "var(--color-body)", marginTop: 16 } as const;
 
-export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { stacked?: boolean; cardWidth?: number }) {
+export default function BookingWidget({ stacked = false, compact = false, cardWidth = 1180 }: { stacked?: boolean; compact?: boolean; cardWidth?: number }) {
+  // `compact` is tablet only (768–1023px, still 3-column via `stacked=false`
+  // but with Figma's own much smaller internal type: headings 20px not 28px,
+  // sub-text 11px not 16px, calendar/time labels ~10px not 15px — verified
+  // against the tablet IDLE STATE directly. Mobile and desktop share the
+  // same (larger) scale, confirmed identical against their own references.
+  const H3 = { fontFamily: FONT, fontSize: compact ? 20 : 28, fontWeight: 600, lineHeight: compact ? "22px" : "28px", color: "var(--color-ink-text)", margin: 0 } as const;
+  const SUB = { fontFamily: FONT, fontSize: compact ? 11 : 16, lineHeight: compact ? "16px" : "24px", color: "var(--color-body)", marginTop: compact ? 11 : 16 } as const;
   const [step, setStep] = useState<Step>("select");
   // `today` / `view` depend on the current date, which differs between build time
   // (this island is prerendered) and the visitor's runtime — deriving them during
@@ -131,23 +136,32 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
   void cardWidth;
   const cardChrome = {
     borderRadius: 18, background: "rgba(248,243,234,0.9)", border: "1px solid #d8cbb7", boxShadow: "0 20px 60px -20px rgba(20,19,18,0.25)",
-    backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: stacked ? "26px 20px" : "40px 44px", fontFamily: FONT,
+    backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: stacked ? "26px 20px" : compact ? "27px 34px" : "40px 44px", fontFamily: FONT,
   } as const;
-  const cardBase: React.CSSProperties = { position: "relative", width: "100%", minHeight: stacked ? undefined : 470, ...cardChrome };
+  // 470 is desktop's own natural content height, kept as one shared floor
+  // across steps so the card doesn't resize when switching (select/details/
+  // success). At compact the select step (the taller of the two, since it's
+  // fully content-driven regardless of minHeight — verified by testing with
+  // minHeight:0) only naturally needs 376, not 470 — the unscaled desktop
+  // value was leaving 94–188px of true empty space below the card content.
+  const cardBase: React.CSSProperties = { position: "relative", width: "100%", minHeight: stacked ? undefined : compact ? 376 : 470, ...cardChrome };
   // divider x-positions for 3 equal columns (1fr each) with a 40px column gap
-  const DIV1 = "calc((100% - 80px) / 3 + 20px)";
-  const DIV2 = "calc((100% - 80px) / 3 * 2 + 60px)";
+  // (33px at tablet compact — Figma's own itemSpacing there, verified against
+  // the tablet IDLE STATE node tree, not just a scaled-down guess).
+  const COL_GAP = compact ? 33 : 40;
+  const DIV1 = compact ? "calc((100% - 66px) / 3 + 16px)" : "calc((100% - 80px) / 3 + 20px)";
+  const DIV2 = compact ? "calc((100% - 66px) / 3 * 2 + 49px)" : "calc((100% - 80px) / 3 * 2 + 60px)";
 
   /* shared checklist column */
   const Checklist = (
     <div>
       <h3 style={{ ...H3, textAlign: stacked ? "center" : undefined, lineHeight: stacked ? "38px" : H3.lineHeight }}>Preparing for Your<br />Design Consultation</h3>
       <p style={{ ...SUB, textAlign: stacked ? "center" : undefined }}>Everything you need before we meet.</p>
-      <ul style={{ marginTop: stacked ? 8 : 48, display: "flex", flexDirection: "column", gap: 24 }}>
+      <ul style={{ marginTop: stacked ? 8 : compact ? 33 : 48, display: "flex", flexDirection: "column", gap: compact ? 16 : 24 }}>
         {CHECKLIST.map((c) => (
-          <li key={c} style={{ display: "flex", alignItems: "center", gap: 6, height: 24 }}>
-            <Check style={{ width: 24, height: 24, flex: "0 0 auto", color: "var(--color-gold)" }} />
-            <span style={{ fontFamily: FONT, fontSize: 16, fontWeight: 500, color: "var(--color-ink-text)", whiteSpace: stacked ? "normal" : "nowrap" }}>{c}</span>
+          <li key={c} style={{ display: "flex", alignItems: "center", gap: compact ? 5 : 6, height: compact ? 16 : 24 }}>
+            <Check style={{ width: compact ? 16 : 24, height: compact ? 16 : 24, flex: "0 0 auto", color: "var(--color-gold)" }} />
+            <span style={{ fontFamily: FONT, fontSize: compact ? 11 : 16, fontWeight: 500, color: "var(--color-ink-text)", whiteSpace: stacked ? "normal" : "nowrap" }}>{c}</span>
           </li>
         ))}
       </ul>
@@ -165,7 +179,7 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
         <div style={{ display: "grid", gridTemplateColumns: stacked ? "1fr" : "minmax(0,300px) 1fr", columnGap: 40, rowGap: 28, alignItems: "center" }}>
           {/* left — summary */}
           <div>
-            <h3 style={{ ...H3, fontSize: 26 }}>Your Booking Summary</h3>
+            <h3 style={{ ...H3, fontSize: compact ? 19 : 26 }}>Your Booking Summary</h3>
             <ul style={{ marginTop: 36, display: "flex", flexDirection: "column", gap: 24 }}>
               {SUM.map((s, i) => (
                 <li key={i} style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -202,82 +216,90 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
     const reqRows = [reqDate, `${prettyTime} (30-45 minutes)`, "30-45 minutes", "In-person Consultation"];
     return (
       <div style={{ ...cardBase, zIndex: 20 }}>
-        <div style={{ position: "relative", display: "grid", gridTemplateColumns: stacked ? "1fr" : "1fr 1fr 1fr", columnGap: 40, rowGap: stacked ? 28 : 0 }}>
-          {!stacked && <div style={{ position: "absolute", left: DIV1, top: 151, width: 1, height: 256, background: "var(--color-divider)" }} />}
-          {!stacked && <div style={{ position: "absolute", left: DIV2, top: 151, width: 1, height: 256, background: "var(--color-divider)" }} />}
+        <div style={{ position: "relative", display: "grid", gridTemplateColumns: stacked ? "1fr" : "1fr 1fr 1fr", columnGap: COL_GAP, rowGap: stacked ? 28 : 0 }}>
+          {/* same top/height as the select step's dividers (Figma-verified
+              against the checklist column, which is the identical shared
+              component in both steps) — the lines must not shift when the
+              step changes, only the middle/right column content swaps. */}
+          {!stacked && <div style={{ position: "absolute", left: DIV1, top: compact ? 76 : 111, width: 1, height: compact ? 175 : 256, background: "var(--color-divider)" }} />}
+          {!stacked && <div style={{ position: "absolute", left: DIV2, top: compact ? 76 : 111, width: 1, height: compact ? 175 : 256, background: "var(--color-divider)" }} />}
 
           {Checklist}
 
           {/* middle — back arrow + Your Booking Request + consent */}
           <div>
-            <button aria-label="Back" onClick={() => setStep("select")} className="gj-soft" style={{ width: 40, height: 40, borderRadius: 8, border: "1px solid var(--color-divider)", color: "var(--color-gold)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", background: "transparent" }}>
-              <ArrowLeft style={{ width: 18, height: 18 }} />
+            <button aria-label="Back" onClick={() => setStep("select")} className="gj-soft" style={{ width: compact ? 27 : 40, height: compact ? 27 : 40, borderRadius: 8, border: "1px solid var(--color-divider)", color: "var(--color-gold)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", background: "transparent" }}>
+              <ArrowLeft style={{ width: compact ? 12 : 18, height: compact ? 12 : 18 }} />
             </button>
-            <div style={{ marginTop: 20, background: "#fff", borderRadius: 8, padding: "22px 24px", boxShadow: "0 8px 24px -16px rgba(20,19,18,0.35)" }}>
-              <h4 style={{ fontFamily: FONT, fontSize: 22, fontWeight: 600, color: "var(--color-ink-text)", margin: 0 }}>Your Booking Request</h4>
-              <ul style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 16 }}>
+            {/* card scale below uses the same ~0.684 tablet:desktop ratio
+                verified against Figma's IDLE STATE elsewhere in this widget
+                (font sizes, gaps, divider heights) — this step's own DETAILS
+                STATE wasn't fetched for tablet (API rate-limited), so these
+                are proportionally derived, not directly measured. */}
+            <div style={{ marginTop: compact ? 14 : 20, background: "#fff", borderRadius: 8, padding: compact ? "15px 16px" : "22px 24px", boxShadow: "0 8px 24px -16px rgba(20,19,18,0.35)" }}>
+              <h4 style={{ fontFamily: FONT, fontSize: compact ? 16 : 22, fontWeight: 600, color: "var(--color-ink-text)", margin: 0 }}>Your Booking Request</h4>
+              <ul style={{ marginTop: compact ? 12 : 18, display: "flex", flexDirection: "column", gap: compact ? 11 : 16 }}>
                 {reqRows.map((r, i) => {
                   // per-row icons matching the Figma "Your Booking Request" card:
                   // date → calendar, time → clock, duration → timer, type → person
                   const Icon = [Calendar, Clock, Timer, User][i] ?? Clock;
                   return (
-                    <li key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <Icon style={{ width: 19, height: 19, flex: "0 0 auto", color: "var(--color-gold)" }} />
-                      <span style={{ fontSize: 15, color: "var(--color-ink-text)" }}>{r}</span>
+                    <li key={i} style={{ display: "flex", alignItems: "center", gap: compact ? 8 : 12 }}>
+                      <Icon style={{ width: compact ? 13 : 19, height: compact ? 13 : 19, flex: "0 0 auto", color: "var(--color-gold)" }} />
+                      <span style={{ fontSize: compact ? 10 : 15, color: "var(--color-ink-text)" }}>{r}</span>
                     </li>
                   );
                 })}
               </ul>
             </div>
-            <label style={{ marginTop: 18, display: "flex", gap: 12, cursor: "pointer" }}>
-              <span style={{ position: "relative", flex: "0 0 auto", width: 24, height: 24, marginTop: 2 }}>
+            <label style={{ marginTop: compact ? 12 : 18, display: "flex", gap: compact ? 8 : 12, cursor: "pointer" }}>
+              <span style={{ position: "relative", flex: "0 0 auto", width: compact ? 16 : 24, height: compact ? 16 : 24, marginTop: 2 }}>
                 <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)}
-                  style={{ position: "absolute", inset: 0, margin: 0, width: 24, height: 24, opacity: 0, cursor: "pointer" }} />
+                  style={{ position: "absolute", inset: 0, margin: 0, width: compact ? 16 : 24, height: compact ? 16 : 24, opacity: 0, cursor: "pointer" }} />
                 <span aria-hidden style={{
-                  display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, borderRadius: 2,
+                  display: "flex", alignItems: "center", justifyContent: "center", width: compact ? 16 : 24, height: compact ? 16 : 24, borderRadius: 2,
                   background: consent ? "var(--color-gold-dark)" : "var(--color-cream)",
                   border: `1px solid ${consent ? "var(--color-gold-dark)" : "var(--color-divider)"}`,
                 }}>
-                  {consent && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="5 13 10 18 19 7" /></svg>}
+                  {consent && <svg width={compact ? 10 : 14} height={compact ? 10 : 14} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="5 13 10 18 19 7" /></svg>}
                 </span>
               </span>
-              <span style={{ fontSize: 14, lineHeight: "20px", color: "var(--color-ink-text)" }}>I understand this is a consultation request and Grech Jewellers will contact me to confirm a suitable appointment time.</span>
+              <span style={{ fontSize: compact ? 10 : 14, lineHeight: compact ? "14px" : "20px", color: "var(--color-ink-text)" }}>I understand this is a consultation request and Grech Jewellers will contact me to confirm a suitable appointment time.</span>
             </label>
           </div>
 
           {/* right — Enter Your Details form */}
           <div>
             <h3 style={{ ...H3, textAlign: stacked ? "left" : "right" }}>Enter Your Details</h3>
-            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 8 }}>
-              <Field label="Name *" value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Your name" />
-              <Field label="Email *" type="email" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} placeholder="Email Address" />
+            <div style={{ marginTop: stacked ? 24 : compact ? 19 : 32, display: "flex", flexDirection: "column", gap: compact ? 5 : 8 }}>
+              <Field label="Name *" value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Your name" showLabel={false} compact={compact} />
+              <Field label="Email *" type="email" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} placeholder="Email Address" showLabel={false} compact={compact} />
               <div>
-                <FieldLabel>Contact Number*</FieldLabel>
                 <div style={{ display: "flex" }}>
-                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0 12px", height: 44, border: "1px solid var(--color-divider)", borderRight: "none", borderRadius: "8px 0 0 8px", background: "var(--color-cream-light)" }}>
-                    <span role="img" aria-label="Australia" style={{ width: 26, height: 20, borderRadius: 2, backgroundImage: "url(/assets/flag-au.png)", backgroundSize: "cover", backgroundPosition: "center" }} />
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: compact ? "0 8px" : "0 12px", height: compact ? 30 : 44, border: "1px solid var(--color-divider)", borderRight: "none", borderRadius: "8px 0 0 8px", background: "var(--color-cream-light)" }}>
+                    <span role="img" aria-label="Australia" style={{ width: compact ? 18 : 26, height: compact ? 14 : 20, borderRadius: 2, backgroundImage: "url(/assets/flag-au.png)", backgroundSize: "cover", backgroundPosition: "center" }} />
                   </span>
                   <input type="tel" aria-label="Contact number" value={form.phone} placeholder="0412 345 678" onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className="gj-field"
-                    style={{ flex: 1, minWidth: 0, height: 44, border: "1px solid var(--color-divider)", borderRadius: "0 8px 8px 0", background: "var(--color-cream-light)", padding: "0 14px", fontSize: 14, color: "#403b37", outline: "none" }} />
+                    style={{ flex: 1, minWidth: 0, height: compact ? 30 : 44, border: "1px solid var(--color-divider)", borderRadius: "0 8px 8px 0", background: "var(--color-cream-light)", padding: compact ? "0 10px" : "0 14px", fontSize: compact ? 10 : 14, color: "#403b37", outline: "none" }} />
                 </div>
               </div>
               <div>
-                <FieldLabel>How did you hear about us?</FieldLabel>
+                <FieldLabel compact={compact}>How did you hear about us?</FieldLabel>
                 <div style={{ position: "relative" }}>
                   <select aria-label="How did you hear about us?" value={form.hear} onChange={(e) => setForm((f) => ({ ...f, hear: e.target.value }))} className="gj-field"
-                    style={{ appearance: "none", width: "100%", height: 44, border: "1px solid var(--color-divider)", borderRadius: 8, background: "var(--color-cream-light)", padding: "0 38px 0 14px", fontSize: 14, color: form.hear ? "#403b37" : "var(--color-body)", outline: "none", cursor: "pointer" }}>
+                    style={{ appearance: "none", width: "100%", height: compact ? 30 : 44, border: "1px solid var(--color-divider)", borderRadius: 8, background: "var(--color-cream-light)", padding: compact ? "0 26px 0 10px" : "0 38px 0 14px", fontSize: compact ? 10 : 14, color: form.hear ? "#403b37" : "var(--color-body)", outline: "none", cursor: "pointer" }}>
                     <option value="" disabled>Select an option</option>
                     {HEAR_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
-                  <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "var(--color-body)" }}><Chevron /></span>
+                  <span style={{ position: "absolute", right: compact ? 10 : 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "var(--color-body)" }}><Chevron size={compact ? 10 : 14} /></span>
                 </div>
               </div>
               {/* error floats above the button (absolute) so it never pushes the
                   button down / grows the card */}
-              <div style={{ position: "relative", marginTop: 24 }}>
-                {status === "error" && <p role="alert" style={{ position: "absolute", left: 0, right: 0, bottom: "calc(100% + 8px)", margin: 0, borderRadius: 8, background: "#fef2f2", padding: "8px 12px", fontSize: 13, lineHeight: "18px", color: "#b91c1c", boxShadow: "0 8px 20px -10px rgba(0,0,0,0.35)" }}>{message}</p>}
+              <div style={{ position: "relative", marginTop: compact ? 16 : 24 }}>
+                {status === "error" && <p role="alert" style={{ position: "absolute", left: 0, right: 0, bottom: "calc(100% + 8px)", margin: 0, borderRadius: 8, background: "#fef2f2", padding: compact ? "5px 8px" : "8px 12px", fontSize: compact ? 9 : 13, lineHeight: compact ? "13px" : "18px", color: "#b91c1c", boxShadow: "0 8px 20px -10px rgba(0,0,0,0.35)" }}>{message}</p>}
                 <button className="gj-primary" onClick={submit} disabled={!detailsValid}
-                  style={{ width: "100%", height: 48, borderRadius: 8, fontSize: 14, fontWeight: 600, letterSpacing: "0.04em",
+                  style={{ width: "100%", height: compact ? 33 : 48, borderRadius: 8, fontSize: compact ? 10 : 14, fontWeight: 600, letterSpacing: "0.04em",
                     background: detailsValid ? "#b88c46" : "#d8cbb7", color: detailsValid ? "var(--color-ink)" : "rgba(87,87,87,0.5)",
                     cursor: detailsValid ? "pointer" : "default", border: "none" }}>
                   {status === "submitting" ? "Sending…" : "Request Consultation"}
@@ -295,9 +317,9 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
   const timeSlots: { t: string; disabled: boolean; preview?: boolean }[] = selectedDate ? availableTimes : TIME_SLOTS.map((t) => ({ t, disabled: false, preview: true }));
   return (
     <div style={cardBase}>
-      <div style={{ position: "relative", display: "grid", gridTemplateColumns: stacked ? "1fr" : "1fr 1fr 1fr", columnGap: 40, rowGap: stacked ? 20 : 0 }}>
-        {!stacked && <div style={{ position: "absolute", left: DIV1, top: 111, width: 1, height: 256, background: "var(--color-divider)" }} />}
-        {!stacked && <div style={{ position: "absolute", left: DIV2, top: 111, width: 1, height: 256, background: "var(--color-divider)" }} />}
+      <div style={{ position: "relative", display: "grid", gridTemplateColumns: stacked ? "1fr" : "1fr 1fr 1fr", columnGap: COL_GAP, rowGap: stacked ? 20 : 0 }}>
+        {!stacked && <div style={{ position: "absolute", left: DIV1, top: compact ? 76 : 111, width: 1, height: compact ? 175 : 256, background: "var(--color-divider)" }} />}
+        {!stacked && <div style={{ position: "absolute", left: DIV2, top: compact ? 76 : 111, width: 1, height: compact ? 175 : 256, background: "var(--color-divider)" }} />}
 
         {Checklist}
 
@@ -305,16 +327,16 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
         <div style={{ textAlign: "center" }}>
           <h3 style={{ ...H3, fontWeight: 700 }}>Choose Your Date</h3>
           <p style={SUB}>Select a day that suits you</p>
-          <div style={{ marginTop: stacked ? 16 : 48 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 252, margin: "0 auto", height: 32 }}>
-              <button aria-label="Previous month" onClick={() => setView((v) => (v ? (v.m === 0 ? { y: v.y - 1, m: 11 } : { y: v.y, m: v.m - 1 }) : v))} className="gj-navarrow" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold-dark)", cursor: "pointer", flex: "0 0 auto" }}><ArrowLeft style={{ width: 15, height: 15 }} /></button>
-              <span style={{ fontSize: 16, fontWeight: 500, letterSpacing: "0.02em", color: "var(--color-ink-text)" }}>{view ? `${MONTHS[view.m]} ${view.y}` : " "}</span>
-              <button aria-label="Next month" onClick={() => setView((v) => (v ? (v.m === 11 ? { y: v.y + 1, m: 0 } : { y: v.y, m: v.m + 1 }) : v))} className="gj-navarrow" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold-dark)", cursor: "pointer", flex: "0 0 auto" }}><ArrowRight style={{ width: 15, height: 15 }} /></button>
+          <div style={{ marginTop: stacked ? 16 : compact ? 33 : 48 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: compact ? "center" : "space-between", gap: compact ? 38 : undefined, maxWidth: compact ? undefined : 252, margin: "0 auto", height: compact ? 24 : 32 }}>
+              <button aria-label="Previous month" onClick={() => setView((v) => (v ? (v.m === 0 ? { y: v.y - 1, m: 11 } : { y: v.y, m: v.m - 1 }) : v))} className="gj-navarrow" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: compact ? 24 : 32, height: compact ? 24 : 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold-dark)", cursor: "pointer", flex: "0 0 auto" }}><ArrowLeft style={{ width: compact ? 11 : 15, height: compact ? 11 : 15 }} /></button>
+              <span style={{ fontSize: compact ? 10 : 16, fontWeight: 500, letterSpacing: "0.02em", color: "var(--color-ink-text)", width: compact ? 88 : undefined, textAlign: compact ? "center" : undefined, flex: "0 0 auto" }}>{view ? `${MONTHS[view.m]} ${view.y}` : " "}</span>
+              <button aria-label="Next month" onClick={() => setView((v) => (v ? (v.m === 11 ? { y: v.y + 1, m: 0 } : { y: v.y, m: v.m + 1 }) : v))} className="gj-navarrow" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: compact ? 24 : 32, height: compact ? 24 : 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold-dark)", cursor: "pointer", flex: "0 0 auto" }}><ArrowRight style={{ width: compact ? 11 : 15, height: compact ? 11 : 15 }} /></button>
             </div>
-            <div style={{ marginTop: stacked ? 10 : 8, display: "grid", gridTemplateColumns: "repeat(7,1fr)", textAlign: "center" }}>
-              {WEEKDAYS.map((w) => (<span key={w} style={{ fontSize: 12, fontWeight: 500, letterSpacing: "0.02em", color: "var(--color-body)", opacity: 0.7 }}>{w}</span>))}
+            <div style={{ marginTop: stacked ? 10 : compact ? 0 : 8, display: "grid", gridTemplateColumns: "repeat(7,1fr)", alignItems: "center", height: compact ? 27 : undefined, textAlign: "center" }}>
+              {WEEKDAYS.map((w) => (<span key={w} style={{ fontSize: compact ? 8.5 : 12, fontWeight: 500, letterSpacing: "0.02em", color: "var(--color-body)", opacity: 0.7 }}>{w}</span>))}
             </div>
-            <div style={{ marginTop: stacked ? 8 : 0, display: "grid", gridTemplateColumns: "repeat(7,1fr)", gridAutoRows: "40px", columnGap: 8, rowGap: 8, placeItems: "center", minHeight: 232 }}>
+            <div style={{ marginTop: stacked ? 8 : 0, display: "grid", gridTemplateColumns: "repeat(7,1fr)", gridAutoRows: compact ? "27px" : "40px", columnGap: compact ? 5 : 8, rowGap: compact ? 3 : 8, placeItems: "center", minHeight: compact ? 160 : 232 }}>
               {cells.map((c, idx) => {
                 const dateStr = c.date && view ? iso(view.y, view.m, c.day) : null;
                 const disabled = dateDisabled(c.date);
@@ -326,7 +348,7 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
                     aria-label={dayLabel} aria-pressed={!!selected} aria-current={isToday ? "date" : undefined}
                     onClick={() => { if (dateStr) { setSelectedDate(dateStr); setSelectedTime(null); setStatus("idle"); } }}
                     style={{
-                      width: 40, height: 40, borderRadius: "50%", fontSize: 15,
+                      width: compact ? 27 : 40, height: compact ? 27 : 40, borderRadius: "50%", fontSize: compact ? 10 : 15,
                       color: !c.inMonth ? "rgba(98,91,82,0.45)" : disabled ? "#625b52" : selected ? "#f8f3ea" : isToday ? "var(--color-ink-text)" : "#403b37",
                       background: selected ? "#b88c46" : "transparent",
                       fontWeight: 400,
@@ -343,13 +365,13 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
         <div style={{ textAlign: "center" }}>
           <h3 style={{ ...H3, fontWeight: 700, textAlign: stacked ? "center" : "right" }}>Select a Time</h3>
           <p style={{ ...SUB, textAlign: stacked ? "center" : "right" }}>Available Appointments</p>
-          <div style={{ marginTop: stacked ? 16 : 48, display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 14, rowGap: 10 }}>
+          <div style={{ marginTop: stacked ? 16 : compact ? 33 : 48, display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: compact ? 6 : 14, rowGap: compact ? 6 : 10 }}>
             {timeSlots.map(({ t, disabled, preview }) => {
               const on = selectedTime === t;
               return (
                 <button key={t} className={"gj-soft" + (!on && !disabled && !preview ? " gj-timeslot" : "")} disabled={disabled || preview} aria-pressed={on} aria-label={`${spaceTime(t)}${disabled && !preview ? " (unavailable)" : ""}`} onClick={() => setSelectedTime(t)}
                   style={{
-                    height: stacked ? 42 : 46, borderRadius: 0, fontSize: 15,
+                    height: stacked ? 42 : compact ? 31 : 46, borderRadius: 0, fontSize: compact ? 10 : 15,
                     border: `1px solid ${on ? "#b88c46" : "var(--color-divider)"}`,
                     background: on ? "#b88c46" : disabled ? "var(--color-cream-card)" : "var(--color-cream-light)",
                     color: on ? "#ede5d7" : preview || disabled ? "var(--color-line)" : "#403b37",
@@ -367,10 +389,10 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
             <>
               <div style={{ marginTop: 18, display: "flex", alignItems: "center", gap: 8 }}>
                 <Clock style={{ width: 16, height: 16, flex: "0 0 auto", color: "var(--color-gold)" }} />
-                <span style={{ fontSize: 14, color: "var(--color-body)" }}>30-45 minute consultation</span>
+                <span style={{ fontSize: compact ? 11 : 14, color: "var(--color-body)" }}>30-45 minute consultation</span>
               </div>
               <button className="gj-primary" onClick={() => setStep("details")}
-                style={{ marginTop: 14, width: "100%", height: 46, borderRadius: 8, fontSize: 14, fontWeight: 600, letterSpacing: "0.04em",
+                style={{ marginTop: 14, width: "100%", height: 46, borderRadius: 8, fontSize: compact ? 12 : 14, fontWeight: 600, letterSpacing: "0.04em",
                   background: "#b88c46", color: "var(--color-ink)", cursor: "pointer", border: "none" }}>
                 Continue
               </button>
@@ -382,22 +404,22 @@ export default function BookingWidget({ stacked = false, cardWidth = 1180 }: { s
   );
 }
 
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return <span style={{ marginBottom: 6, display: "block", fontSize: 13, fontWeight: 500, color: "#625b52" }}>{children}</span>;
+function FieldLabel({ children, compact = false }: { children: React.ReactNode; compact?: boolean }) {
+  return <span style={{ marginBottom: compact ? 4 : 6, display: "block", fontSize: compact ? 9 : 13, fontWeight: 500, color: "#625b52" }}>{children}</span>;
 }
 
-function Field({ label, value, onChange, type = "text", placeholder }: { label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string }) {
+function Field({ label, value, onChange, type = "text", placeholder, showLabel = true, compact = false }: { label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string; showLabel?: boolean; compact?: boolean }) {
   return (
     <label style={{ display: "block" }}>
-      <FieldLabel>{label}</FieldLabel>
-      <input type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} className="gj-field"
-        style={{ width: "100%", height: 44, borderRadius: 8, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", padding: "0 14px", fontSize: 14, color: "#403b37", outline: "none" }} />
+      {showLabel && <FieldLabel compact={compact}>{label}</FieldLabel>}
+      <input type={type} value={value} placeholder={placeholder} aria-label={showLabel ? undefined : label} onChange={(e) => onChange(e.target.value)} className="gj-field"
+        style={{ width: "100%", height: compact ? 30 : 44, borderRadius: 8, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", padding: compact ? "0 10px" : "0 14px", fontSize: compact ? 10 : 14, color: "#403b37", outline: "none" }} />
     </label>
   );
 }
 
-function Chevron() {
-  return (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>);
+function Chevron({ size = 14 }: { size?: number }) {
+  return (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>);
 }
 function XIcon() {
   return (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>);

@@ -22,7 +22,9 @@ function TabIcon({ src, active }: { src: string; active: boolean }) {
       aria-hidden
       // backgroundColor lives in className (not inline) so group-hover can
       // reach it — an inline style would win over the hover class every time.
-      className={`h-6 w-6 transition-colors duration-300 ${active ? "bg-gold" : "bg-[#403b37] group-hover:bg-gold"}`}
+      // md:h-4/w-4: the tablet frame's own verified icon size (16px, down
+      // from 24px) — this was still rendering at the desktop size below lg.
+      className={`h-6 w-6 transition-colors duration-300 md:h-4 md:w-4 lg:h-6 lg:w-6 ${active ? "bg-gold" : "bg-[#403b37] group-hover:bg-gold"}`}
       style={{
         WebkitMaskImage: `url(${src})`, maskImage: `url(${src})`,
         WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
@@ -69,11 +71,17 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
   return (
     <div>
       {/* tab bar — no border here (Figma has none under the tab row itself,
-         only the active tab's own underline); row is 70px tall with content
-         centered, no side padding at lg (Figma: Frame233 has zero of its
-         own padding — the padding I measured earlier was just centering
-         math for a 32px-tall content group inside a fixed 70px row). */}
-      <div role="tablist" aria-label="Find us" onKeyDown={onKey} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:gap-2 sm:px-6 lg:px-0 lg:py-[19px]">
+         only the active tab's own underline); row is 70px tall at lg (48px
+         at the tablet frame) with content centered, no side padding and no
+         gap between tabs from md on (Figma: Frame233 has zero of its own
+         padding at both sizes — the padding I measured earlier was just
+         centering math for the content group inside the fixed-height row).
+         md:py-[13px]: read directly off "Store Tab"'s own paddingTop/Bottom
+         in the Figma data (13.01px) — my first pass back-computed this from
+         the row's total height instead of using the stated value, and
+         landed 4px short, which is what made the tab text sit closer to
+         the card's top edge than the real design. */}
+      <div role="tablist" aria-label="Find us" onKeyDown={onKey} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:gap-2 sm:px-6 md:gap-0 md:px-0 md:py-[13px] lg:py-[19px]">
         {TABS.map((t, i) => {
           const active = tab === i;
           return (
@@ -85,14 +93,14 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
               aria-controls="findus-panel"
               tabIndex={active ? 0 : -1}
               onClick={() => setTab(i)}
-              className={`group flex items-center justify-center text-[16px] uppercase tracking-[0.06em] transition-colors duration-300 sm:flex-1 ${
+              className={`group flex items-center justify-center text-[16px] uppercase tracking-[0.06em] transition-colors duration-300 sm:flex-1 md:text-[11px] lg:text-[16px] ${
                 active ? "font-bold text-gold" : "font-medium text-[#403b37] hover:text-gold"
               }`}
             >
               {/* the gold underline spans icon + label together (Figma:
                  147px, matching the whole content group's own width), not
                  just the text. */}
-              <span className={`flex items-center gap-2.5 pb-0.5 ${active ? "border-b-2 border-gold" : ""}`}>
+              <span className={`flex items-center gap-2.5 pb-0.5 md:gap-[5px] lg:gap-2.5 ${active ? "border-b-2 border-gold" : ""}`}>
                 <TabIcon src={t.icon} active={active} />
                 <span>{t.label}</span>
               </span>
@@ -104,12 +112,23 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
       {/* content below — 16px side padding, no top padding (starts
          immediately at the tab bar's bottom border, per Figma). The info
          row (a sibling after this component) carries its own matching
-         side padding + the bottom padding + the 20px gap up to here. */}
-      <div className="px-4 sm:px-6 lg:px-4">
+         side padding + the bottom padding + the 20px gap up to here.
+         md:px-[11px]: Figma's tablet frame ("Frame 236") pads this at
+         10.96px, not the 24px inherited from sm — that extra padding was
+         narrowing the whole 3-column row (photo included), which is why
+         the photo rendered shorter than Figma even though its own
+         aspect-ratio math was already correct. */}
+      <div className="px-4 sm:px-6 md:px-[11px] lg:px-4">
         {/* view + directions + first-time card — Figma lays these out as 3
-           side-by-side columns (610fr/203fr/278fr, 24px gaps), not an
-           image-beside-a-stacked-sidebar. */}
-        <div id="findus-panel" ref={panelRef} role="tabpanel" aria-labelledby={`findus-tab-${tab}`} className="mt-6 grid gap-6 lg:grid-cols-[610fr_203fr_278fr] lg:gap-6">
+           side-by-side columns (610fr/203fr/278fr, 24px gaps at lg) — and
+           the tablet artboard confirms the SAME fr ratio already applies at
+           md (just a tighter 16px gap), not a single stacked column like
+           this used to render between 768–1023px. */}
+        {/* md:mt-[14px]: Figma's "Store Map Container" carries its own
+           14.4px top padding (not the desktop 24px gap) between the tab
+           row and this content — another few px that was inflating the
+           card's total height at tablet. */}
+        <div id="findus-panel" ref={panelRef} role="tabpanel" aria-labelledby={`findus-tab-${tab}`} className="mt-6 grid gap-6 md:mt-[14px] md:grid-cols-[610fr_203fr_278fr] md:gap-4 lg:mt-6 lg:gap-6">
           <div
             className={`relative aspect-[610/348] w-full overflow-hidden rounded-xl border border-divider bg-ink-2 shadow-[0_6px_8.6px_rgba(20,19,18,0.1)] ${tab === 2 ? "lg:col-span-3" : ""}`}
             style={tab === 2 && mapHeight != null ? { height: mapHeight } : undefined}

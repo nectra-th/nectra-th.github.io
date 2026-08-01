@@ -20,14 +20,16 @@ const STEPS = [
 /** Line icon recoloured to gold via CSS mask. Figma's icons here aren't
    square (e.g. email is 32×23, location is 22.7×32) — forcing them into a
    single square `size` under mask-size:contain was shrinking whichever axis
-   didn't match, so width/height are specified separately per icon. */
-function InfoIcon({ src, width, height }: { src: string; width: number; height: number }) {
+   didn't match, so width/height are specified separately per icon.
+   Size comes in as a className (not numeric props) so callers can give it
+   responsive w-[]/h-[] variants — the tablet frame verifies every one of
+   these icons at a smaller size than desktop, not just a uniform scale. */
+function InfoIcon({ src, size }: { src: string; size: string }) {
   return (
     <span
       aria-hidden
-      className="mt-0.5 shrink-0"
+      className={`mt-0.5 shrink-0 ${size}`}
       style={{
-        width, height,
         backgroundColor: "var(--color-gold-dark)",
         WebkitMaskImage: `url(${src})`, maskImage: `url(${src})`,
         WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
@@ -39,17 +41,28 @@ function InfoIcon({ src, width, height }: { src: string; width: number; height: 
 
 // Figma stacks these 4 elements (heading + 3 numbered steps) with one
 // uniform 27px gap and a hairline divider between each — not a gap+divide-y
-// approximation.
+// approximation. md: values are the tablet frame's own verified numbers
+// (10px label/step text, 19px circle, 18px gap) — everything here used to
+// render at the desktop size straight down to 768px.
 function Directions() {
   return (
     <div>
-      <p className="text-center font-sans text-[14px] font-semibold text-gold-dark">Directions</p>
-      <ol className="mt-5 flex flex-col gap-5">
+      {/* md:leading-[7px]: Figma's cap-trimmed box for this label is only
+         6.8px tall at 10px font — the browser's default ~15px line-height
+         was adding ~8px of invisible space below it, which (repeated across
+         every resized text node here) is what made this column render
+         taller than the photo beside it even though Figma has them equal
+         (238.3px each). */}
+      <p className="text-center font-sans text-[14px] font-semibold text-gold-dark md:text-[10px] md:leading-[7px] lg:text-[14px] lg:leading-normal">Directions</p>
+      <ol className="mt-5 flex flex-col gap-5 md:mt-[18px] md:gap-[18px] lg:mt-5 lg:gap-5">
         {STEPS.flatMap((s, i) => [
           i > 0 && <li key={`div-${i}`} aria-hidden className="h-px w-full bg-[#e1dfdc]" />,
-          <li key={i} className="flex items-start gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold-light text-[16px] font-semibold text-gold-light">{i + 1}</span>
-            <span className="font-sans text-[14px] leading-snug text-[#403b37]">{s}</span>
+          <li key={i} className="flex items-start gap-3 md:gap-[5px] lg:gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-gold-light text-[16px] font-semibold text-gold-light md:h-[19px] md:w-[19px] md:text-[11px] lg:h-7 lg:w-7 lg:text-[16px]">{i + 1}</span>
+            {/* md:leading-none: Figma's own line-height here is 10.27px on a
+               10px font (ratio ~1.03) — leading-snug's 1.375 ratio was
+               inflating each 2-line step by several px. */}
+            <span className="font-sans text-[14px] leading-snug text-[#403b37] md:text-[10px] md:leading-none lg:text-[14px] lg:leading-snug">{s}</span>
           </li>,
         ].filter(Boolean))}
       </ol>
@@ -59,17 +72,33 @@ function Directions() {
 
 function FirstTimeCard() {
   return (
-    <div className="flex h-full flex-col items-center justify-center rounded-lg border border-[#c8b08a] bg-cream-light px-4 py-5 text-center">
+    // md:py-[16px]: py-5 (20px) never had a tablet-specific value — with
+    // every text node above now correctly sized/tightened, this card's own
+    // vertical padding was the last thing keeping its total height (248px)
+    // above the photo beside it (target: both equal, ~238px).
+    <div className="flex h-full flex-col items-center justify-center rounded-lg border border-[#c8b08a] bg-cream-light px-4 py-5 text-center md:py-[16px] lg:py-5">
       {/* cropped directly from the Figma export at its exact 37×48 box —
          already the correct gold-dark colour and shape, no recolouring
-         needed (the gj-monogram.svg asset didn't match Figma's icon here). */}
-      <img src="/assets/icons/gj-monogram-crop.png" alt="" aria-hidden loading="lazy" decoding="async" className="h-10 w-auto shrink-0" />
-      <p className="mt-3 text-label text-gold-dark">First Time Visiting?</p>
-      <p className="mt-2 font-sans text-[14px] leading-snug text-[#403b37]">Our shopping centre map makes finding us quick and easy.</p>
-      <p className="mt-6 text-label text-gold-dark">Need Help Finding Us?</p>
-      <p className="mt-2 font-sans text-[14px] leading-snug text-[#403b37]">Give us a call and we&rsquo;ll happily guide you to our showroom.</p>
-      <a href={PHONE_HREF} className="mt-3 inline-flex items-center gap-2 font-sans text-[20px] font-bold text-ink-text hover:text-gold-dark">
-        <InfoIcon src="/assets/icons/info-phone.svg" width={46} height={48} />
+         needed (the gj-monogram.svg asset didn't match Figma's icon here).
+         md:h-[33px]: tablet's own verified crop height (33 of 40, same
+         aspect ratio — .text-label already handles the two headings' 10px
+         tablet size, so only the icon/body/phone-number sizes needed fixing
+         here, they were still rendering at the desktop scale below lg. */}
+      <img src="/assets/icons/gj-monogram-crop.png" alt="" aria-hidden loading="lazy" decoding="async" className="h-10 w-auto shrink-0 md:h-[33px] lg:h-10" />
+      {/* md:leading-[7px]: same cap-trim gap as the labels elsewhere in this
+         section — .text-label's own line-height is left alone (it's shared
+         site-wide) and just overridden here at this instance. */}
+      <p className="mt-3 text-label text-gold-dark md:leading-[7px] lg:leading-normal">First Time Visiting?</p>
+      {/* md:leading-[12px]: Figma's real line-height here (12.3px on a 10px
+         font) — leading-snug's 1.375 ratio was inflating each 2-line
+         paragraph by a few px, on top of the two labels above, which
+         together were what dragged this whole column taller than the
+         photo beside it (Figma actually has them equal height). */}
+      <p className="mt-2 font-sans text-[14px] leading-snug text-[#403b37] md:mt-[11px] md:text-[10px] md:leading-[12px] lg:mt-2 lg:text-[14px] lg:leading-snug">Our shopping centre map makes finding us quick and easy.</p>
+      <p className="mt-6 text-label text-gold-dark md:mt-8 md:leading-[7px] lg:mt-6 lg:leading-normal">Need Help Finding Us?</p>
+      <p className="mt-2 font-sans text-[14px] leading-snug text-[#403b37] md:mt-[11px] md:text-[10px] md:leading-[12px] lg:mt-2 lg:text-[14px] lg:leading-snug">Give us a call and we&rsquo;ll happily guide you to our showroom.</p>
+      <a href={PHONE_HREF} className="mt-3 inline-flex items-center gap-2 font-sans text-[20px] font-bold text-ink-text hover:text-gold-dark md:mt-[11px] md:gap-[11px] md:text-[14px] lg:mt-3 lg:gap-2 lg:text-[20px]">
+        <InfoIcon src="/assets/icons/info-phone.svg" size="w-[46px] h-[48px] md:w-[31px] md:h-[32px] lg:w-[46px] lg:h-[48px]" />
         {PHONE_DISPLAY}
       </a>
     </div>
@@ -117,58 +146,79 @@ export default function FindUs() {
              mt-[13px]: requested explicitly (was 24px) — the 11px removed
              here is added onto the rule's own margin below so the rule
              itself doesn't move from its verified Figma-matching position. */}
-          <h2 className="mt-[13px] font-serif text-[34px] font-bold leading-none text-cream-light md:text-[44px] lg:text-[56px]">Find Us</h2>
+          {/* md:32px — the tablet Figma artboard sets this heading at 32px,
+             not 44px (that 44 was never verified against the real tablet
+             frame). 32 also happens to match the shared .text-h2 role used
+             elsewhere on the page, just applied here as a literal value
+             rather than the class, since that class's own lg line-height
+             (64px) would undo the leading-none rule-gap fix above. */}
+          <h2 className="mt-[13px] font-serif text-[34px] font-bold leading-none text-cream-light md:text-[32px] lg:text-[56px]">Find Us</h2>
           {/* +11px vs the previous 28/7: compensates the h2's margin-top
              drop (24px -> 13px) so the rule stays exactly where it was
              (verified against Figma: 291px from the section's true top). */}
           <GoldRule width={114} center className="mt-[39px] lg:mt-[18px]" />
         </div>
 
-        {/* mt-20: Figma's real gap from the title rule to the card (80px) —
-           not the 40px this used before. Padding lives inside FindUsTabs now
-           (tabs span edge-to-edge, content below is inset 16px) instead of
-           one uniform padding wrapping everything.
+        {/* mt-20: Figma's real gap from the title rule to the card (80px at
+           lg, 71px at the tablet frame) — not the 40px this used before.
+           Padding lives inside FindUsTabs now (tabs span edge-to-edge,
+           content below is inset 16px) instead of one uniform padding
+           wrapping everything.
            -mx-*: Container's own side padding (px-5/6/8) was shrinking this
            card to 1116px — cancelling it out so the card bleeds to
-           Container's true edge and matches Figma's 1180px width exactly. */}
-        <div className="-mx-5 mt-10 overflow-hidden rounded-[18px] border border-divider bg-cream-light sm:-mx-6 lg:-mx-8 lg:mt-20">
+           Container's true edge and matches Figma's 1180px width exactly.
+           md:-mx-[11px]: the tablet frame actually keeps a 13px side margin
+           (not edge-to-edge like desktop) — Container's own md padding is
+           still 24px (sm:px-6, no md override there), so cancelling only
+           11px of it leaves the real 13px gap instead of the full bleed. */}
+        <div className="-mx-5 mt-10 overflow-hidden rounded-[18px] border border-divider bg-cream-light sm:-mx-6 md:-mx-[11px] md:mt-[71px] lg:-mx-8 lg:mt-20">
           <FindUsTabs directions={<Directions />} firstTime={<FirstTimeCard />} />
 
           {/* contact info row — its own bordered/tinted box (bg-cream-card +
              divider border), not plain text on the panel background. Same
-             16px side inset as the content above, 20px gap above it. */}
-          <div className="mx-4 mb-4 mt-5 border border-divider bg-cream-card px-6 py-8 sm:mx-6 sm:mb-6 lg:mx-4 lg:mb-4">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-            <div className="flex gap-3">
-              <InfoIcon src="/assets/icons/info-location.svg" width={23} height={32} />
+             16px side inset as the content above, 20px gap above it.
+             md:px-4 md:py-[22px]: the tablet frame's own box padding — the
+             px-6/py-8 (24/32) below is really the lg-verified value, applied
+             everywhere for lack of a tablet-specific override before.
+             md:mx-[11px]: matches the same 10.96px inset just fixed on the
+             row above it — this was still inheriting the 24px sm:mx-6. */}
+          <div className="mx-4 mb-4 mt-5 border border-divider bg-cream-card px-6 py-8 sm:mx-6 sm:mb-6 md:mx-[11px] md:px-4 md:py-[22px] lg:mx-4 lg:mb-4 lg:px-6 lg:py-8">
+            {/* all 4 columns side-by-side from md — the tablet frame already
+               shows Location/Phone+Email/Hours/Open-in in one row, not the
+               2-then-4 split this used to do between 768–1023px. md:gap-5:
+               the tablet frame's own 20px column gap (24px only kicks in
+               at lg). */}
+            <div className="grid gap-6 md:grid-cols-4 md:gap-5 lg:gap-8">
+            <div className="flex gap-3 md:gap-[8px] lg:gap-3">
+              <InfoIcon src="/assets/icons/info-location.svg" size="w-[23px] h-[32px] md:w-[16px] md:h-[22px] lg:w-[23px] lg:h-[32px]" />
               <div>
-                <p className="font-sans text-[16px] font-bold uppercase text-gold-dark">Location</p>
-                <p className="mt-1.5 font-sans text-[14px] leading-snug text-[#403b37]">Fulham Gardens Shopping Centre, Shop 90/457 Tapleys Hill Road, Fulham Gardens SA 5024</p>
+                <p className="font-sans text-[16px] font-bold uppercase text-gold-dark md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Location</p>
+                <p className="mt-1.5 font-sans text-[14px] leading-snug text-[#403b37] md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-snug">Fulham Gardens Shopping Centre, Shop 90/457 Tapleys Hill Road, Fulham Gardens SA 5024</p>
               </div>
             </div>
 
-            <div className="flex flex-col gap-5">
-              <div className="flex gap-3">
-                <InfoIcon src="/assets/icons/info-phone.svg" width={30} height={32} />
+            <div className="flex flex-col gap-5 md:gap-[22px] lg:gap-5">
+              <div className="flex gap-3 md:gap-[11px] lg:gap-3">
+                <InfoIcon src="/assets/icons/info-phone.svg" size="w-[30px] h-[32px] md:w-[21px] md:h-[22px] lg:w-[30px] lg:h-[32px]" />
                 <div>
-                  <p className="font-sans text-[16px] font-bold uppercase text-gold-dark">Phone</p>
-                  <a href={PHONE_HREF} className="mt-1.5 block font-sans text-[14px] text-[#403b37] hover:text-gold-dark">{PHONE_DISPLAY}</a>
+                  <p className="font-sans text-[16px] font-bold uppercase text-gold-dark md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Phone</p>
+                  <a href={PHONE_HREF} className="mt-1.5 block font-sans text-[14px] text-[#403b37] hover:text-gold-dark md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-normal">{PHONE_DISPLAY}</a>
                 </div>
               </div>
-              <div className="flex gap-3">
-                <InfoIcon src="/assets/icons/info-email.svg" width={32} height={23} />
+              <div className="flex gap-3 md:gap-[11px] lg:gap-3">
+                <InfoIcon src="/assets/icons/info-email.svg" size="w-[32px] h-[23px] md:w-[22px] md:h-[16px] lg:w-[32px] lg:h-[23px]" />
                 <div>
-                  <p className="font-sans text-[16px] font-bold uppercase text-gold-dark">Email</p>
-                  <a href="mailto:jeweller@grechjewellers.com.au" className="mt-1.5 block font-sans text-[14px] text-[#403b37] hover:text-gold-dark lg:whitespace-nowrap">jeweller@grechjewellers.com.au</a>
+                  <p className="font-sans text-[16px] font-bold uppercase text-gold-dark md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Email</p>
+                  <a href="mailto:jeweller@grechjewellers.com.au" className="mt-1.5 block font-sans text-[14px] text-[#403b37] hover:text-gold-dark md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-normal lg:whitespace-nowrap">jeweller@grechjewellers.com.au</a>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <InfoIcon src="/assets/icons/info-hours.svg" width={32} height={32} />
+            <div className="flex gap-3 md:gap-[11px] lg:gap-3">
+              <InfoIcon src="/assets/icons/info-hours.svg" size="w-[32px] h-[32px] md:w-[22px] md:h-[22px] lg:w-[32px] lg:h-[32px]" />
               <div>
-                <p className="font-sans text-[16px] font-bold uppercase text-gold-dark">Hours</p>
-                <dl className="mt-1.5 space-y-0.5 font-sans text-[14px] text-[#403b37]">
+                <p className="font-sans text-[16px] font-bold uppercase text-gold-dark md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Hours</p>
+                <dl className="mt-1.5 space-y-0.5 font-sans text-[14px] text-[#403b37] md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-normal">
                   <div className="flex justify-between gap-3"><dt>Mon – Fri</dt><dd>9:00am – 5:00pm</dd></div>
                   <div className="flex justify-between gap-3"><dt>Saturday</dt><dd>9:00am – 1:00pm</dd></div>
                   <div className="flex justify-between gap-3"><dt>Sunday</dt><dd>Closed</dd></div>
@@ -179,22 +229,28 @@ export default function FindUs() {
             {/* Figma (Frame254/Frame255): a right-aligned VERTICAL stack —
                "OPEN IN" label, "Google Maps" serif line, a 48×2px gold-dark
                rule — sitting above the button with a uniform 10px gap
-               throughout, not one inline line of mixed-size text. */}
-            <div className="flex flex-col items-start justify-center gap-[10px] lg:items-end">
+               throughout, not one inline line of mixed-size text. The
+               tablet frame keeps the same structure at a smaller scale
+               (~7px gap, 9.6/16.4px text, 33px rule, smaller button). */}
+            {/* items-end from md: the tablet frame's Frame254/255 both
+               carry counterAxisAlignItems:MAX too, same as desktop — this
+               was only flipping to right-aligned at lg, so it sat left-
+               aligned (wrong side) through the whole tablet range. */}
+            <div className="flex flex-col items-start justify-center gap-[10px] md:items-end md:gap-[7px] lg:gap-[10px]">
               {/* leading-[10px]/[15px]: Figma's cap-trimmed text boxes for
                  these two lines are 10px and 15px tall — the browser's
                  default line-height (~21px/~36px) was inflating this whole
                  column well past Figma's real 101px, which is what was
                  pushing the section's total height past 1216px. */}
-              <div className="flex flex-col items-start gap-[10px] lg:items-end">
-                <span className="font-sans text-[14px] font-semibold uppercase leading-[10px] tracking-[0.09em] text-gold-dark">Open In</span>
-                <span className="font-serif text-[24px] font-semibold leading-[15px] tracking-[0.09em] text-[#403b37]">Google Maps</span>
-                <span aria-hidden className="h-0.5 w-12 bg-gold-dark" />
+              <div className="flex flex-col items-start gap-[10px] md:items-end md:gap-[7px] lg:gap-[10px]">
+                <span className="font-sans text-[14px] font-semibold uppercase leading-[10px] tracking-[0.09em] text-gold-dark md:text-[9.6px] md:leading-[7px] lg:text-[14px] lg:leading-[10px]">Open In</span>
+                <span className="font-serif text-[24px] font-semibold leading-[15px] tracking-[0.09em] text-[#403b37] md:text-[16.4px] md:leading-[10px] lg:text-[24px] lg:leading-[15px]">Google Maps</span>
+                <span aria-hidden className="h-0.5 w-12 bg-gold-dark md:w-[33px] lg:w-12" />
               </div>
               {/* desktop opens a new tab; mobile navigates same-tab so the OS
                  can intercept it as a universal/app link straight into the
                  native Google Maps app — see LaunchNavigationButton. */}
-              <LaunchNavigationButton href={MAPS_DIR} className="inline-flex items-center justify-center rounded-lg bg-gold px-[34px] py-[18px] text-[14px] leading-[10px] font-semibold uppercase tracking-[0.09em] text-cream-light transition-colors hover:bg-gold-dark">
+              <LaunchNavigationButton href={MAPS_DIR} className="inline-flex items-center justify-center rounded-lg bg-gold px-[34px] py-[18px] text-[14px] leading-[10px] font-semibold uppercase tracking-[0.09em] text-cream-light transition-colors hover:bg-gold-dark md:rounded-[5px] md:px-[23px] md:py-[12px] md:text-[9.6px] md:leading-[7px] lg:rounded-lg lg:px-[34px] lg:py-[18px] lg:text-[14px] lg:leading-[10px]">
                 Launch Navigation
               </LaunchNavigationButton>
             </div>

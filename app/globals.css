@@ -176,6 +176,10 @@
     letter-spacing: 0.02em;
   }
   @media (min-width: 48rem) { .text-h3-service { font-size: 18.96px; letter-spacing: 0.03em; } }
+  /* lg restores the pre-tablet-audit desktop-window values (this role's own
+     desktop step is xl, so without this the tablet 18.96px would ride up
+     through 1024-1279 where 24px/0.02em used to render). */
+  @media (min-width: 64rem) { .text-h3-service { font-size: 24px; letter-spacing: 0.02em; } }
   @media (min-width: 80rem) { .text-h3-service { font-size: 28px; letter-spacing: 0.03em; } }
 
   /* Eyebrow — small-caps label above a heading (gold tone: Hero + default
@@ -220,8 +224,11 @@
   /* Tablet verified across 6 instances: 14px (down from the 15px mobile
      size) and Medium weight — 5 of 6 agree exactly, only the Reviews body
      comes in Light instead; treating Medium as the role's real tablet
-     weight and resetting to Regular at lg where all 6 agree again. */
-  @media (min-width: 48rem) { .text-body { font-size: 14px; font-weight: 500; } }
+     weight and resetting to Regular at lg where all 6 agree again.
+     line-height 18px is Figma's literal lineHeightPx (128.57% of 14) — the
+     base 1.625 multiplier (22.75px at this size) read visibly looser than
+     the design and inflated every body block's height by ~5px per line. */
+  @media (min-width: 48rem) { .text-body { font-size: 14px; font-weight: 500; line-height: 18px; } }
   @media (min-width: 64rem) { .text-body { font-size: 18px; line-height: 27px; font-weight: 400; } }
 
   /* Body small — Four Pillars card description (13.5px → 14px at lg).
@@ -232,8 +239,13 @@
     font-size: 13.5px;
     line-height: 1.625;
   }
-  @media (min-width: 48rem) { .text-body-sm { font-size: 12px; font-weight: 300; } }
-  @media (min-width: 64rem) { .text-body-sm { font-size: 14px; font-weight: 400; } }
+  /* line-height verified as an exact px value at both tiers (not the base's
+     1.625 multiplier) — tablet's 16px (133.33% of 12px) was rendering
+     noticeably looser (19.5px) than Figma, which was part of why each Four
+     Pillars card rendered taller than its 198px reference height; desktop's
+     21px (150% of 14px) was a smaller, previously-uncaught drift (22.75px). */
+  @media (min-width: 48rem) { .text-body-sm { font-size: 12px; font-weight: 300; line-height: 16px; } }
+  @media (min-width: 64rem) { .text-body-sm { font-size: 14px; font-weight: 400; line-height: 21px; } }
 
   /* Body extra-small — What We Do service description (13px → 14px at xl,
      its own %-based leading and medium weight). Tablet verified across all
@@ -246,6 +258,10 @@
     line-height: 157%;
   }
   @media (min-width: 48rem) { .text-body-xs { font-size: 9.48px; } }
+  /* lg restores the pre-tablet-audit desktop-window size (same xl-tier
+     reasoning as .text-h3-service above — 13px is what 1024-1279 rendered
+     before the tablet value existed). */
+  @media (min-width: 64rem) { .text-body-xs { font-size: 13px; } }
   @media (min-width: 80rem) { .text-body-xs { font-size: 14px; } }
 
   /* CTA label — the text properties shared by every button-styled control
@@ -272,7 +288,8 @@
 
   /* Label — small uppercase meta label (Find Us "Directions" heading +
      contact-row labels: Location/Phone/Email/Hours). Tablet verified across
-     both instances: 10px, weight/tracking unchanged. */
+     both instances: 10px, weight/tracking unchanged — desktop resets to
+     its own verified 14px at lg. */
   .text-label {
     font-family: var(--font-sans);
     font-weight: 600;
@@ -280,6 +297,7 @@
     font-size: 14px;
   }
   @media (min-width: 48rem) { .text-label { font-size: 10px; } }
+  @media (min-width: 64rem) { .text-label { font-size: 14px; } }
 }
 
 /* Hide scrollbars on horizontal scrollers but keep functionality */
