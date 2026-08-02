@@ -11,7 +11,6 @@ import { Check, ArrowLeft, ArrowRight, Clock, Mail, Calendar, Timer, User } from
    Colours/sizes taken from the Figma "IDLE STATE" and the details/summary states. */
 
 const TIME_SLOTS = ["9:00AM", "10:00AM", "11:00AM", "12:00PM", "1:00PM", "2:00PM", "3:00PM", "4:00PM"];
-const SLOT_HOURS_24 = [9, 10, 11, 12, 13, 14, 15, 16];
 const WEEKDAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 const MONTHS = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
 const MONTHS_LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -29,13 +28,20 @@ const HEAR_OPTIONS = ["Google search", "Instagram", "Facebook", "Word of mouth",
 const DEMO = process.env.NEXT_PUBLIC_DEMO === "1";
 
 const iso = (y: number, m: number, d: number) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-const slotIndex = (t: string) => TIME_SLOTS.indexOf(t);
 const spaceTime = (t: string) => t.replace(/(AM|PM)$/, " $1"); // "9:00AM" -> "9:00 AM"
+const hour24 = (t: string) => { const h = parseInt(t, 10) % 12; return /PM/i.test(t) ? h + 12 : h; }; // "1:00PM" -> 13
 const ordinal = (d: number) => { const s = ["th", "st", "nd", "rd"], v = d % 100; return d + (s[(v - 20) % 10] || s[v] || s[0]); };
 
 type Status = "idle" | "submitting" | "error";
 type Step = "select" | "details" | "success";
 type FieldErrors = { name?: string; email?: string; phone?: string; consent?: boolean };
+type Availability = { openWeekdays: number[]; leadDays: number; maxAdvanceDays: number; blackoutDates: string[] };
+
+// Mirrors the server's DEFAULT_CONFIG booking rules (lib/defaults.ts) so the
+// demo build — and the first paint before /api/bookings answers — disables
+// the same dates the server would reject: closed Sundays, a 1-day booking
+// lead, and a 90-day advance window.
+const DEFAULT_AVAILABILITY: Availability = { openWeekdays: [1, 2, 3, 4, 5, 6], leadDays: 1, maxAdvanceDays: 90, blackoutDates: [] };
 
 const FONT = "var(--font-manrope), system-ui, sans-serif";
 
@@ -61,6 +67,9 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [taken, setTaken] = useState<Record<string, string[]>>({});
+  const [avail, setAvail] = useState<Availability>(DEFAULT_AVAILABILITY);
+  // compact "9:00AM" display form; replaced by the server's configured slots
+  const [slots, setSlots] = useState<string[]>(TIME_SLOTS);
   const [form, setForm] = useState({ name: "", email: "", phone: "", hear: "" });
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
@@ -72,8 +81,25 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
   const clearError = (k: keyof FieldErrors) => setErrors((e) => (e[k] ? { ...e, [k]: undefined } : e));
 
   // On the static GitHub Pages build there is no backend, so skip the fetch and
-  // let the widget run as a self-contained demo (every slot appears available).
-  useEffect(() => { if (DEMO) return; fetch("/api/bookings").then((r) => r.json()).then((d) => setTaken(d.taken ?? {})).catch(() => {}); }, []);
+  // let the widget run as a self-contained demo on the DEFAULT_AVAILABILITY
+  // rules. Live builds also adopt the server's own booking rules + configured
+  // time slots, so the calendar can't offer a date/slot the API would reject.
+  useEffect(() => {
+    if (DEMO) return;
+    fetch("/api/bookings").then((r) => r.json()).then((d) => {
+      setTaken(d.taken ?? {});
+      if (d.availability) {
+        const a = d.availability;
+        setAvail({
+          openWeekdays: Array.isArray(a.openWeekdays) ? a.openWeekdays : DEFAULT_AVAILABILITY.openWeekdays,
+          leadDays: typeof a.leadDays === "number" ? a.leadDays : DEFAULT_AVAILABILITY.leadDays,
+          maxAdvanceDays: typeof a.maxAdvanceDays === "number" ? a.maxAdvanceDays : DEFAULT_AVAILABILITY.maxAdvanceDays,
+          blackoutDates: Array.isArray(a.blackoutDates) ? a.blackoutDates : [],
+        });
+        if (Array.isArray(a.timeSlots) && a.timeSlots.length) setSlots(a.timeSlots.map((t: string) => t.replace(" ", "")));
+      }
+    }).catch(() => {});
+  }, []);
 
   // move focus to the confirmation heading when the request succeeds
   const successRef = useRef<HTMLHeadingElement>(null);
@@ -92,7 +118,16 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
     return out;
   }, [view]);
 
-  const dateDisabled = (d: Date | null) => !d || !today || d < today; // weekends allowed
+  // Disable every date the server's POST validation would reject, so the UI
+  // can never offer a booking that then fails: outside the lead/advance
+  // window, a closed weekday, or an admin blackout date.
+  const dateDisabled = (d: Date | null) => {
+    if (!d || !today) return true;
+    const earliest = new Date(today); earliest.setDate(earliest.getDate() + avail.leadDays);
+    const latest = new Date(today); latest.setDate(latest.getDate() + avail.maxAdvanceDays);
+    return d < earliest || d > latest || !avail.openWeekdays.includes(d.getDay()) ||
+      avail.blackoutDates.includes(iso(d.getFullYear(), d.getMonth(), d.getDate()));
+  };
 
   const availableTimes = useMemo(() => {
     if (!selectedDate) return [];
@@ -101,8 +136,8 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
     const now = new Date();
     const isToday = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
     // taken slots come back from the API in the canonical spaced form ("9:00 AM")
-    return TIME_SLOTS.map((t) => ({ t, disabled: takenForDate.includes(spaceTime(t)) || (isToday && SLOT_HOURS_24[slotIndex(t)] <= now.getHours()) }));
-  }, [selectedDate, taken]);
+    return slots.map((t) => ({ t, disabled: takenForDate.includes(spaceTime(t)) || (isToday && hour24(t) <= now.getHours()) }));
+  }, [selectedDate, taken, slots]);
 
   // Design-System validation, run when Request Consultation is pressed:
   // required name/email/mobile/consent (the "How did you hear about us?"
@@ -348,7 +383,7 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
 
   // ---- SELECT STEP -----------------------------------------------------------
   const canContinue = !!selectedDate && !!selectedTime;
-  const timeSlots: { t: string; disabled: boolean; preview?: boolean }[] = selectedDate ? availableTimes : TIME_SLOTS.map((t) => ({ t, disabled: false, preview: true }));
+  const timeSlots: { t: string; disabled: boolean; preview?: boolean }[] = selectedDate ? availableTimes : slots.map((t) => ({ t, disabled: false, preview: true }));
   return (
     <div style={cardBase}>
       <div style={{ position: "relative", display: "grid", gridTemplateColumns: stacked ? "1fr" : "1fr 1fr 1fr", columnGap: COL_GAP, rowGap: stacked ? 24 : 0 }}>
