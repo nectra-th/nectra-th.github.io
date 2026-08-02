@@ -199,19 +199,23 @@ export default function ManualPage() {
         <H2 id="admin-availability">6. Availability — hours, closed days, holidays</H2>
         <P>Advanced ▾ → <B>Availability</B>{" "}controls what the website&rsquo;s calendar offers:</P>
         <ul className="mt-3 max-w-[70ch] list-disc space-y-1.5 pl-6 font-sans text-[15px] leading-[26px] text-[#403b37]">
-          <li><B>Time slots</B>{" "}— the list of start times customers can pick.</li>
-          <li><B>Open days</B>{" "}— gold = open. Sunday is off, matching the store.</li>
-          <li><B>Duration</B>{" "}— consultation length quoted in emails (45 min).</li>
-          <li><B>Lead days</B>{" "}— minimum notice (1 = customers can book from tomorrow).</li>
-          <li><B>Max advance days</B>{" "}— how far ahead the calendar opens (90).</li>
-          <li><B>Blackout dates</B>{" "}— one-off holidays. Type dates as <Code>2026-12-25, 2026-12-26</Code>{" "}and save; those days grey out on the website instantly.</li>
+          <li><B>Opening hours</B>{" "}— one row per weekday. Tap the day name to open or close that day
+            entirely, and pick the opening and closing time from the dropdowns. The system works out the
+            bookable start times itself — the small chips on the right of each row are{" "}
+            <em>exactly</em>{" "}the buttons customers will see for that day (Saturday 9:00–1:00 shows only
+            the four morning slots, because every consultation must finish before closing).</li>
+          <li><B>Consultation length</B>{" "}— appointment duration, also quoted in emails (45 min).</li>
+          <li><B>Minimum notice</B>{" "}— 1 means customers can book from tomorrow.</li>
+          <li><B>Bookable window</B>{" "}— how far ahead the calendar opens (90 days).</li>
+          <li><B>Days off / holidays</B>{" "}— pick a date and press <B>Add day off</B>; it appears as a
+            chip you can remove with ×. Those dates grey out on the website the moment you save.</li>
           <li><B>Location / Directions URL</B>{" "}— shown inside the customer emails.</li>
         </ul>
-        <Shot src="09-admin-availability" alt="The Availability settings tab" caption="Availability — every rule the public calendar follows, in one place." />
+        <Shot src="09-admin-availability" alt="The Availability tab with per-day opening hours, slot previews and the day-off picker" caption="Availability — set opening hours per day like a store sign; the slot chips preview exactly what customers get." />
         <Note>
-          Saturday&rsquo;s short day (9:00&nbsp;AM – 1:00&nbsp;PM) is built into the system&rsquo;s store-hours
-          rules, so afternoon slots never appear on Saturdays even though they&rsquo;re in the master slot
-          list. Changing those per-day hours currently needs a developer.
+          Nothing here needs a special format — everything is picked from buttons, dropdowns and a date
+          picker, and the preview updates before you save. Press <B>Save availability</B>{" "}to apply;
+          the website calendar follows immediately.
         </Note>
 
         {/* 7 ------------------------------------------------------------- */}
@@ -246,12 +250,12 @@ export default function ManualPage() {
         <H2 id="faq">9. Common questions</H2>
         <div className="mt-4 max-w-[70ch] space-y-5">
           {([
-            ["We're closed for a public holiday — how do I block the day?", <>Availability → add the date to <B>Blackout dates</B>{" "}(format <Code>YYYY-MM-DD</Code>) → Save. The website greys it out immediately, and even a direct submission for that date is rejected.</>],
+            ["We're closed for a public holiday — how do I block the day?", <>Availability → pick the date under <B>Days off / holidays</B>{" "}→ <B>Add day off</B>{" "}→ Save. The website greys it out immediately, and even a direct submission for that date is rejected. Remove the chip with × to reopen the day.</>],
             ["A customer phoned to book — how do I put them in?", <>Day schedule → arrow to their day → press <B>Add</B>{" "}on the free slot and type their name and number. The website can no longer offer that time to anyone else.</>],
             ["What if two people want the same slot?", <>Impossible from the website — the first submission reserves the slot, and anyone else sees it struck through (or gets a &ldquo;just been booked&rdquo; message if they raced). Only you can deliberately overlap a slot, via the walk-in form&rsquo;s <B>allow overlap</B>{" "}option.</>],
             ["I declined by mistake — can I undo it?", <>Yes — find the booking under <B>All bookings</B>{" "}and press Accept. (If someone else has taken the slot in the meantime, re-add it manually via the Day schedule.)</>],
             ["Does declining notify the customer?", <>Not automatically — the slot is freed, but no email is sent. If you want the customer told, contact them directly (their phone and email are under Details).</>],
-            ["Where do I change the opening hours shown on the website?", <>The <B>Find Us</B>{" "}hours and the booking calendar both follow the store hours (Mon–Fri 9–5, Sat 9–1, Sun closed). Slot times are editable in Availability; changing the printed hours or per-day open/close times needs a developer.</>],
+            ["Where do I change the opening hours?", <>The <B>booking calendar&rsquo;s</B>{" "}hours are fully yours: Availability → set each day&rsquo;s open/close times (or close the day) → Save. The printed hours in the website&rsquo;s <B>Find Us</B>{" "}section are separate static text — if the store&rsquo;s real hours ever change permanently, ask the developer to update that text to match.</>],
           ] as [string, React.ReactNode][]).map(([q, a]) => (
             <div key={q}>
               <p className="font-sans text-[15px] font-bold leading-6 text-ink-text">{q}</p>

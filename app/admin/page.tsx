@@ -264,28 +264,149 @@ function AllBookings({ api }: { api: Api }) {
   );
 }
 
+/* Availability — plain-language editor. Staff set OPENING HOURS per weekday
+   (like Google Business hours) plus the consultation length; the bookable
+   start-time slots are generated from those, previewed per day exactly as
+   the website will offer them, and saved as the same config shape the
+   backend already uses (timeSlots + openWeekdays + dayHours). Replaces the
+   old comma-separated free-text fields, which silently broke the widget on
+   any format slip ("9am" vs "9:00 AM"). */
+const HOUR_OPTS = Array.from({ length: 14 }, (_, i) => i + 7); // 7:00 AM … 8:00 PM
+const fmtHour = (h: number) => `${((h + 11) % 12) + 1}:00 ${h < 12 ? "AM" : "PM"}`;
+const parseHour = (t: string): number | null => { const m = t.match(/^(\d+):(\d+)\s*([AP]M)$/i); if (!m) return null; return (Number(m[1]) % 12) + (m[3].toUpperCase() === "PM" ? 12 : 0); };
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0]; // Mon-first, like the store's own signage
+const WD_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+type DayRow = { open: boolean; openH: number; closeH: number };
+
 function Availability({ api }: { api: Api }) {
   const [cfg, setCfg] = useState<AvailabilityConfig | null>(null);
+  const [days, setDays] = useState<DayRow[] | null>(null);
+  const [blackouts, setBlackouts] = useState<string[]>([]);
+  const [newDate, setNewDate] = useState("");
   const [msg, setMsg] = useState("");
-  useEffect(() => { api("/api/admin/config").then((d) => setCfg(d.config)).catch(() => {}); }, [api]);
-  if (!cfg) return <div style={{ color: "#8c857a" }}>Loading…</div>;
-  const set = (patch: Partial<AvailabilityConfig>) => setCfg({ ...cfg, ...patch });
-  const save = async () => { setMsg("Saving…"); try { await api("/api/admin/config", "PUT", cfg); setMsg("Saved ✓"); } catch (e) { setMsg(e instanceof Error ? e.message : "error"); } };
+
+  useEffect(() => {
+    api("/api/admin/config").then((d) => {
+      const c: AvailabilityConfig = d.config;
+      setCfg(c); setBlackouts(c.blackoutDates ?? []);
+      // fallback hours for days without explicit dayHours: span of the master slot list
+      const starts = (c.timeSlots ?? []).map(parseHour).filter((h): h is number => h !== null);
+      const fbOpen = starts.length ? Math.min(...starts) : 9;
+      const fbClose = starts.length ? Math.max(...starts) + Math.max(1, Math.ceil((c.slotDurationMin ?? 45) / 60)) : 17;
+      setDays(Array.from({ length: 7 }, (_, wd) => ({
+        open: (c.openWeekdays ?? []).includes(wd),
+        openH: c.dayHours?.[wd]?.open ?? fbOpen,
+        closeH: c.dayHours?.[wd]?.close ?? fbClose,
+      })));
+    }).catch(() => {});
+  }, [api]);
+
+  if (!cfg || !days) return <div style={{ color: "#8c857a" }}>Loading…</div>;
+  const setCfgField = (patch: Partial<AvailabilityConfig>) => setCfg({ ...cfg, ...patch });
+  const setDay = (wd: number, patch: Partial<DayRow>) => setDays(days.map((d, i) => (i === wd ? { ...d, ...patch } : d)));
+  const durH = Math.max(15, cfg.slotDurationMin || 45) / 60;
+  const slotsFor = (d: DayRow) => { const out: string[] = []; for (let h = d.openH; h + durH <= d.closeH; h++) out.push(fmtHour(h)); return out; };
+  const longDateAU = (s: string) => new Date(s + "T00:00:00").toLocaleDateString("en-AU", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  const todayIso = iso(new Date());
+
+  const addBlackout = () => { if (!newDate || blackouts.includes(newDate)) return; setBlackouts([...blackouts, newDate].sort()); setNewDate(""); };
+
+  const save = async () => {
+    const openRows = days.map((d, wd) => ({ ...d, wd })).filter((d) => d.open);
+    if (!openRows.length) { setMsg("Open at least one day before saving."); return; }
+    const bad = openRows.find((d) => slotsFor(d).length === 0);
+    if (bad) { setMsg(`${WD_LONG[bad.wd]}: hours are too short to fit a ${cfg.slotDurationMin}-minute consultation.`); return; }
+    // master slot list spans the widest open day; the website narrows it per-day via dayHours
+    const minO = Math.min(...openRows.map((d) => d.openH));
+    const maxC = Math.max(...openRows.map((d) => d.closeH));
+    const timeSlots: string[] = [];
+    for (let h = minO; h + durH <= maxC; h++) timeSlots.push(fmtHour(h));
+    const next: AvailabilityConfig = {
+      ...cfg, timeSlots,
+      openWeekdays: openRows.map((d) => d.wd),
+      dayHours: Object.fromEntries(openRows.map((d) => [d.wd, { open: d.openH, close: d.closeH }])),
+      blackoutDates: blackouts,
+    };
+    setMsg("Saving…");
+    try { await api("/api/admin/config", "PUT", next); setCfg(next); setMsg("Saved ✓ — the website calendar updates immediately."); }
+    catch (e) { setMsg(e instanceof Error ? e.message : "error"); }
+  };
+
+  const hourSelect = (value: number, onChange: (h: number) => void, disabled: boolean) => (
+    <select value={value} disabled={disabled} onChange={(e) => onChange(Number(e.target.value))}
+      style={{ ...input, padding: "7px 9px", opacity: disabled ? 0.35 : 1, cursor: disabled ? "default" : "pointer" }}>
+      {HOUR_OPTS.map((h) => <option key={h} value={h}>{fmtHour(h)}</option>)}
+    </select>
+  );
+
   return (
     <div style={{ display: "grid", gap: 16 }}>
       <h2 style={{ fontFamily: "Georgia,serif", fontSize: 24 }}>Availability</h2>
-      <div style={card}><label style={{ color: "#8c857a", fontSize: 13 }}>Time slots (comma-separated)</label>
-        <input style={{ ...input, width: "100%", marginTop: 6 }} value={cfg.timeSlots.join(", ")} onChange={(e) => set({ timeSlots: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })} /></div>
-      <div style={card}><label style={{ color: "#8c857a", fontSize: 13 }}>Open days</label>
-        <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>{WD.map((d, i) => { const on = cfg.openWeekdays.includes(i); return <button key={d} onClick={() => set({ openWeekdays: on ? cfg.openWeekdays.filter((x) => x !== i) : [...cfg.openWeekdays, i].sort() })} style={{ ...btn(on ? GOLD : "transparent", on ? "#141312" : CREAM), border: on ? "none" : `1px solid ${LINE}` }}>{d}</button>; })}</div></div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>{([["slotDurationMin", "Duration (min)"], ["leadDays", "Lead days"], ["maxAdvanceDays", "Max advance days"]] as const).map(([k, label]) => (
-        <div key={k} style={card}><label style={{ color: "#8c857a", fontSize: 13 }}>{label}</label><input type="number" style={{ ...input, width: "100%", marginTop: 6 }} value={cfg[k]} onChange={(e) => set({ [k]: Number(e.target.value) } as Partial<AvailabilityConfig>)} /></div>))}</div>
-      <div style={card}><label style={{ color: "#8c857a", fontSize: 13 }}>Blackout dates (YYYY-MM-DD, comma-separated)</label>
-        <input style={{ ...input, width: "100%", marginTop: 6 }} value={cfg.blackoutDates.join(", ")} onChange={(e) => set({ blackoutDates: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })} /></div>
+
+      <div style={card}>
+        <label style={{ color: "#8c857a", fontSize: 13 }}>Opening hours — customers can book start times that finish before closing</label>
+        <div style={{ marginTop: 12, display: "grid", gap: 8 }}>
+          {DAY_ORDER.map((wd) => {
+            const d = days[wd];
+            const preview = d.open ? slotsFor(d) : [];
+            return (
+              <div key={wd} style={{ display: "grid", gridTemplateColumns: "110px auto auto auto 1fr", gap: 10, alignItems: "center", padding: "8px 10px", borderRadius: 8, background: d.open ? "#1b1815" : "transparent", border: `1px solid ${d.open ? LINE : "transparent"}` }}>
+                <button onClick={() => setDay(wd, { open: !d.open })}
+                  style={{ ...btn(d.open ? GOLD : "transparent", d.open ? "#141312" : "#8c857a"), padding: "7px 0", border: d.open ? "none" : `1px solid ${LINE}`, textAlign: "center" }}>
+                  {WD[wd]}
+                </button>
+                {d.open ? (
+                  <>
+                    {hourSelect(d.openH, (h) => setDay(wd, { openH: h, closeH: Math.max(d.closeH, h + 1) }), false)}
+                    <span style={{ color: "#8c857a" }}>to</span>
+                    {hourSelect(d.closeH, (h) => setDay(wd, { closeH: h, openH: Math.min(d.openH, h - 1) }), false)}
+                    <div style={{ display: "flex", gap: 5, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                      {preview.length
+                        ? preview.map((t) => <span key={t} style={{ fontSize: 11, padding: "3px 7px", borderRadius: 5, border: `1px solid ${LINE}`, color: CREAM, background: BG }}>{t}</span>)
+                        : <span style={{ fontSize: 12, color: "#e08a7a" }}>too short for a {cfg.slotDurationMin}-min consultation</span>}
+                    </div>
+                  </>
+                ) : (
+                  <span style={{ gridColumn: "2 / -1", color: "#8c857a", fontSize: 13 }}>Closed</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 10, color: "#8c857a", fontSize: 12 }}>
+          Consultations start on the hour. The chips on the right are exactly the buttons customers will see for that day.
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16 }}>
+        {([["slotDurationMin", "Consultation length (minutes)"], ["leadDays", "Minimum notice (days ahead)"], ["maxAdvanceDays", "Bookable window (days)"]] as const).map(([k, label]) => (
+          <div key={k} style={card}><label style={{ color: "#8c857a", fontSize: 13 }}>{label}</label>
+            <input type="number" style={{ ...input, width: "100%", marginTop: 6 }} value={cfg[k]} onChange={(e) => setCfgField({ [k]: Number(e.target.value) } as Partial<AvailabilityConfig>)} /></div>
+        ))}
+      </div>
+
+      <div style={card}>
+        <label style={{ color: "#8c857a", fontSize: 13 }}>Days off / holidays — these dates grey out on the website</label>
+        <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+          <input type="date" min={todayIso} value={newDate} onChange={(e) => setNewDate(e.target.value)} style={{ ...input, colorScheme: "dark" }} />
+          <button style={{ ...btn(), opacity: newDate ? 1 : 0.4 }} onClick={addBlackout} disabled={!newDate}>Add day off</button>
+        </div>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: blackouts.length ? 12 : 0 }}>
+          {blackouts.map((b) => (
+            <span key={b} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 8px 6px 12px", borderRadius: 999, border: `1px solid ${LINE}`, background: BG, color: CREAM, fontSize: 13 }}>
+              {longDateAU(b)}
+              <button aria-label={`Remove ${b}`} onClick={() => setBlackouts(blackouts.filter((x) => x !== b))}
+                style={{ ...btn("transparent", "#e08a7a"), padding: "0 6px", fontSize: 15, border: "none" }}>×</button>
+            </span>
+          ))}
+          {!blackouts.length && <span style={{ color: "#8c857a", fontSize: 13, marginTop: 8 }}>No days off scheduled.</span>}
+        </div>
+      </div>
+
       <div style={card}><label style={{ color: "#8c857a", fontSize: 13 }}>Location (shown in emails)</label>
-        <input style={{ ...input, width: "100%", marginTop: 6, marginBottom: 12 }} value={cfg.location} onChange={(e) => set({ location: e.target.value })} />
+        <input style={{ ...input, width: "100%", marginTop: 6, marginBottom: 12 }} value={cfg.location} onChange={(e) => setCfgField({ location: e.target.value })} />
         <label style={{ color: "#8c857a", fontSize: 13 }}>Directions URL</label>
-        <input style={{ ...input, width: "100%", marginTop: 6 }} value={cfg.directionsUrl} onChange={(e) => set({ directionsUrl: e.target.value })} /></div>
+        <input style={{ ...input, width: "100%", marginTop: 6 }} value={cfg.directionsUrl} onChange={(e) => setCfgField({ directionsUrl: e.target.value })} /></div>
       <div style={{ display: "flex", gap: 14, alignItems: "center" }}><button style={btn()} onClick={save}>Save availability</button><span style={{ color: "#8c857a" }}>{msg}</span></div>
     </div>
   );
