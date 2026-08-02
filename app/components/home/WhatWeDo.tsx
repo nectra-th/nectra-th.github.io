@@ -56,7 +56,9 @@ function ServiceCard({ s }: { s: (typeof SERVICES)[number] }) {
       </div>
 
       {/* Tablet/desktop: horizontal, image left + content right. */}
-      <div className="hidden gap-4 rounded-[20px] border border-transparent px-3 py-4 transition-[transform,background-color,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] will-change-transform group-hover:[transform:translateY(-2px)] group-hover:border-[#39342e] group-hover:bg-ink-2 group-hover:shadow-[0_28px_32px_rgba(0,0,0,0.25)] md:flex md:h-[192px] md:gap-[10.84px] md:py-[10.84px] md:px-[10px] xl:h-auto xl:px-3 xl:py-4">
+      {/* hover shadow is the design system's "Elevation/Small" (0 2 8 #000
+         @25%) per the art audit — not the heavier 28/32 guess it replaced. */}
+      <div className="hidden gap-4 rounded-[20px] border border-transparent px-3 py-4 transition-[transform,background-color,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] will-change-transform group-hover:[transform:translateY(-2px)] group-hover:border-[#39342e] group-hover:bg-ink-2 group-hover:shadow-[0_2px_8px_rgba(0,0,0,0.25)] md:flex md:h-[192px] md:gap-[10.84px] md:py-[10.84px] md:px-[10px] xl:h-auto xl:px-3 xl:py-4">
         {/* pre-cropped via scripts/crop-service-images.mjs against Figma's own
            imageTransform window for each photo (an independent, non-uniform
            X/Y crop per image — none of them is a plain centred crop).
@@ -69,7 +71,9 @@ function ServiceCard({ s }: { s: (typeof SERVICES)[number] }) {
            Tablet verified across all 6 cards: same 67.7211% scale as the
            type tokens — 127.32px image (aspect ratio unchanged, so height
            derives correctly) and a 9.48px radius, down from 14px. */}
-        <div className="relative aspect-[188/240] w-[127.32px] shrink-0 overflow-hidden rounded-[9.48px] xl:w-[188px] xl:rounded-[14px]">
+        {/* art audit: card image carries its own 1px #39342E stroke + drop
+           shadow 0 20 55 #000 @28% in both card states. */}
+        <div className="relative aspect-[188/240] w-[127.32px] shrink-0 overflow-hidden rounded-[9.48px] border border-[#39342e] shadow-[0_20px_55px_rgba(0,0,0,0.28)] xl:w-[188px] xl:rounded-[14px]">
           <Image src={s.img} alt={s.title.join(" ")} fill sizes="(min-width: 1280px) 188px, 127.32px" className="object-cover" />
         </div>
         <div className="min-w-0 flex-1">

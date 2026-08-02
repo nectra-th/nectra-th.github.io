@@ -48,6 +48,7 @@ export async function getAvailability() {
   return {
     timeSlots: cfg.timeSlots,
     openWeekdays: cfg.openWeekdays,
+    dayHours: cfg.dayHours,
     leadDays: cfg.leadDays,
     maxAdvanceDays: cfg.maxAdvanceDays,
     blackoutDates: cfg.blackoutDates,

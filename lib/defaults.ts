@@ -2,7 +2,11 @@ import type { AvailabilityConfig, Templates } from "./booking-types";
 
 export const DEFAULT_CONFIG: AvailabilityConfig = {
   timeSlots: ["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"],
-  openWeekdays: [1, 2, 3, 4, 5, 6], // Mon–Sat
+  openWeekdays: [1, 2, 3, 4, 5, 6], // Mon–Sat (Sunday closed)
+  // Store hours: Mon–Fri 9:00am–5:00pm, Saturday 9:00am–1:00pm. A 45-min
+  // consultation must END by close, so Saturday's last offered start is
+  // 12:00 PM (12:45 end) — the 1:00–4:00 PM slots only exist Mon–Fri.
+  dayHours: { 1: { open: 9, close: 17 }, 2: { open: 9, close: 17 }, 3: { open: 9, close: 17 }, 4: { open: 9, close: 17 }, 5: { open: 9, close: 17 }, 6: { open: 9, close: 13 } },
   slotDurationMin: 45,
   leadDays: 1,
   maxAdvanceDays: 90,

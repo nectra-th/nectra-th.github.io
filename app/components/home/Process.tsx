@@ -27,16 +27,30 @@ const STEPS = [
 function Step({ s }: { s: (typeof STEPS)[number] }) {
   return (
     <li className="group relative z-10 flex flex-col items-center text-center transition-[transform] duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] hover:[transform:translateY(-2px)]">
-      {/* Hover spec straight from Figma's "01 CONSULTATION, State=Hover":
-         1px border darkens to gold-dark, "Elevation/Small" shadow
-         (0 2px 8px rgba(0,0,0,.25)) appears behind it, and the whole step
-         (icon + number + label) lifts -2px together — the same lift used
-         everywhere else on the site. */}
-      <span className="flex h-16 w-16 items-center justify-center rounded-full border border-divider bg-cream-card transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:border-gold-dark group-hover:shadow-[0_2px_8px_rgba(0,0,0,0.25)]">
-        <img src={`/assets/icons/${s.icon}.png`} alt="" aria-hidden loading="lazy" decoding="async" className="h-8 w-auto" />
+      {/* Per the art audit (Process Step Cards spec sheets):
+         default — container fill #EFE6D6 (cream-alt), stroke divider,
+                   icon/number gold-dark #9C7430, description ink-text.
+         hover   — fill lightens to #EDE5D7 (cream), stroke gold-dark,
+                   shadow 0 12 12 #141312 @25%, icon + number darken to
+                   #8E682A, description darkens to #141312; the whole step
+                   lifts -2px together (site-wide lift). */}
+      <span className="flex h-16 w-16 items-center justify-center rounded-full border border-divider bg-cream-alt transition-[border-color,box-shadow,background-color] duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:border-gold-dark group-hover:bg-cream group-hover:shadow-[0_12px_12px_rgba(20,19,18,0.25)]">
+        {/* icon PNGs are used as alpha masks so CSS owns the fill colour —
+           the source files are baked #AC8B4F, not the spec's #9C7430, and
+           the hover state needs a second colour (#8E682A) anyway. */}
+        <span
+          aria-hidden
+          className="h-8 w-8 bg-[#9c7430] transition-colors duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:bg-[#8e682a]"
+          style={{
+            maskImage: `url(/assets/icons/${s.icon}.png)`, WebkitMaskImage: `url(/assets/icons/${s.icon}.png)`,
+            maskSize: "contain", WebkitMaskSize: "contain",
+            maskRepeat: "no-repeat", WebkitMaskRepeat: "no-repeat",
+            maskPosition: "center", WebkitMaskPosition: "center",
+          }}
+        />
       </span>
-      <span className="mt-3 font-sans text-sm font-normal text-gold-dark">{s.n}</span>
-      <span className="mt-1 font-sans text-sm font-medium uppercase leading-tight tracking-[0.07em] text-ink-text">
+      <span className="mt-3 font-sans text-sm font-normal text-gold-dark transition-colors duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:text-[#8e682a]">{s.n}</span>
+      <span className="mt-1 font-sans text-sm font-medium uppercase leading-tight tracking-[0.07em] text-ink-text transition-colors duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:text-[#141312]">
         {s.label.map((l, i) => <span key={i} className="block">{l}</span>)}
       </span>
     </li>
@@ -160,7 +174,7 @@ export default function Process() {
       <div
         aria-hidden
         className="pointer-events-none absolute left-0 hidden aspect-[781/664] overflow-hidden rounded-r-2xl border border-divider md:block md:top-[71px] md:w-[min(63.0695vw,526px)] lg:top-[446px] lg:w-[min(40.6771vw,781px)]"
-        style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.12)" }}
+        style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.10)" }}
       >
         <Image
           src={PHOTO}
@@ -204,7 +218,7 @@ export default function Process() {
                round. */}
             <div
               className="relative aspect-[781/664] w-full overflow-hidden"
-              style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.12)" }}
+              style={{ boxShadow: "0 22px 60px rgba(20,19,18,0.10)" }}
             >
               <Image
                 src={PHOTO}

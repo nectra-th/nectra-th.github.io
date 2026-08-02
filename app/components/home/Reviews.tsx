@@ -45,8 +45,10 @@ export default function Reviews() {
     // dot) and minus the 4px border-b, which the band measurement includes —
     // Figma's small boards draw no pager, so the dots come out of the
     // trailing padding rather than making the section overshoot its band.
-    // lg keeps the 40px set previously.
-    <section id="reviews" aria-label="Reviews" className="bg-cream border-b-4 border-[#c8b08a] pt-[110px] pb-[133px] md:pt-[63px] md:pb-[16px] lg:py-10">
+    // Desktop band (art audit): dividers at y=6604→7372 = 768 + 4 border =
+    // 772px total; eyebrow at 6752 → 148px top inset, cards end 7142 →
+    // 230px bottom inset (replaces the old flat 40px both sides).
+    <section id="reviews" aria-label="Reviews" className="bg-cream border-b-4 border-[#c8b08a] pt-[110px] pb-[133px] md:pt-[63px] md:pb-[16px] lg:pt-[148px] lg:pb-[230px]">
       <Container>
         {/* Figma's header block is narrower than the section gutter on the
            small boards: 270px on mobile (60px side margins, not the

@@ -45,6 +45,18 @@ export async function POST(request: Request) {
     if (chosen > latest) errors.push("That date is too far in advance.");
     if (!cfg.openWeekdays.includes(chosen.getDay())) errors.push("We're closed on that day. Please pick another.");
     if (cfg.blackoutDates.includes(date)) errors.push("That date is unavailable. Please pick another.");
+    // per-weekday opening hours (e.g. Saturday closes 1:00 PM, so its last
+    // 45-min slot starts 12:00 PM) — the slot must start at/after open and
+    // END at/before close.
+    const dh = cfg.dayHours?.[chosen.getDay()];
+    if (dh && cfg.timeSlots.includes(time)) {
+      const m = time.match(/^(\d+):(\d+) (AM|PM)$/);
+      if (m) {
+        const start = (Number(m[1]) % 12) + (m[3] === "PM" ? 12 : 0) + Number(m[2]) / 60;
+        if (start < dh.open || start + cfg.slotDurationMin / 60 > dh.close)
+          errors.push("That time isn't available on that day. Please pick another.");
+      }
+    }
   }
   if (errors.length) return NextResponse.json({ error: errors.join(" ") }, { status: 400 });
 

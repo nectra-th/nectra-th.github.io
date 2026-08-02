@@ -35,13 +35,17 @@ const ordinal = (d: number) => { const s = ["th", "st", "nd", "rd"], v = d % 100
 type Status = "idle" | "submitting" | "error";
 type Step = "select" | "details" | "success";
 type FieldErrors = { name?: string; email?: string; phone?: string; consent?: boolean };
-type Availability = { openWeekdays: number[]; leadDays: number; maxAdvanceDays: number; blackoutDates: string[] };
+type Availability = { openWeekdays: number[]; leadDays: number; maxAdvanceDays: number; blackoutDates: string[]; dayHours: Partial<Record<number, { open: number; close: number }>> };
 
 // Mirrors the server's DEFAULT_CONFIG booking rules (lib/defaults.ts) so the
 // demo build — and the first paint before /api/bookings answers — disables
 // the same dates the server would reject: closed Sundays, a 1-day booking
-// lead, and a 90-day advance window.
-const DEFAULT_AVAILABILITY: Availability = { openWeekdays: [1, 2, 3, 4, 5, 6], leadDays: 1, maxAdvanceDays: 90, blackoutDates: [] };
+// lead, a 90-day advance window, and the store hours (Mon–Fri 9–5,
+// Saturday 9–1 — a 45-min consult must end by close).
+const DEFAULT_AVAILABILITY: Availability = {
+  openWeekdays: [1, 2, 3, 4, 5, 6], leadDays: 1, maxAdvanceDays: 90, blackoutDates: [],
+  dayHours: { 1: { open: 9, close: 17 }, 2: { open: 9, close: 17 }, 3: { open: 9, close: 17 }, 4: { open: 9, close: 17 }, 5: { open: 9, close: 17 }, 6: { open: 9, close: 13 } },
+};
 
 const FONT = "var(--font-manrope), system-ui, sans-serif";
 
@@ -95,6 +99,7 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
           leadDays: typeof a.leadDays === "number" ? a.leadDays : DEFAULT_AVAILABILITY.leadDays,
           maxAdvanceDays: typeof a.maxAdvanceDays === "number" ? a.maxAdvanceDays : DEFAULT_AVAILABILITY.maxAdvanceDays,
           blackoutDates: Array.isArray(a.blackoutDates) ? a.blackoutDates : [],
+          dayHours: a.dayHours && typeof a.dayHours === "object" ? a.dayHours : DEFAULT_AVAILABILITY.dayHours,
         });
         if (Array.isArray(a.timeSlots) && a.timeSlots.length) setSlots(a.timeSlots.map((t: string) => t.replace(" ", "")));
       }
@@ -135,9 +140,13 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
     const takenForDate = taken[selectedDate] ?? [];
     const now = new Date();
     const isToday = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+    // per-weekday opening hours: the slot must start within them and its
+    // 45-min consult must end by close (Saturday's last start is 12:00 PM)
+    const dh = avail.dayHours[d.getDay()];
+    const outsideHours = (t: string) => !!dh && (hour24(t) < dh.open || hour24(t) + 0.75 > dh.close);
     // taken slots come back from the API in the canonical spaced form ("9:00 AM")
-    return slots.map((t) => ({ t, disabled: takenForDate.includes(spaceTime(t)) || (isToday && hour24(t) <= now.getHours()) }));
-  }, [selectedDate, taken, slots]);
+    return slots.map((t) => ({ t, disabled: takenForDate.includes(spaceTime(t)) || outsideHours(t) || (isToday && hour24(t) <= now.getHours()) }));
+  }, [selectedDate, taken, slots, avail]);
 
   // Design-System validation, run when Request Consultation is pressed:
   // required name/email/mobile/consent (the "How did you hear about us?"
@@ -192,7 +201,7 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
   // (`cardWidth` kept for API compatibility but no longer drives the layout.)
   void cardWidth;
   const cardChrome = {
-    borderRadius: 18, background: "rgba(248,243,234,0.9)", border: "1px solid #d8cbb7", boxShadow: "0 20px 60px -20px rgba(20,19,18,0.25)",
+    borderRadius: 18, background: "rgba(248,243,234,0.92)", border: "1px solid #d8cbb7", boxShadow: "0 20px 60px -20px rgba(20,19,18,0.25)",
     backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", padding: stacked ? "40px 20px" : compact ? "27px 34px" : "40px 44px", fontFamily: FONT,
   } as const;
   // 470 is desktop's own natural content height, kept as one shared floor
@@ -369,7 +378,7 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
                     in-flight submit disables it */}
                 <button className="gj-primary" onClick={submit} disabled={status === "submitting"}
                   style={{ width: "100%", height: compact ? 33 : 48, borderRadius: 8, fontSize: compact ? 10 : 14, fontWeight: 600, letterSpacing: "0.04em",
-                    background: status === "submitting" ? "#d8cbb7" : "#b88c46", color: status === "submitting" ? "rgba(87,87,87,0.5)" : "var(--color-ink)",
+                    background: status === "submitting" ? "#d8cbb7" : "#b88c46", color: status === "submitting" ? "#9f968a" : "var(--color-ink)",
                     cursor: status === "submitting" ? "default" : "pointer", border: "none" }}>
                   {status === "submitting" ? "Sending…" : "Request Consultation"}
                 </button>
@@ -418,7 +427,11 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
                     onClick={() => { if (dateStr) { setSelectedDate(dateStr); setSelectedTime(null); setStatus("idle"); } }}
                     style={{
                       width: compact ? 27 : 40, height: compact ? 27 : 40, borderRadius: "50%", fontSize: compact ? 10 : 15,
-                      color: !c.inMonth ? "rgba(98,91,82,0.45)" : disabled ? "#625b52" : selected ? "#f8f3ea" : isToday ? "var(--color-ink-text)" : "#403b37",
+                      // disabled in-month days (closed Sundays, lead window,
+                      // blackouts) fade to the same 45% as out-of-month cells
+                      // — the old solid #625b52 was nearly indistinguishable
+                      // from selectable days.
+                      color: !c.inMonth || disabled ? "rgba(98,91,82,0.45)" : selected ? "#f8f3ea" : isToday ? "var(--color-ink-text)" : "#403b37",
                       background: selected ? "#b88c46" : "transparent",
                       fontWeight: 400,
                       // per updated spec: Today = no fill + 1px #403b37 ring
@@ -466,7 +479,7 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
               </div>
               <button className="gj-primary" onClick={() => setStep("details")} disabled={!canContinue}
                 style={{ marginTop: stacked ? 5 : 14, width: "100%", height: stacked ? 48 : 46, borderRadius: 8, fontSize: compact ? 12 : 14, fontWeight: 600, letterSpacing: "0.04em",
-                  background: canContinue ? "#b88c46" : "#d8cbb7", color: canContinue ? "var(--color-ink)" : "rgba(87,87,87,0.5)",
+                  background: canContinue ? "#b88c46" : "#d8cbb7", color: canContinue ? "var(--color-ink)" : "#9f968a",
                   cursor: canContinue ? "pointer" : "default", border: "none" }}>
                 Continue
               </button>

@@ -514,9 +514,14 @@
    Outline        → hover fills #211f1c → pressed #1b1917
    Nav link       → hover: gold underline slides in + text brightens
    ============================================================ */
-.gj-primary { transition: transform 0.5s var(--ease-smooth), background-color 0.5s var(--ease-smooth), color 0.5s var(--ease-smooth); }
-.gj-primary:hover:not(:disabled) { background-color: #9c7430 !important; transform: translateY(-2px); }
-.gj-primary:active:not(:disabled) { background-color: #8e682a !important; transform: none; }
+/* Full .btn-primary state parity (per request: the widget's Continue /
+   Request Consultation must match the hero's Book a Consultation exactly):
+   hover #9c7430 + cream text + Elevation/Small shadow + -2px lift;
+   pressed #8e682a + cream text, shadow and lift released. !important beats
+   the widget's inline background/color. */
+.gj-primary { transition: transform 0.5s var(--ease-smooth), background-color 0.5s var(--ease-smooth), color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth); }
+.gj-primary:hover:not(:disabled) { background-color: #9c7430 !important; color: #f8f3ea !important; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); transform: translateY(-2px); }
+.gj-primary:active:not(:disabled) { background-color: #8e682a !important; color: #f8f3ea !important; box-shadow: none; transform: none; }
 
 /* (.gj-outline removed — its last consumer, the CTAButton "dark" variant,
    migrated to .btn-secondary. BookingWidget still uses .gj-primary.) */

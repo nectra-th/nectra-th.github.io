@@ -105,7 +105,11 @@ export default function Booking() {
          desktop-only note below. */}
       <div className="absolute inset-x-0 top-[401px] h-[262px] md:top-[80px] md:h-auto md:block lg:top-[153px]">
         <div className="relative h-full md:mx-auto md:max-w-[1180px] lg:max-w-[1180px]">
-          <div data-scroll-image="book" className="absolute inset-0 overflow-hidden md:inset-auto md:left-[306px] md:right-0 md:h-[357px] lg:left-[413px] lg:right-auto lg:h-[762px] lg:w-[1137px] lg:rounded-l-2xl md:rounded-l-2xl">
+          {/* art audit ("Consultation Book Visual"): 1px divider stroke +
+             drop shadow 0 22 60 #141312 @10%, same recipe as the workshop
+             photo. Stroke md+ only — the mobile version bleeds both edges
+             with nothing to outline. */}
+          <div data-scroll-image="book" className="absolute inset-0 overflow-hidden shadow-[0_22px_60px_rgba(20,19,18,0.10)] md:inset-auto md:left-[306px] md:right-0 md:h-[357px] md:border md:border-divider lg:left-[413px] lg:right-auto lg:h-[762px] lg:w-[1137px] lg:rounded-l-2xl md:rounded-l-2xl">
             <Image src={PHOTO_SRC} alt={PHOTO_ALT} fill sizes="(min-width: 1024px) 1137px, (min-width: 768px) 60vw, 100vw" className="object-cover" />
           </div>
         </div>

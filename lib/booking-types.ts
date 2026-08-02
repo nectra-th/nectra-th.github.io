@@ -20,10 +20,17 @@ export type Booking = {
 export type NewBooking = Pick<Booking, "date" | "time" | "name" | "email" | "phone"> &
   Partial<Pick<Booking, "project" | "notes">>;
 
+// Opening hours for one weekday, in 24h hours. A slot is offered when
+// open <= slotStart and slotStart + slotDurationMin fits before close.
+export type DayHours = { open: number; close: number };
+
 // Availability configuration — what the public calendar offers.
 export type AvailabilityConfig = {
   timeSlots: string[]; // ["9:00 AM", ...]
   openWeekdays: number[]; // 0=Sun … 6=Sat
+  // per-weekday opening hours (keyed 0=Sun … 6=Sat); weekdays absent here
+  // fall back to unrestricted (all configured timeSlots offered)
+  dayHours: Partial<Record<number, DayHours>>;
   slotDurationMin: number; // appointment length shown in the confirmed email
   leadDays: number; // earliest bookable day = today + leadDays
   maxAdvanceDays: number; // furthest bookable day

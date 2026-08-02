@@ -168,7 +168,10 @@ export default function FourPillars() {
       {/* hidden below md: the 390px mobile artboard drops this strip from the
          Four Pillars zone entirely (the pen sketch fills that space instead)
          — it only exists here from tablet up. */}
-      <Container className="relative z-10 hidden md:block md:mt-[78px] lg:mt-[136px]">
+      {/* lg:!max-w-[890px]: at the Container's full 1180px the strip's
+         divider line runs under the pen-sketch backdrop bleeding in from the
+         left — 890px keeps it clear of the artwork. */}
+      <Container className="relative z-10 hidden md:block md:mt-[78px] lg:mt-[136px] lg:!max-w-[890px]">
         <div className="md:ml-auto md:mr-[62px] md:w-[358px] lg:contents">
           {/* This instance's tablet spec (verified): 14px single-line text
              with a 10px gap to the rule — NOT the 20px/17px the Process

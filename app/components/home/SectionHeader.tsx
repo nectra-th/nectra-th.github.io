@@ -72,7 +72,13 @@ export default function SectionHeader({
   const heading = tone === "dark" ? "text-cream-light" : "text-ink-text";
   // dark body colour is Figma's literal --color-line token (#cfc6b8), not an
   // opacity blend — verified against the What We Do copy-block instance.
-  const bodyColor = tone === "dark" ? "text-line" : "text-[#403b37]";
+  // Light tone's #403b37 must be inline style, not a class: the `.text-body`
+  // TYPOGRAPHY token below shares its name with the `--color-body` theme
+  // colour, so Tailwind also emits a text-body COLOR utility (#575757) that
+  // was silently out-cascading the text-[#403b37] class (caught in the art
+  // audit — Why/Process bodies rendered #575757 instead of #403b37).
+  const bodyColor = tone === "dark" ? "text-line" : "";
+  const bodyStyle = tone === "dark" ? undefined : { color: "#403b37" };
   return (
     <div className={`${centered ? "text-center" : ""} ${className}`}>
       {eyebrow && <Eyebrow className={centered ? "mx-auto" : ""}>{eyebrow}</Eyebrow>}
@@ -86,7 +92,7 @@ export default function SectionHeader({
       {body && (
         <p
           className={`fig-trim ${bodyMargin} ${bodyMaxWidth ? "" : "max-w-[34rem]"} text-body ${bodyColor} ${centered ? "mx-auto" : ""} ${bodyClassName}`}
-          style={bodyMaxWidth ? { maxWidth: bodyMaxWidth } : undefined}
+          style={bodyMaxWidth ? { maxWidth: bodyMaxWidth, ...bodyStyle } : bodyStyle}
         >
           {body}
         </p>
