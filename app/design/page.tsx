@@ -224,7 +224,7 @@ export default function DesignBible() {
           <div>
             <p className="mb-3 font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-gold-dark">Calendar Day — 40px circle · 15px</p>
             <div className="flex flex-wrap items-center gap-4">
-              {[["7", "Default", "transparent", "transparent", "#403b37"], ["8", "Hover", "#f8f3ea", "#9c7430", "#2e2926"], ["9", "Today", "transparent", "#d8cbb7", "#2e2926"], ["10", "Selected", "#b88c46", "#b88c46", "#f8f3ea"], ["11", "Disabled / outside / unavailable", "transparent", "transparent", "#625b52"]].map(([d, label, bg, bd, txt]) => (
+              {[["7", "Default", "transparent", "transparent", "#403b37"], ["8", "Hover", "#f3eddf", "#d8cbb7", "#2e2926"], ["9", "Today", "transparent", "#403b37", "#2e2926"], ["10", "Selected", "#b88c46", "#b88c46", "#f8f3ea"], ["11", "Disabled / outside / unavailable", "transparent", "transparent", "#625b52"]].map(([d, label, bg, bd, txt]) => (
                 <span key={label} className="flex flex-col items-center gap-2">
                   <span className="flex h-10 w-10 items-center justify-center rounded-full font-sans text-[15px]" style={{ backgroundColor: bg, border: `1px solid ${bd}`, color: txt }}>{d}</span>
                   <span className="font-sans text-[10px] uppercase text-[#9f968a]">{label}</span>

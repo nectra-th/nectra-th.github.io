@@ -35,6 +35,7 @@ const ordinal = (d: number) => { const s = ["th", "st", "nd", "rd"], v = d % 100
 
 type Status = "idle" | "submitting" | "error";
 type Step = "select" | "details" | "success";
+type FieldErrors = { name?: string; email?: string; phone?: string; consent?: boolean };
 
 const FONT = "var(--font-manrope), system-ui, sans-serif";
 
@@ -64,6 +65,11 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
+  // Per-field validation errors, populated only when Request Consultation is
+  // pressed (not live) and cleared field-by-field when the user clicks into
+  // that field. Every field except "How did you hear about us?" is required.
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const clearError = (k: keyof FieldErrors) => setErrors((e) => (e[k] ? { ...e, [k]: undefined } : e));
 
   // On the static GitHub Pages build there is no backend, so skip the fetch and
   // let the widget run as a self-contained demo (every slot appears available).
@@ -98,9 +104,22 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
     return TIME_SLOTS.map((t) => ({ t, disabled: takenForDate.includes(spaceTime(t)) || (isToday && SLOT_HOURS_24[slotIndex(t)] <= now.getHours()) }));
   }, [selectedDate, taken]);
 
-  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
-  const detailsValid = !!selectedDate && !!selectedTime && form.name.trim().length >= 2 && emailOk &&
-    form.phone.replace(/[^\d]/g, "").length >= 8 && consent && status !== "submitting";
+  // Design-System validation, run when Request Consultation is pressed:
+  // required name/email/mobile/consent (the "How did you hear about us?"
+  // dropdown is the one optional field), email must parse, and the mobile
+  // must be a valid Australian mobile — 04xx xxx xxx or +61 4xx xxx xxx.
+  function validate(): FieldErrors {
+    const errs: FieldErrors = {};
+    if (!form.name.trim()) errs.name = "Name is required";
+    const email = form.email.trim();
+    if (!email) errs.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errs.email = "Enter a valid email address";
+    const phone = form.phone.replace(/[\s().-]/g, "");
+    if (!phone) errs.phone = "Mobile number is required";
+    else if (!/^(?:\+?61|0)4\d{8}$/.test(phone)) errs.phone = "Enter a valid Australian mobile number";
+    if (!consent) errs.consent = true;
+    return errs;
+  }
 
   // dynamic labels for the request / summary rows
   const dObj = selectedDate ? new Date(selectedDate + "T00:00:00") : null;
@@ -109,7 +128,10 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
   const prettyTime = selectedTime ? spaceTime(selectedTime) : "";
 
   async function submit() {
-    if (!detailsValid) return;
+    if (status === "submitting") return;
+    const errs = validate();
+    setErrors(errs);
+    if (errs.name || errs.email || errs.phone || errs.consent) return;
     setStatus("submitting"); setMessage("");
     // Demo (static) build: no API — briefly show "submitting" then confirm.
     if (DEMO) { setStatus("idle"); setStep("success"); return; }
@@ -127,7 +149,7 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
 
   function reset() {
     setStep("select"); setSelectedDate(null); setSelectedTime(null);
-    setForm({ name: "", email: "", phone: "", hear: "" }); setConsent(false); setStatus("idle"); setMessage("");
+    setForm({ name: "", email: "", phone: "", hear: "" }); setConsent(false); setStatus("idle"); setMessage(""); setErrors({});
   }
 
   // Fluid card: three equal columns on wide screens, a single stacked column on
@@ -254,12 +276,14 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
             </div>
             <label style={{ marginTop: compact ? 12 : 18, display: "flex", gap: compact ? 8 : 12, cursor: "pointer" }}>
               <span style={{ position: "relative", flex: "0 0 auto", width: compact ? 16 : 24, height: compact ? 16 : 24, marginTop: 2 }}>
-                <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)}
+                <input type="checkbox" checked={consent} onChange={(e) => { setConsent(e.target.checked); clearError("consent"); }}
                   style={{ position: "absolute", inset: 0, margin: 0, width: compact ? 16 : 24, height: compact ? 16 : 24, opacity: 0, cursor: "pointer" }} />
+                {/* submit pressed while unchecked → the box outlines #FF0000
+                    (per spec, distinct from the #d84b4b field-error red) */}
                 <span aria-hidden style={{
                   display: "flex", alignItems: "center", justifyContent: "center", width: compact ? 16 : 24, height: compact ? 16 : 24, borderRadius: 2,
                   background: consent ? "var(--color-gold-dark)" : "var(--color-cream)",
-                  border: `1px solid ${consent ? "var(--color-gold-dark)" : "var(--color-divider)"}`,
+                  border: `1px solid ${errors.consent ? "#ff0000" : consent ? "var(--color-gold-dark)" : "var(--color-divider)"}`,
                 }}>
                   {consent && <svg width={compact ? 10 : 14} height={compact ? 10 : 14} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="5 13 10 18 19 7" /></svg>}
                 </span>
@@ -274,16 +298,20 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
             {/* Field labels show on mobile and desktop; only the tablet
                 (compact) column drops them to bare inputs. */}
             <div style={{ marginTop: stacked ? 24 : compact ? 19 : 24, display: "flex", flexDirection: "column", gap: compact ? 5 : 8 }}>
-              <Field label="Name *" value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Your name" showLabel={!compact} compact={compact} />
-              <Field label="Email *" type="email" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} placeholder="Email Address" showLabel={!compact} compact={compact} />
+              <Field label="Name *" value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="Your name" showLabel={!compact} compact={compact} error={errors.name} onFocus={() => clearError("name")} />
+              <Field label="Email *" type="email" value={form.email} onChange={(v) => setForm((f) => ({ ...f, email: v }))} placeholder="Email Address" showLabel={!compact} compact={compact} error={errors.email} onFocus={() => clearError("email")} />
               <div>
-                {!compact && <FieldLabel>Contact Number*</FieldLabel>}
+                {!compact && <FieldLabel error={!!errors.phone}>Mobile Number*</FieldLabel>}
                 <div style={{ display: "flex" }}>
-                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: compact ? "0 8px" : "0 12px", height: compact ? 30 : 44, border: "1px solid var(--color-divider)", borderRight: "none", borderRadius: "8px 0 0 8px", background: "var(--color-cream-light)" }}>
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: compact ? "0 8px" : "0 12px", height: compact ? 30 : 44, border: `1px solid ${errors.phone ? "#d84b4b" : "var(--color-divider)"}`, borderRight: "none", borderRadius: "8px 0 0 8px", background: "var(--color-cream-light)" }}>
                     <span role="img" aria-label="Australia" style={{ width: compact ? 18 : 26, height: compact ? 14 : 20, borderRadius: 2, backgroundImage: "url(/assets/flag-au.png)", backgroundSize: "cover", backgroundPosition: "center" }} />
                   </span>
-                  <input type="tel" aria-label="Contact number" value={form.phone} placeholder="0412 345 678" onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className="gj-field"
-                    style={{ flex: 1, minWidth: 0, height: compact ? 30 : 44, border: "1px solid var(--color-divider)", borderRadius: "0 8px 8px 0", background: "var(--color-cream-light)", padding: compact ? "0 10px" : "0 14px", fontSize: compact ? 10 : 14, color: "#403b37", outline: "none" }} />
+                  {/* numeric-only entry: anything outside digits / spaces / a
+                      leading + (for +61) is dropped as it's typed, so letters
+                      simply never appear. type stays "tel" (a real
+                      type="number" can't hold the leading 0 of 04xx). */}
+                  <input type="tel" inputMode="numeric" aria-label="Mobile number" aria-invalid={errors.phone ? true : undefined} value={form.phone} placeholder="0412 345 678" onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/(?!^\+)[^\d ]/g, "") }))} onFocus={() => clearError("phone")} className={"gj-field" + (errors.phone ? " is-error" : "")}
+                    style={{ flex: 1, minWidth: 0, height: compact ? 30 : 44, border: `1px solid ${errors.phone ? "#d84b4b" : "var(--color-divider)"}`, borderRadius: "0 8px 8px 0", background: "var(--color-cream-light)", padding: compact ? "0 10px" : "0 14px", fontSize: compact ? 10 : 14, color: "#403b37", outline: "none" }} />
                 </div>
               </div>
               <div>
@@ -301,10 +329,13 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
                   button down / grows the card */}
               <div style={{ position: "relative", marginTop: compact ? 16 : 24 }}>
                 {status === "error" && <p role="alert" style={{ position: "absolute", left: 0, right: 0, bottom: "calc(100% + 8px)", margin: 0, borderRadius: 8, background: "#fef2f2", padding: compact ? "5px 8px" : "8px 12px", fontSize: compact ? 9 : 13, lineHeight: compact ? "13px" : "18px", color: "#b91c1c", boxShadow: "0 8px 20px -10px rgba(0,0,0,0.35)" }}>{message}</p>}
-                <button className="gj-primary" onClick={submit} disabled={!detailsValid}
+                {/* always pressable — pressing it is what runs validation and
+                    paints the per-field error states; only a genuinely
+                    in-flight submit disables it */}
+                <button className="gj-primary" onClick={submit} disabled={status === "submitting"}
                   style={{ width: "100%", height: compact ? 33 : 48, borderRadius: 8, fontSize: compact ? 10 : 14, fontWeight: 600, letterSpacing: "0.04em",
-                    background: detailsValid ? "#b88c46" : "#d8cbb7", color: detailsValid ? "var(--color-ink)" : "rgba(87,87,87,0.5)",
-                    cursor: detailsValid ? "pointer" : "default", border: "none" }}>
+                    background: status === "submitting" ? "#d8cbb7" : "#b88c46", color: status === "submitting" ? "rgba(87,87,87,0.5)" : "var(--color-ink)",
+                    cursor: status === "submitting" ? "default" : "pointer", border: "none" }}>
                   {status === "submitting" ? "Sending…" : "Request Consultation"}
                 </button>
               </div>
@@ -355,7 +386,9 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
                       color: !c.inMonth ? "rgba(98,91,82,0.45)" : disabled ? "#625b52" : selected ? "#f8f3ea" : isToday ? "var(--color-ink-text)" : "#403b37",
                       background: selected ? "#b88c46" : "transparent",
                       fontWeight: 400,
-                      boxShadow: isToday && !selected ? "inset 0 0 0 1px var(--color-divider)" : "none",
+                      // per updated spec: Today = no fill + 1px #403b37 ring
+                      // (was divider); Selected = #b88c46 fill AND stroke.
+                      boxShadow: selected ? "inset 0 0 0 1px #b88c46" : isToday ? "inset 0 0 0 1px #403b37" : "none",
                       cursor: !c.inMonth || disabled ? "default" : "pointer",
                     }}>{c.day}</button>
                 );
@@ -410,16 +443,17 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
   );
 }
 
-function FieldLabel({ children, compact = false }: { children: React.ReactNode; compact?: boolean }) {
-  return <span style={{ marginBottom: compact ? 4 : 6, display: "block", fontSize: compact ? 9 : 13, fontWeight: 500, color: "#625b52" }}>{children}</span>;
+function FieldLabel({ children, compact = false, error = false }: { children: React.ReactNode; compact?: boolean; error?: boolean }) {
+  // error colour is the Design System's input-error red #d84b4b
+  return <span style={{ marginBottom: compact ? 4 : 6, display: "block", fontSize: compact ? 9 : 13, fontWeight: 500, color: error ? "#d84b4b" : "#625b52" }}>{children}</span>;
 }
 
-function Field({ label, value, onChange, type = "text", placeholder, showLabel = true, compact = false }: { label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string; showLabel?: boolean; compact?: boolean }) {
+function Field({ label, value, onChange, onFocus, error, type = "text", placeholder, showLabel = true, compact = false }: { label: string; value: string; onChange: (v: string) => void; onFocus?: () => void; error?: string; type?: string; placeholder?: string; showLabel?: boolean; compact?: boolean }) {
   return (
     <label style={{ display: "block" }}>
-      {showLabel && <FieldLabel compact={compact}>{label}</FieldLabel>}
-      <input type={type} value={value} placeholder={placeholder} aria-label={showLabel ? undefined : label} onChange={(e) => onChange(e.target.value)} className="gj-field"
-        style={{ width: "100%", height: compact ? 30 : 44, borderRadius: 8, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", padding: compact ? "0 10px" : "0 14px", fontSize: compact ? 10 : 14, color: "#403b37", outline: "none" }} />
+      {showLabel && <FieldLabel compact={compact} error={!!error}>{label}</FieldLabel>}
+      <input type={type} value={value} placeholder={placeholder} aria-label={showLabel ? undefined : label} aria-invalid={error ? true : undefined} onChange={(e) => onChange(e.target.value)} onFocus={onFocus} className={"gj-field" + (error ? " is-error" : "")}
+        style={{ width: "100%", height: compact ? 30 : 44, borderRadius: 8, border: `1px solid ${error ? "#d84b4b" : "var(--color-divider)"}`, background: "var(--color-cream-light)", padding: compact ? "0 10px" : "0 14px", fontSize: compact ? 10 : 14, color: "#403b37", outline: "none" }} />
     </label>
   );
 }

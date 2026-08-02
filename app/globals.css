@@ -569,7 +569,9 @@
    component: fill cream-light, gold-dark ring — not the divider/cream-card
    pairing an earlier pass inferred from one Booking-flow instance. */
 .gj-datecell { transition: transform 0.5s var(--ease-smooth), background-color 0.5s var(--ease-smooth), box-shadow 0.5s var(--ease-smooth); }
-.gj-datecell:hover:not(:disabled) { background-color: var(--color-cream-light) !important; box-shadow: inset 0 0 0 1px var(--color-gold-dark) !important; }
+/* Day Hover per updated spec: fill cream-card #f3eddf, ring divider #d8cbb7
+   (was cream-light + gold-dark). */
+.gj-datecell:hover:not(:disabled) { background-color: var(--color-cream-card) !important; box-shadow: inset 0 0 0 1px var(--color-divider) !important; }
 
 /* Choose Your Date — month prev/next arrow buttons. Colours from the Design
    System's "Month Toggle Arrow" component set:
@@ -586,6 +588,11 @@
 .gj-field { transition: border-color 0.5s var(--ease-smooth), border-width 0.1s; border-width: 1px !important; }
 .gj-field:hover:not(:disabled) { border-color: var(--color-gold-dark) !important; }
 .gj-field:focus { border-color: var(--color-gold-dark) !important; border-width: 2px !important; outline: none; }
+/* Validation error — Design System input-error red. Must sit AFTER the hover
+   rule (equal specificity, both !important) so hovering an errored field
+   stays red; clicking in clears the error state in React, which removes this
+   class, so the normal focus gold takes over from there. */
+.gj-field.is-error:not(:focus) { border-color: #d84b4b !important; }
 
 /* Select a Time — hover on selectable, not-yet-selected slots. Colours from
    the Design System's "Time Button / State=Hover" component: fill
