@@ -53,10 +53,10 @@ export default function Footer() {
           <div className="flex w-full flex-col items-center gap-10 md:w-auto">
             <img src="/assets/logo-footer.svg" alt="Grech Jewellers" width={350} height={96} loading="lazy" decoding="async" className="h-auto w-full max-w-[350px] md:h-[73px] md:w-auto md:max-w-none lg:h-24" />
             <div className="flex gap-6">
-              <a href="https://instagram.com" aria-label="Instagram" className="text-gold transition-colors hover:text-cream-light">
+              <a href="https://www.instagram.com/grechjewellers/?hl=en" target="_blank" rel="noopener noreferrer" aria-label="Instagram (opens in a new tab)" className="text-gold transition-colors hover:text-cream-light">
                 <Instagram className="h-12 w-12 md:h-10 md:w-10 lg:h-12 lg:w-12" />
               </a>
-              <a href="https://facebook.com" aria-label="Facebook" className="text-gold transition-colors hover:text-cream-light">
+              <a href="https://www.facebook.com/grechjewellery" target="_blank" rel="noopener noreferrer" aria-label="Facebook (opens in a new tab)" className="text-gold transition-colors hover:text-cream-light">
                 <Facebook className="h-12 w-12 md:h-10 md:w-10 lg:h-12 lg:w-12" />
               </a>
             </div>
