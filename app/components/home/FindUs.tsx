@@ -311,7 +311,11 @@ export default function FindUs() {
               {/* desktop opens a new tab; mobile navigates same-tab so the OS
                  can intercept it as a universal/app link straight into the
                  native Google Maps app — see LaunchNavigationButton. */}
-              <LaunchNavigationButton href={MAPS_DIR} className="inline-flex items-center justify-center rounded-lg bg-gold px-[34px] py-[18px] text-[14px] leading-[10px] font-semibold uppercase tracking-[0.09em] text-cream-light transition-colors hover:bg-gold-dark md:rounded-[5px] md:px-[23px] md:py-[12px] md:text-[9.6px] md:leading-[7px] lg:rounded-lg lg:px-[34px] lg:py-[18px] lg:text-[14px] lg:leading-[10px]">
+              {/* .gj-primary gives it the hero CTA's full state set (hover
+                 #9c7430 + cream text + shadow + lift, pressed #8e682a);
+                 default text is the hero's ink, not the old cream. Sizing/
+                 radius stay this instance's own Figma values. */}
+              <LaunchNavigationButton href={MAPS_DIR} className="gj-primary inline-flex items-center justify-center rounded-lg bg-gold px-[34px] py-[18px] text-[14px] leading-[10px] font-semibold uppercase tracking-[0.09em] text-ink md:rounded-[5px] md:px-[23px] md:py-[12px] md:text-[9.6px] md:leading-[7px] lg:rounded-lg lg:px-[34px] lg:py-[18px] lg:text-[14px] lg:leading-[10px]">
                 Launch Navigation
               </LaunchNavigationButton>
             </div>
