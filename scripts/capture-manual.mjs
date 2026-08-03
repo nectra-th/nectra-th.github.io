@@ -8,12 +8,23 @@ const env = Object.fromEntries(fs.readFileSync("C:/Users/Phil/Grech Jew/site/.en
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1440, height: 980 }, deviceScaleFactor: 1.5 });
 
+// strip the Next.js dev-indicator badge (the "N" bubble bottom-left) plus any
+// other fixed corner overlay so it never appears in manual screenshots
+const zapDevBadge = (p) => p.evaluate(() => {
+  document.querySelectorAll("nextjs-portal, [data-nextjs-toast], [data-next-badge-root]").forEach((e) => e.remove());
+  [...document.querySelectorAll("body > *")].forEach((e) => {
+    const cs = getComputedStyle(e); const r = e.getBoundingClientRect();
+    if (cs.position === "fixed" && r.width < 90 && r.height < 90 && r.bottom > innerHeight - 120 && r.left < 120) e.remove();
+  });
+});
+
 // re-resolve the widget card fresh each time — React swaps the card element
 // when the step changes, so a stored handle goes stale.
 const widgetCard = () => page.evaluateHandle(() => [...document.querySelectorAll("#book div")].find(d => (d.getAttribute("style") || "").includes("backdrop-filter")));
 
 async function shotEl(getHandle, name, pad = 24) {
   const handle = typeof getHandle === "function" ? await getHandle() : getHandle;
+  await zapDevBadge(page);
   const b = await handle.asElement().boundingBox();
   await page.screenshot({ path: `${OUT}/${name}.png`, clip: { x: Math.max(0, b.x - pad), y: Math.max(0, b.y - pad), width: Math.min(1440 - Math.max(0, b.x - pad), b.width + pad * 2), height: b.height + pad * 2 } });
   console.log("captured", name);
@@ -68,6 +79,7 @@ const ctx2 = await browser.newContext({ viewport: { width: 1440, height: 980 }, 
 const p2 = await ctx2.newPage();
 await p2.goto("http://localhost:3000/admin", { waitUntil: "networkidle", timeout: 60000 });
 await p2.waitForTimeout(600);
+await zapDevBadge(p2);
 await p2.screenshot({ path: `${OUT}/06-admin-login.png` });
 console.log("captured 06-admin-login");
 await ctx2.close();
@@ -75,6 +87,7 @@ await ctx2.close();
 // authed views
 await page.goto(`http://localhost:3000/admin?key=${encodeURIComponent(env.ADMIN_KEY)}`, { waitUntil: "networkidle", timeout: 60000 });
 await page.waitForTimeout(1500);
+await zapDevBadge(page);
 await page.screenshot({ path: `${OUT}/07-admin-day.png`, fullPage: false });
 console.log("captured 07-admin-day");
 
@@ -93,6 +106,7 @@ const openTab = async (label, name) => {
   if (!clicked) await page.waitForTimeout(400);
   const ok = await page.evaluate((label) => { const b = [...document.querySelectorAll("button")].find(x => x.textContent.trim().toLowerCase().includes(label)); if (b) { b.click(); return true; } return false; }, label);
   await page.waitForTimeout(1500);
+  await zapDevBadge(page);
   await page.screenshot({ path: `${OUT}/${name}.png`, fullPage: false });
   console.log("captured", name, "(tab clicked:", ok + ")");
 };
