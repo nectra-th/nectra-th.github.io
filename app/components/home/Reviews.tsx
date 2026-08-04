@@ -5,10 +5,12 @@ import { Quote } from "../icons";
 
 export type Review = { text: string; author: string };
 
+// Real client reviews, verbatim (spelling and all — they're quotes).
 const REVIEWS: Review[] = [
-  { text: "We had our wedding rings made by Grech Jewellers and couldn’t be happier. The craftsmanship is outstanding and the service was personal from start to finish. The quality and attention to detail is second to none.", author: "-- Michael & Laura" },
-  { text: "Grech Jewellers helped us design a custom engagement ring from scratch. Every step felt personal and the final piece was beyond what we imagined. We couldn’t recommend them more highly.", author: "-- Sarah & James" },
-  { text: "From the first consultation to the final fitting, the team made the whole experience effortless. The ring itself is stunning and exactly what we asked for.", author: "-- Emma & David" },
+  { text: "I was left with inherited jewellery that I wanted to onsell. Most jewellers were quoting me $80 per piece to value. David was able to provide accurate information on my quantity of pieces at a fraction of the cost. His knowledge is outstanding. He also replaced stones in two rings with a beautiful result. Im now able to move forward and finish this daunting project thanks to David and Vicki. Wonderful jewellery for assistance. You wont be disappointed!!!", author: "-- Lisa Mugg" },
+  { text: "Grech jewellers were great to deal with, when designing the engagement ring they explained everything to me with ease and delivered exactly what I had asked for, their guidance was much appreciated! I felt comfortable straight away with this amazing family business. Price was also great.", author: "-- Marco Di Brino" },
+  { text: "I have had a couple of rings made by Grech Jewellers. I have had so many compliments on the both of them. Service is great and the professional attitude is also something that I like. I live away now in Queensland but always deal with David. I can trust Grech Jewellers for a professional outcome, and beautiful jewellery.", author: "-- Barb Baldwin" },
+  { text: "I and my family have been very satisfied customers of David and Vicki for over 25 years. Their honesty and integrity is second to none. Congratulations to both of them and also Chris. We are very content to recommend them for their professionalism and friendly and courteous attention.", author: "-- Ben Battiste" },
 ];
 
 /* "Testimonial Quote" instance — quote-mark and text sit side-by-side
@@ -47,8 +49,10 @@ export default function Reviews() {
     // trailing padding rather than making the section overshoot its band.
     // Desktop band (art audit): dividers at y=6604→7372 = 768 + 4 border =
     // 772px total; eyebrow at 6752 → 148px top inset, cards end 7142 →
-    // 230px bottom inset (replaces the old flat 40px both sides).
-    <section id="reviews" aria-label="Reviews" className="bg-cream border-b-4 border-[#c8b08a] pt-[110px] pb-[133px] md:pt-[63px] md:pb-[16px] lg:pt-[148px] lg:pb-[230px]">
+    // 230px bottom inset. The desktop carousel's dot pager (24px gap + 10px
+    // dot) comes out of that trailing inset — same convention as the small
+    // boards — so the band still totals 772.
+    <section id="reviews" aria-label="Reviews" className="bg-cream border-b-4 border-[#c8b08a] pt-[110px] pb-[133px] md:pt-[63px] md:pb-[16px] lg:pt-[148px] lg:pb-[196px]">
       <Container>
         {/* Figma's header block is narrower than the section gutter on the
            small boards: 270px on mobile (60px side margins, not the
@@ -94,14 +98,20 @@ export default function Reviews() {
         </div>
       </Container>
 
-      {/* desktop: 3 across, static — Figma's real cards row is a 1448px band
-         (inset 236px symmetric on the 1920 canvas), wider than the standard
-         1180 Container used everywhere else, so it gets its own width here
-         instead of going through <Container>. max-w is 1448 + the px-8
-         (32px/side) safety padding, so the grid itself lands at exactly
-         1448px once there's room — not 1448 minus the padding. */}
-      <div className="mx-auto hidden w-full max-w-[1512px] px-8 lg:mt-14 lg:grid lg:grid-cols-3 lg:gap-4">
-        {REVIEWS.map((r, i) => <TestimonialCard key={i} r={r} />)}
+      {/* desktop: same 1448px band as the old static row (inset 236px
+         symmetric on the 1920 canvas, wider than the standard 1180
+         Container), but now a start-snapped carousel — with four real
+         reviews, three 472px cards fill the band exactly (3×472 + 2×16 =
+         1448) and the fourth scrolls/auto-advances into view, instead of
+         wrapping into a lonely second row under the 3-column grid. */}
+      <div className="mx-auto hidden w-full max-w-[1512px] px-8 lg:mt-14 lg:block">
+        <Carousel
+          ariaLabel="Client reviews"
+          cardClassName="w-[472px] max-w-[472px]"
+          gap={16}
+          snap="start"
+          slides={REVIEWS.map((r, i) => <TestimonialCard key={i} r={r} />)}
+        />
       </div>
     </section>
   );
