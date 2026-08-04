@@ -16,7 +16,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type Pointer
    unaffected by the track's own padding. */
 export default function Carousel({
   slides, cardClassName = "w-[82vw]", gap = 16, gapClassName, snap = "center",
-  dots = true, intervalMs = 5000, ariaLabel,
+  dots = true, intervalMs = 5000, ariaLabel, paginate = "card",
 }: {
   slides: ReactNode[];
   cardClassName?: string;
@@ -30,6 +30,13 @@ export default function Carousel({
   dots?: boolean;
   intervalMs?: number;
   ariaLabel?: string;
+  /** "card" (default): one dot per slide, active = the centred card — right
+   *  when roughly one card is visible at a time. "page": dots represent
+   *  SCROLL POSITIONS, for start-snapped tracks showing several cards at
+   *  once (e.g. desktop Reviews, 3 visible of 4) — card-dots there produce
+   *  fewer real positions than dots, so some dots can never activate and
+   *  the active dot doesn't follow the scroll. */
+  paginate?: "card" | "page";
 }) {
   const count = slides.length;
   const trackRef = useRef<HTMLDivElement>(null);
@@ -55,6 +62,11 @@ export default function Carousel({
   // so this is measured from the actual rendered sizes and kept in sync on
   // resize, since card widths are percentage-based per breakpoint.
   const [sidePad, setSidePad] = useState<number | null>(null);
+  // page mode: scroll geometry — step between cards, max scroll, page count.
+  // Measured (and kept fresh on resize) rather than derived from props, since
+  // both card width and track width are responsive.
+  const pageRef = useRef({ pages: 1, step: 1, max: 0 });
+  const [pageCount, setPageCount] = useState(1);
 
   const clearTimers = useCallback(() => {
     if (autoRef.current) { clearInterval(autoRef.current); autoRef.current = null; }
@@ -64,23 +76,29 @@ export default function Carousel({
   const goTo = useCallback((i: number) => {
     const track = trackRef.current;
     if (!track) return;
-    const card = track.children[i] as HTMLElement | undefined;
-    if (!card) return;
     programmatic.current = true;
-    card.scrollIntoView({ behavior: "smooth", inline: snap, block: "nearest" });
+    if (paginate === "page") {
+      const { step, max } = pageRef.current;
+      track.scrollTo({ left: Math.min(i * step, max), behavior: "smooth" });
+    } else {
+      const card = track.children[i] as HTMLElement | undefined;
+      if (!card) return;
+      card.scrollIntoView({ behavior: "smooth", inline: snap, block: "nearest" });
+    }
     setActive(i);
     activeRef.current = i;
     window.setTimeout(() => { programmatic.current = false; }, 650);
-  }, [snap]);
+  }, [snap, paginate]);
 
   const startAuto = useCallback(() => {
     clearTimers();
     // honour reduced-motion: no auto-advance (swipe/dots still work)
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     autoRef.current = setInterval(() => {
-      if (inView.current) goTo((activeRef.current + 1) % count);
+      const n = paginate === "page" ? pageRef.current.pages : count;
+      if (inView.current) goTo((activeRef.current + 1) % n);
     }, intervalMs);
-  }, [clearTimers, count, goTo, intervalMs]);
+  }, [clearTimers, count, goTo, intervalMs, paginate]);
 
   const onManual = useCallback(() => {
     clearTimers();
@@ -120,18 +138,45 @@ export default function Carousel({
     return () => ro.disconnect();
   }, [snap, count]);
 
-  // track the active card on manual scroll (closest card centre to viewport centre)
+  // page mode: measure step (card pitch), max scroll and page count
+  useLayoutEffect(() => {
+    if (paginate !== "page") return;
+    const track = trackRef.current;
+    if (!track) return;
+    const recompute = () => {
+      const max = Math.max(0, track.scrollWidth - track.clientWidth);
+      const first = track.children[0] as HTMLElement | undefined;
+      const second = track.children[1] as HTMLElement | undefined;
+      const step = first && second ? second.offsetLeft - first.offsetLeft : track.clientWidth || 1;
+      const pages = max <= 1 ? 1 : Math.round(max / step) + 1;
+      pageRef.current = { pages, step, max };
+      setPageCount((prev) => (prev === pages ? prev : pages));
+    };
+    recompute();
+    const ro = new ResizeObserver(recompute);
+    ro.observe(track, { box: "border-box" });
+    return () => ro.disconnect();
+  }, [paginate, count]);
+
+  // track the active dot on manual scroll — page mode goes by scroll
+  // position; card mode by the card centre closest to the viewport centre
   const onScroll = () => {
     const track = trackRef.current;
     if (!track) return;
-    const mid = track.scrollLeft + track.clientWidth / 2;
-    let best = 0, bestD = Infinity;
-    Array.from(track.children).forEach((c, i) => {
-      const el = c as HTMLElement;
-      const centre = el.offsetLeft + el.offsetWidth / 2;
-      const d = Math.abs(centre - mid);
-      if (d < bestD) { bestD = d; best = i; }
-    });
+    let best = 0;
+    if (paginate === "page") {
+      const { pages, step, max } = pageRef.current;
+      best = track.scrollLeft >= max - 1 ? pages - 1 : Math.min(pages - 1, Math.round(track.scrollLeft / step));
+    } else {
+      const mid = track.scrollLeft + track.clientWidth / 2;
+      let bestD = Infinity;
+      Array.from(track.children).forEach((c, i) => {
+        const el = c as HTMLElement;
+        const centre = el.offsetLeft + el.offsetWidth / 2;
+        const d = Math.abs(centre - mid);
+        if (d < bestD) { bestD = d; best = i; }
+      });
+    }
     setActive(best);
     activeRef.current = best;
     if (!programmatic.current) onManual();
@@ -198,9 +243,9 @@ export default function Carousel({
         ))}
       </div>
 
-      {dots && count > 1 && (
+      {dots && (paginate === "page" ? pageCount : count) > 1 && (
         <div className="mt-6 flex justify-center gap-2.5">
-          {Array.from({ length: count }, (_, i) => (
+          {Array.from({ length: paginate === "page" ? pageCount : count }, (_, i) => (
             <button
               key={i}
               type="button"

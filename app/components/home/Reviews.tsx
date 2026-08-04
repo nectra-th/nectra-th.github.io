@@ -110,6 +110,7 @@ export default function Reviews() {
           cardClassName="w-[472px] max-w-[472px]"
           gap={16}
           snap="start"
+          paginate="page"
           slides={REVIEWS.map((r, i) => <TestimonialCard key={i} r={r} />)}
         />
       </div>
