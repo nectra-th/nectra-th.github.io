@@ -15,21 +15,21 @@ const REVIEWS: Review[] = [
 
 /* "Testimonial Quote" instance — quote-mark and text sit side-by-side
    (Figma Frame 53, gap 12 at every breakpoint), not stacked.
-   Each tier gets Figma's own card box, and the quote is line-clamped to the
-   exact line count that box was drawn to hold, so varying copy length can't
-   overflow or resize the card:
-     mobile  296x232, pad 24/16, 12px/24px text, 6 lines  (144+16+24 = 184)
-     tablet  356x220, pad 30/17, 12px/24px text, 5 lines  (120+16+24 = 160)
-     desktop 472x196, pad 32/24, 14px/1.6  text, 3 lines */
+   Cards no longer clamp or fix their height (per request the full quote must
+   show): the card fills its slide wrapper (h-full) and the carousel track's
+   default align-items:stretch makes every slide the height of the TALLEST
+   quote — so all cards stay equal without a hardcoded height. mt-auto pins
+   the author to the card's bottom edge so shorter quotes still read as the
+   same card shape. */
 function TestimonialCard({ r }: { r: Review }) {
   return (
-    <figure className="gj-review-card flex h-[232px] gap-3 overflow-hidden rounded-lg border border-divider bg-cream-card px-4 py-6 md:h-[220px] md:px-[17px] md:py-[30px] lg:h-[196px] lg:px-6 lg:py-8">
+    <figure className="gj-review-card flex h-full gap-3 rounded-lg border border-divider bg-cream-card px-4 py-6 md:px-[17px] md:py-[30px] lg:px-6 lg:py-8">
       <Quote className="h-[22px] w-[23px] shrink-0 text-gold-dark lg:h-[19px] lg:w-5" aria-hidden />
       <div className="flex min-h-0 flex-1 flex-col gap-4 lg:gap-6">
-        <blockquote className="line-clamp-6 font-sans text-[12px] font-medium leading-[24px] text-[#403b37] md:line-clamp-5 lg:line-clamp-3 lg:text-[14px] lg:font-normal lg:leading-[1.6] lg:text-body-2">
+        <blockquote className="font-sans text-[12px] font-medium leading-[24px] text-[#403b37] lg:text-[14px] lg:font-normal lg:leading-[1.6] lg:text-body-2">
           {r.text}
         </blockquote>
-        <figcaption className="font-sans text-[12px] font-medium leading-[24px] text-ink-text lg:text-[14px] lg:tracking-[0.07em]">
+        <figcaption className="mt-auto font-sans text-[12px] font-medium leading-[24px] text-ink-text lg:text-[14px] lg:tracking-[0.07em]">
           {r.author}
         </figcaption>
       </div>
@@ -47,12 +47,14 @@ export default function Reviews() {
     // dot) and minus the 4px border-b, which the band measurement includes —
     // Figma's small boards draw no pager, so the dots come out of the
     // trailing padding rather than making the section overshoot its band.
-    // Desktop band (art audit): dividers at y=6604→7372 = 768 + 4 border =
-    // 772px total; eyebrow at 6752 → 148px top inset, cards end 7142 →
-    // 230px bottom inset. The desktop carousel's dot pager (24px gap + 10px
-    // dot) comes out of that trailing inset — same convention as the small
-    // boards — so the band still totals 772.
-    <section id="reviews" aria-label="Reviews" className="bg-cream border-b-4 border-[#c8b08a] pt-[110px] pb-[133px] md:pt-[63px] md:pb-[16px] lg:pt-[148px] lg:pb-[196px]">
+    // Cards no longer have a fixed Figma height (full quotes now show), so
+    // the section's height is content-driven and the old per-board asymmetric
+    // insets no longer centre anything. Symmetric padding per tier keeps the
+    // content block (header + cards + dots) vertically centred by
+    // construction: top inset == bottom inset at every breakpoint. The lg
+    // 148px keeps the audited top rhythm; base/md keep their boards' own
+    // top values mirrored below.
+    <section id="reviews" aria-label="Reviews" className="bg-cream border-b-4 border-[#c8b08a] py-[110px] md:py-[63px] lg:py-[148px]">
       <Container>
         {/* Figma's header block is narrower than the section gutter on the
            small boards: 270px on mobile (60px side margins, not the
