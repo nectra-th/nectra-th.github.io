@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
         // the app already runs under `next dev`; don't let the static-export
         // deploy fail on pre-existing type-only issues.
         typescript: { ignoreBuildErrors: true },
+        // static hosting has no booking API — flip the widget into demo mode
+        // (skip availability fetch, simulate a successful submit) instead of
+        // 404ing against /api/bookings.
+        env: { NEXT_PUBLIC_DEMO: "1" },
       }
     : {}),
 };
