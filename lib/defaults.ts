@@ -30,9 +30,7 @@ const shell = (inner: string) => `<!doctype html><html><body style="margin:0;pad
 <tr><td align="center">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:92%;background:#161412;border:1px solid #2a2622;border-radius:14px;overflow:hidden;">
 <tr><td style="padding:42px 44px 10px;text-align:center;">
-  <div style="width:66px;height:66px;margin:0 auto 16px;border:1.5px solid #b88c46;border-radius:50%;line-height:64px;color:#c69a52;font-size:25px;letter-spacing:1px;">GJ</div>
-  <div style="color:#f1ece2;font-size:25px;letter-spacing:6px;">GRECH JEWELLERS</div>
-  <div style="color:#b88c46;font-size:11px;letter-spacing:3px;margin-top:7px;">ESTABLISHED 1978</div>
+  <img src="${A}/grech-email-logo.png" width="170" alt="Grech Jewellers — Est 1978" style="display:inline-block;border:0;max-width:170px;height:auto;">
   <table role="presentation" width="100%" style="margin-top:22px;"><tr>
     <td style="height:1px;background:linear-gradient(90deg,transparent,#8a6a34);"></td>
     <td width="10" style="text-align:center;"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#b88c46;"></span></td>
@@ -43,16 +41,16 @@ ${inner}
 <tr><td style="padding:22px 44px 38px;border-top:1px solid #2a2622;font-family:Arial,sans-serif;">
   <table role="presentation"><tr>
     <td width="26" style="vertical-align:middle;padding:3px 0;">${ic("pin-f", 15)}</td>
-    <td style="color:#c9a86a;font-size:13px;padding:3px 0;">Grech Jewellers · West Lakes Shopping Centre</td></tr>
+    <td style="color:#c9a86a;font-size:13px;padding:3px 0;">Grech Jewellers · Fulham Gardens Shopping</td></tr>
   <tr>
     <td style="vertical-align:middle;padding:3px 0;">${ic("phone-f", 14)}</td>
-    <td style="color:#8c857a;font-size:12px;padding:3px 0;">(08) 8347 7177</td></tr>
+    <td style="color:#8c857a;font-size:12px;padding:3px 0;">(08) 8356 7764</td></tr>
   <tr>
     <td style="vertical-align:middle;padding:3px 0;">${ic("mail-f", 14)}</td>
-    <td style="color:#8c857a;font-size:12px;padding:3px 0;">hello@grech.com.au</td></tr>
+    <td style="color:#8c857a;font-size:12px;padding:3px 0;">jeweller@grechjewellers.com.au</td></tr>
   <tr>
     <td style="vertical-align:middle;padding:3px 0;">${ic("globe-f", 14)}</td>
-    <td style="color:#8c857a;font-size:12px;padding:3px 0;">www.grech.com.au</td></tr>
+    <td style="color:#8c857a;font-size:12px;padding:3px 0;"><a href="https://www.grechjewellers.com.au" style="color:#8c857a;text-decoration:underline;">www.grechjewellers.com.au</a></td></tr>
   </table>
 </td></tr>
 </table></td></tr></table></body></html>`;
@@ -76,7 +74,7 @@ const visitFixed = (icon: string, title: string, text: string) => `<td width="33
 const RECEIVED = shell(`
 <tr><td style="padding:16px 44px 0;text-align:center;">
   <h1 style="color:#f4efe6;font-size:29px;font-weight:normal;margin:12px 0 10px;">Thank you for your enquiry.</h1>
-  <p style="color:#cfc6b8;font-size:15px;line-height:24px;font-family:Arial,sans-serif;margin:8px 0;">We have received your consultation request and one of our jewellers will personally review it shortly.</p>
+  <p style="color:#cfc6b8;font-size:15px;line-height:24px;font-family:Arial,sans-serif;margin:8px 0;">We've received your consultation request and will be in touch shortly.</p>
   <p style="color:#9f968a;font-size:13px;line-height:22px;font-family:Arial,sans-serif;margin:8px 0 4px;">Unlike automated booking systems, every consultation is individually reviewed to ensure we can dedicate the appropriate time to your project.</p>
 </td></tr>
 <tr><td style="padding:22px 44px 40px;">
@@ -89,7 +87,6 @@ const RECEIVED = shell(`
       ${iconRow("phone", "Phone", "{{phone}}")}
       ${iconRow("calendar", "Preferred Date", "{{date}}")}
       ${iconRow("clock", "Preferred Time", "{{time}}")}
-      ${iconRow("diamond", "Project", "{{project}}")}
     </table>
     <div style="border-top:1px solid #ded4c2;margin:14px 0;"></div>
     <div style="color:#6f675c;font-size:13px;font-family:Arial,sans-serif;">Reference Number
@@ -98,10 +95,10 @@ const RECEIVED = shell(`
   <tr><td style="padding:10px 30px 28px;text-align:center;">
     <div style="color:#9c7430;font-size:15px;margin-bottom:16px;">What Happens Next</div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-      ${step("1", "Our jeweller reviews your request.")}
-      ${step("2", "We'll confirm availability.")}
-      ${step("3", "You'll receive an approval email.")}
-      ${step("4", "See you in store.")}
+      ${step("1", "Review your request")}
+      ${step("2", "Confirm your appointment")}
+      ${step("3", "Receive your confirmation")}
+      ${step("4", "Visit us in store")}
     </tr></table>
     <div style="border-top:1px solid #ded4c2;margin:22px 0 12px;"></div>
     <div style="color:#8a8073;font-size:12px;font-family:Arial,sans-serif;line-height:18px;">If we need to suggest an alternative time,<br>we'll contact you before confirming your appointment.</div>
@@ -127,7 +124,6 @@ const CONFIRMED = shell(`
       ${iconRow("calendar", "Date", "{{date}}")}
       ${iconRow("clock", "Time", "{{time}}")}
       ${iconRow("hourglass", "Duration", "{{duration}}")}
-      ${iconRow("pin", "Location", "{{location}}")}
     </table>
     <div style="border-top:1px solid #ded4c2;margin:12px 0;"></div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${iconRow("bookmark", "Reference", '<span style="color:#9c7430;font-weight:bold;">{{reference}}</span>')}</table>
@@ -135,13 +131,13 @@ const CONFIRMED = shell(`
   <tr><td style="padding:8px 30px 12px;text-align:center;">
     <div style="color:#9c7430;font-size:15px;margin-bottom:16px;">Before Your Visit</div>
     <table role="presentation" width="100%"><tr>
-      ${visitFixed("ring", "Existing jewellery", "Bring any jewellery you'd like us to redesign.")}
-      ${visitFixed("camera", "Inspiration", "Photos or screenshots are welcome.")}
-      ${visitFixed("diamond", "Stones", "If you already have gemstones, bring them along.")}
+      ${visitFixed("camera", "Inspiration", "Bring photos, sketches or ideas")}
+      ${visitFixed("diamond", "Your Vision", "Think about your style and budget")}
+      ${visitFixed("ring", "Relax", "We'll guide you through the rest")}
     </tr></table>
     <a href="{{directionsUrl}}" style="display:inline-block;margin:24px 0 6px;background:#161412;color:#f4efe6;font-family:Arial,sans-serif;font-size:13px;letter-spacing:1px;text-decoration:none;padding:14px 30px;border-radius:30px;">&#9673;&nbsp; OPEN DIRECTIONS</a>
     <div style="border-top:1px solid #ded4c2;margin:20px 0 12px;"></div>
-    <div style="color:#8a8073;font-size:12px;font-family:Arial,sans-serif;line-height:18px;">Need to change your appointment?<br>Simply reply to this email or call us on (08) 8347 7177.</div>
+    <div style="color:#8a8073;font-size:12px;font-family:Arial,sans-serif;line-height:18px;">Need to change your appointment?<br>Simply reply to this email or call us on (08) 8356 7764.</div>
   </td></tr>
   </table>
 </td></tr>`);
