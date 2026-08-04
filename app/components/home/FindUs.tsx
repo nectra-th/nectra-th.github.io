@@ -10,11 +10,13 @@ const PHONE_DISPLAY = "(08) 8356 7764";
 const PHONE_HREF = "tel:+61883567764";
 const MAPS_DIR = "https://www.google.com/maps/dir/?api=1&destination=Grech+Jewellers+457+Tapleys+Hill+Road+Fulham+Gardens+SA+5024";
 
+// Matches the routes shown on the animated centre map (arrows approach from
+// several entrances, not just the northern one).
 const STEPS = [
-  "Park near the northern entrance of the centre",
-  "Enter through the main entrance",
-  "Walk straight past Drakes Supermarket",
-  "Grech Jewellers is located directly opposite",
+  "Park near either entrance.",
+  "Enter the shopping centre.",
+  "Follow the walkway towards Drakes.",
+  "Grech Jewellers is directly opposite.",
 ];
 
 /** Line icon recoloured to gold via CSS mask. Figma's icons here aren't
