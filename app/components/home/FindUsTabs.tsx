@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import AnimatedCentreMap from "./AnimatedCentreMap";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 /* Find Us tab bar + swapping main view. Tab 0 = store photo, tab 1 = the Figma
@@ -165,7 +166,7 @@ export default function FindUsTabs({ directions, firstTime }: { directions: Reac
             style={tab === 2 && mapHeight != null ? { height: mapHeight } : undefined}
           >
             {tab === 0 && <Image src="/assets/findus-store.webp" alt="Inside the Grech Jewellers showroom" fill sizes="(min-width: 1024px) 32vw, 90vw" className="object-cover" />}
-            {tab === 1 && <Image src="/assets/figma-img/shopping-centre-map.png" alt="Fulham Gardens shopping centre map with Grech Jewellers highlighted" fill sizes="(min-width: 1024px) 32vw, 90vw" className="object-cover" />}
+            {tab === 1 && <AnimatedCentreMap />}
             {tab === 2 && (
               <iframe title="Grech Jewellers location on Google Maps" src={GOOGLE_EMBED} loading="lazy" className="h-full w-full border-0" />
             )}

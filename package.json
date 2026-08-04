@@ -10,6 +10,7 @@
     "test": "playwright test"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-web": "^0.78.2",
     "next": "16.2.11",
     "nodemailer": "^6.10.1",
     "react": "19.2.4",
