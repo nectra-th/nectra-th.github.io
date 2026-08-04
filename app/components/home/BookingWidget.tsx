@@ -272,7 +272,7 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
               <span style={{ flex: "0 0 auto", width: 40, height: 40, borderRadius: "50%", border: "1px solid var(--color-gold-dark)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--color-gold)" }}>
                 <Mail style={{ width: 18, height: 18 }} />
               </span>
-              <span style={{ fontSize: 15, color: "var(--color-ink-text)" }}>A request receipt has been sent to your email/whatsapp</span>
+              <span style={{ fontSize: 15, color: "var(--color-ink-text)" }}>A request receipt has been sent to your email</span>
             </div>
           </div>
         </div>
