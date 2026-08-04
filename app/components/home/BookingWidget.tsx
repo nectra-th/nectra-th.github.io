@@ -118,8 +118,11 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
     const daysInMonth = new Date(view.y, view.m + 1, 0).getDate();
     for (let i = 0; i < lead; i++) out.push({ day: new Date(view.y, view.m, 1 - (lead - i)).getDate(), inMonth: false, date: null });
     for (let d = 1; d <= daysInMonth; d++) out.push({ day: d, inMonth: true, date: new Date(view.y, view.m, d) });
+    // always pad to a full 6 rows (42 cells), not just to the end of the last
+    // week — otherwise 5-row months render a shorter calendar and everything
+    // below it jumps when the user navigates between months.
     let next = 1;
-    while (out.length % 7 !== 0) out.push({ day: next++, inMonth: false, date: null });
+    while (out.length < 42) out.push({ day: next++, inMonth: false, date: null });
     return out;
   }, [view]);
 
