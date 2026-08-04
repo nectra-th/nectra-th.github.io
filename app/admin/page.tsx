@@ -428,7 +428,16 @@ function TemplatesTab({ api }: { api: Api }) {
   const load = useCallback(() => api("/api/admin/templates").then((d) => { setTemplates(d.templates); setVersions(d.versions); setVars(d.variables); }).catch(() => {}), [api]);
   useEffect(() => { load(); }, [load]);
   useEffect(() => { if (templates) { setSubject(templates[tkey].subject); setHtml(templates[tkey].html); } }, [templates, tkey]);
-  useEffect(() => { if (mode !== "visual") return; const ifr = editor.current; if (!ifr) return; const doc = ifr.contentDocument; if (!doc) return; doc.open(); doc.write(html || "<p></p>"); doc.close(); doc.designMode = "on"; /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [mode, tkey, templates]);
+  // `html` MUST be in the deps: without it, switching template tabs re-ran
+  // this with the PREVIOUS template still in `html` state (the setHtml from
+  // the effect above hasn't re-rendered yet), so the visual editor kept
+  // showing the old template — and Save then wrote that old content over the
+  // newly selected key. That's exactly how "received" ended up saved into
+  // the "confirmed" slot. With `html` in the deps this re-runs again after
+  // setHtml lands, so the iframe always reflects the selected template.
+  // (While typing, the iframe is uncontrolled and `html` doesn't change, so
+  // this never clobbers an edit in progress.)
+  useEffect(() => { if (mode !== "visual") return; const ifr = editor.current; if (!ifr) return; const doc = ifr.contentDocument; if (!doc) return; doc.open(); doc.write(html || "<p></p>"); doc.close(); doc.designMode = "on"; }, [mode, tkey, templates, html]);
 
   const readEditor = () => (mode === "visual" && editor.current?.contentDocument) ? "<!doctype html>" + editor.current.contentDocument.documentElement.outerHTML : html;
   const exec = (cmd: string, val?: string) => { editor.current?.contentDocument?.execCommand(cmd, false, val); editor.current?.contentWindow?.focus(); };
