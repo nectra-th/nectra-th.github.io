@@ -99,12 +99,15 @@ export default function Footer() {
               <ColHeading>Location</ColHeading>
               {/* links to the Find Us section (per request) — block anchor so
                  the whole three-line address is one target */}
+              {/* business name first, one address part per line with trailing
+                 commas — the approved reading format; the long centre line
+                 wraps naturally within the column */}
               <a href="#findus" className="mt-4 block font-sans text-[14px] leading-[30px] text-[#CFC6B8] transition-colors hover:text-gold md:text-[10.5px] md:leading-[23px] lg:text-[14px] lg:leading-[30px]">
-                Shop 110 Fulham Gardens
+                Grech Jewellers
                 <br />
-                Shopping Centre
+                Shop 110 Fulham Gardens Shopping Centre,
                 <br />
-                445-457 Tapleys Hill Road
+                445-457 Tapleys Hill Road,
                 <br />
                 Fulham Gardens SA 5024
               </a>

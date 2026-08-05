@@ -240,7 +240,14 @@ export default function FindUs() {
               <InfoIcon src="/assets/icons/info-location.svg" size="mt-0.5 w-[23px] h-[32px] md:w-[16px] md:h-[22px] lg:w-[23px] lg:h-[32px]" />
               <div>
                 <p className="hidden font-sans text-[16px] font-bold uppercase text-gold-dark md:block md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Location</p>
-                <p className="font-sans text-[14px] leading-[27px] text-[#403b37] md:mt-1.5 md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-snug">Shop 110 Fulham Gardens Shopping Centre, 445-457 Tapleys Hill Road, Fulham Gardens SA 5024</p>
+                {/* business name first, one address part per line with
+                   trailing commas — the approved reading format */}
+                <p className="font-sans text-[14px] leading-[27px] text-[#403b37] md:mt-1.5 md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-snug">
+                  Grech Jewellers<br />
+                  Shop 110 Fulham Gardens Shopping Centre,<br />
+                  445-457 Tapleys Hill Road,<br />
+                  Fulham Gardens SA 5024
+                </p>
               </div>
             </div>
 
