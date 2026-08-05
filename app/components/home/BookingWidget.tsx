@@ -39,11 +39,11 @@ type Availability = { openWeekdays: number[]; leadDays: number; maxAdvanceDays: 
 
 // Mirrors the server's DEFAULT_CONFIG booking rules (lib/defaults.ts) so the
 // demo build — and the first paint before /api/bookings answers — disables
-// the same dates the server would reject: closed Sundays, a 1-day booking
-// lead, a 90-day advance window, and the store hours (Mon–Fri 9–5,
+// the same dates the server would reject: closed Sundays, the 48-hour
+// booking lead, a 90-day advance window, and the store hours (Mon–Fri 9–5,
 // Saturday 9–1 — a 45-min consult must end by close).
 const DEFAULT_AVAILABILITY: Availability = {
-  openWeekdays: [1, 2, 3, 4, 5, 6], leadDays: 1, maxAdvanceDays: 90, blackoutDates: [],
+  openWeekdays: [1, 2, 3, 4, 5, 6], leadDays: 2, maxAdvanceDays: 90, blackoutDates: [],
   dayHours: { 1: { open: 9, close: 17 }, 2: { open: 9, close: 17 }, 3: { open: 9, close: 17 }, 4: { open: 9, close: 17 }, 5: { open: 9, close: 17 }, 6: { open: 9, close: 13 } },
 };
 
@@ -407,7 +407,7 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
         {/* Calendar */}
         <div style={{ textAlign: "center" }}>
           <h3 style={{ ...H3, fontWeight: 700 }}>Choose Your Date</h3>
-          <p style={SUB}>Select a day that suits you</p>
+          <p style={SUB}>Appointments require a minimum of 48 hours&rsquo; notice.</p>
           <div style={{ marginTop: stacked ? 16 : compact ? 33 : 48 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: compact ? "center" : "space-between", gap: compact ? 38 : undefined, maxWidth: compact ? undefined : 252, margin: "0 auto", height: compact ? 24 : 32 }}>
               <button aria-label="Previous month" onClick={() => setView((v) => (v ? (v.m === 0 ? { y: v.y - 1, m: 11 } : { y: v.y, m: v.m - 1 }) : v))} className="gj-navarrow" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: compact ? 24 : 32, height: compact ? 24 : 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold-dark)", cursor: "pointer", flex: "0 0 auto" }}><ArrowLeft style={{ width: compact ? 11 : 15, height: compact ? 11 : 15 }} /></button>

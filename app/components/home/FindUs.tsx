@@ -8,7 +8,10 @@ import LaunchNavigationButton from "./LaunchNavigationButton";
 
 const PHONE_DISPLAY = "(08) 8356 7764";
 const PHONE_HREF = "tel:+61883567764";
-const MAPS_DIR = "https://www.google.com/maps/dir/?api=1&destination=Grech+Jewellers+457+Tapleys+Hill+Road+Fulham+Gardens+SA+5024";
+// Address-based destination (not the store name): the Google Business
+// Profile currently carries a wrong address, so a name query can resolve to
+// nothing / the wrong pin — the street address works regardless.
+const MAPS_DIR = "https://www.google.com/maps/dir/?api=1&destination=445-457+Tapleys+Hill+Road,+Fulham+Gardens+SA+5024";
 
 // Matches the routes shown on the animated centre map (arrows approach from
 // several entrances, not just the northern one).
@@ -237,7 +240,7 @@ export default function FindUs() {
               <InfoIcon src="/assets/icons/info-location.svg" size="mt-0.5 w-[23px] h-[32px] md:w-[16px] md:h-[22px] lg:w-[23px] lg:h-[32px]" />
               <div>
                 <p className="hidden font-sans text-[16px] font-bold uppercase text-gold-dark md:block md:text-[11px] md:leading-[8px] lg:text-[16px] lg:leading-normal">Location</p>
-                <p className="font-sans text-[14px] leading-[27px] text-[#403b37] md:mt-1.5 md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-snug">Fulham Gardens Shopping Centre, Shop 90/457 Tapleys Hill Road, Fulham Gardens SA 5024</p>
+                <p className="font-sans text-[14px] leading-[27px] text-[#403b37] md:mt-1.5 md:text-[10px] md:leading-[12px] lg:text-[14px] lg:leading-snug">Shop 110 Fulham Gardens Shopping Centre, 445-457 Tapleys Hill Road, Fulham Gardens SA 5024</p>
               </div>
             </div>
 

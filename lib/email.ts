@@ -52,7 +52,7 @@ type SendResult = { ok: boolean; provider: Provider; status: "sent" | "queued" |
  *  into the Outbox so the flow still completes and every message stays auditable
  *  in the admin. A real send that fails is also recorded in the Outbox as an error. */
 export async function deliver(args: {
-  to: string; subject: string; html: string; template: EmailTemplateKey | "test"; bookingId?: string;
+  to: string; subject: string; html: string; template: EmailTemplateKey | "test" | "notify"; bookingId?: string;
 }): Promise<SendResult> {
   const provider: Provider = RESEND_KEY ? "resend" : SMTP_OK ? "smtp" : "outbox";
   let status: "sent" | "queued" | "error" = provider === "outbox" ? "queued" : "sent";
@@ -85,6 +85,44 @@ export async function deliver(args: {
 
   await addOutbox({ to: args.to, subject: args.subject, html: args.html, template: args.template, bookingId: args.bookingId, provider, status, error });
   return { ok: status !== "error", provider, status, error };
+}
+
+// Internal notification to the store for every new customer request (per
+// request from the store — they shouldn't have to poll the admin page).
+const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL ?? "jeweller@grechjewellers.com.au";
+const ADMIN_URL = process.env.ADMIN_URL ?? "https://grech-jewellers.vercel.app/admin";
+
+const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/** Plain internal heads-up to the store inbox — deliberately simple (no
+ *  brand shell, not an editable template): row of facts + a link to the
+ *  admin where Accept/Decline actually happens. Customer-entered values are
+ *  escaped before being embedded in the HTML. */
+export async function sendStoreNotification(booking: Booking): Promise<SendResult> {
+  const cfg = await getConfig();
+  const v = buildVars(booking, cfg);
+  const row = (label: string, value: string) =>
+    `<tr><td style="padding:7px 18px 7px 0;color:#6f675c;font-size:13px;white-space:nowrap;">${label}</td><td style="padding:7px 0;color:#1c1a18;font-size:14px;"><b>${value}</b></td></tr>`;
+  const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f5f2ec;font-family:Arial,sans-serif;">
+<table role="presentation" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border:1px solid #e2dccf;border-radius:10px;padding:26px 30px;">
+<tr><td>
+  <div style="font-size:18px;color:#1c1a18;"><b>New consultation request</b></div>
+  <div style="font-size:13px;color:#6f675c;margin-top:4px;">A customer just booked on the website — awaiting your approval.</div>
+  <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:16px;border-collapse:collapse;">
+    ${row("Name", esc(booking.name))}
+    ${row("Phone", esc(booking.phone))}
+    ${row("Email", esc(booking.email))}
+    ${row("Requested", `${v.date} at ${v.time}`)}
+    ${row("Reference", booking.reference)}
+  </table>
+  <a href="${ADMIN_URL}" style="display:inline-block;margin-top:20px;background:#b88c46;color:#141312;font-size:14px;font-weight:bold;text-decoration:none;padding:12px 22px;border-radius:8px;">Open the booking admin</a>
+  <div style="font-size:12px;color:#8c857a;margin-top:14px;">Accept or decline there — the customer is emailed automatically when you accept.</div>
+</td></tr></table></body></html>`;
+  return deliver({
+    to: NOTIFY_EMAIL,
+    subject: `New booking request — ${v.date} at ${v.time} (${booking.reference})`,
+    html, template: "notify", bookingId: booking.id,
+  });
 }
 
 /** Render + deliver one of the booking lifecycle emails for a booking. */

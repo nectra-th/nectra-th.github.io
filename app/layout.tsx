@@ -68,7 +68,7 @@ const JSON_LD = {
   priceRange: "$$",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Shop 90/457 Tapleys Hill Road",
+    streetAddress: "Shop 110, 445-457 Tapleys Hill Road",
     addressLocality: "Fulham Gardens",
     addressRegion: "SA",
     postalCode: "5024",

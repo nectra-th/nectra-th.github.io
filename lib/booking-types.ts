@@ -62,7 +62,7 @@ export type OutboxEntry = {
   to: string;
   subject: string;
   html: string;
-  template: EmailTemplateKey | "test";
+  template: EmailTemplateKey | "test" | "notify";
   bookingId?: string;
   provider: "resend" | "smtp" | "outbox"; // "outbox" = queued (no email transport configured)
   status: "sent" | "queued" | "error";

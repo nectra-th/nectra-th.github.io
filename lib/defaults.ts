@@ -8,13 +8,15 @@ export const DEFAULT_CONFIG: AvailabilityConfig = {
   // 12:00 PM (12:45 end) — the 1:00–4:00 PM slots only exist Mon–Fri.
   dayHours: { 1: { open: 9, close: 17 }, 2: { open: 9, close: 17 }, 3: { open: 9, close: 17 }, 4: { open: 9, close: 17 }, 5: { open: 9, close: 17 }, 6: { open: 9, close: 13 } },
   slotDurationMin: 45,
-  leadDays: 1,
+  leadDays: 2, // 48 hours' minimum notice (per store request)
   maxAdvanceDays: 90,
   blackoutDates: [],
   timezone: "Australia/Adelaide",
-  location: "Grech Jewellers, West Lakes Shopping Centre",
+  location: "Grech Jewellers, Shop 110 Fulham Gardens Shopping Centre",
+  // address query, not the store name — the Google Business Profile address
+  // is currently wrong, so the street address is the reliable pin
   directionsUrl:
-    "https://www.google.com/maps/search/?api=1&query=Grech+Jewellers+457+Tapleys+Hill+Road+Fulham+Gardens+SA+5024",
+    "https://www.google.com/maps/search/?api=1&query=445-457+Tapleys+Hill+Road,+Fulham+Gardens+SA+5024",
 };
 
 // ---- Email templates (email-client-safe HTML: tables + inline styles) -------

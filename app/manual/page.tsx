@@ -123,7 +123,7 @@ export default function ManualPage() {
         </P>
         <ul className="mt-3 max-w-[70ch] list-disc space-y-1.5 pl-6 font-sans text-[15px] leading-[26px] text-[#403b37]">
           <li><B>Sundays</B>{" "}— the store is closed.</li>
-          <li><B>Today</B>{" "}— bookings need at least one day&rsquo;s notice.</li>
+          <li><B>Today and tomorrow</B>{" "}— appointments require a minimum of 48 hours&rsquo; notice.</li>
           <li>Dates more than <B>90 days</B>{" "}ahead.</li>
           <li>Any <B>holiday dates</B>{" "}you set in the admin (see section 6).</li>
         </ul>
@@ -205,7 +205,7 @@ export default function ManualPage() {
             <em>exactly</em>{" "}the buttons customers will see for that day (Saturday 9:00–1:00 shows only
             the four morning slots, because every consultation must finish before closing).</li>
           <li><B>Consultation length</B>{" "}— appointment duration, also quoted in emails (45 min).</li>
-          <li><B>Minimum notice</B>{" "}— 1 means customers can book from tomorrow.</li>
+          <li><B>Minimum notice</B>{" "}— 2 means 48 hours&rsquo; notice (customers can book from the day after tomorrow).</li>
           <li><B>Bookable window</B>{" "}— how far ahead the calendar opens (90 days).</li>
           <li><B>Days off / holidays</B>{" "}— pick a date and press <B>Add day off</B>; it appears as a
             chip you can remove with ×. Those dates grey out on the website the moment you save.</li>

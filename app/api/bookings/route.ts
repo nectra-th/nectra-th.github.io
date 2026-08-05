@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createBooking, getAvailability, getConfig, SlotTakenError } from "@/lib/booking-db";
-import { sendBookingEmail } from "@/lib/email";
+import { sendBookingEmail, sendStoreNotification } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -62,8 +62,11 @@ export async function POST(request: Request) {
 
   try {
     const booking = await createBooking({ date, time, name, email, phone, project, notes });
-    // fire the "received / pending approval" email (never block the response on it)
-    sendBookingEmail("received", booking).catch(() => {});
+    // fire the customer "received" email THEN the internal store notification
+    // (never blocking the response) — sequential on purpose: both append to
+    // the outbox with a read-modify-write, so firing them concurrently can
+    // lose one of the two log entries.
+    sendBookingEmail("received", booking).then(() => sendStoreNotification(booking)).catch(() => {});
     return NextResponse.json(
       { ok: true, booking: { id: booking.id, reference: booking.reference, date: booking.date, time: booking.time, status: booking.status } },
       { status: 201 },

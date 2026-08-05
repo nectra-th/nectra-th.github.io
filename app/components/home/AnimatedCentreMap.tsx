@@ -62,8 +62,12 @@ export default function AnimatedCentreMap() {
 
   return (
     <>
+      {/* art-supplied still of the SAME map design (1662×950, matching the
+         animation's canvas), so the poster→animation handoff is seamless —
+         the old Figma floor-plan poster visibly "jumped" to the new design
+         when the animation loaded. */}
       <Image
-        src="/assets/figma-img/shopping-centre-map.png"
+        src="/assets/grech-map-placeholder.webp"
         alt=""
         aria-hidden
         fill

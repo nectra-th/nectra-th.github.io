@@ -97,13 +97,17 @@ export default function Footer() {
 
             <div className="mx-auto max-w-[217px] md:mx-0 md:max-w-[164px] lg:max-w-[217px]">
               <ColHeading>Location</ColHeading>
-              <p className="mt-4 font-sans text-[14px] leading-[30px] text-[#CFC6B8] md:text-[10.5px] md:leading-[23px] lg:text-[14px] lg:leading-[30px]">
-                Fulham Gardens Shopping Centre
+              {/* links to the Find Us section (per request) — block anchor so
+                 the whole three-line address is one target */}
+              <a href="#findus" className="mt-4 block font-sans text-[14px] leading-[30px] text-[#CFC6B8] transition-colors hover:text-gold md:text-[10.5px] md:leading-[23px] lg:text-[14px] lg:leading-[30px]">
+                Shop 110 Fulham Gardens
                 <br />
-                Shop 90/457 Tapleys Hill Road
+                Shopping Centre
+                <br />
+                445-457 Tapleys Hill Road
                 <br />
                 Fulham Gardens SA 5024
-              </p>
+              </a>
             </div>
           </div>
         </div>
