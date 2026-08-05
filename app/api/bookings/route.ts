@@ -62,11 +62,14 @@ export async function POST(request: Request) {
 
   try {
     const booking = await createBooking({ date, time, name, email, phone, project, notes });
-    // fire the customer "received" email THEN the internal store notification
-    // (never blocking the response) — sequential on purpose: both append to
-    // the outbox with a read-modify-write, so firing them concurrently can
-    // lose one of the two log entries.
-    sendBookingEmail("received", booking).then(() => sendStoreNotification(booking)).catch(() => {});
+    // Send the customer "received" email THEN the internal store
+    // notification, AWAITED before responding: fire-and-forget work after
+    // the response is not guaranteed to run on serverless (the function can
+    // be frozen mid-send — observed dropping both emails in E2E). Sequential
+    // on purpose too: both append to the outbox via read-modify-write, so
+    // concurrent sends can lose a log entry. Email failures stay non-fatal —
+    // the booking itself is already saved.
+    await sendBookingEmail("received", booking).then(() => sendStoreNotification(booking)).catch(() => {});
     return NextResponse.json(
       { ok: true, booking: { id: booking.id, reference: booking.reference, date: booking.date, time: booking.time, status: booking.status } },
       { status: 201 },
