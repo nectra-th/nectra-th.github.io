@@ -13,10 +13,9 @@ export const DEFAULT_CONFIG: AvailabilityConfig = {
   blackoutDates: [],
   timezone: "Australia/Adelaide",
   location: "Grech Jewellers, Shop 110 Fulham Gardens Shopping Centre",
-  // address query, not the store name — the Google Business Profile address
-  // is currently wrong, so the street address is the reliable pin
+  // the store's actual Google Maps listing (confirmed correct pin)
   directionsUrl:
-    "https://www.google.com/maps/search/?api=1&query=445-457+Tapleys+Hill+Road,+Fulham+Gardens+SA+5024",
+    "https://www.google.com/maps/search/?api=1&query=Grech+Jewellers+-+Manufacturing,+Fulham+Gardens+SA+5024",
 };
 
 // ---- Email templates (email-client-safe HTML: tables + inline styles) -------

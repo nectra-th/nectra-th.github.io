@@ -8,10 +8,10 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
    shopping-centre floor-plan, tab 2 = a live Google Maps embed. The directions
    panel (passed in) sits beside the view and is the same across tabs. */
 
-// Address query (not the store name) — the Google Business Profile address
-// is currently wrong, so the plain street address is the reliable pin.
+// The store's actual Google Maps listing (confirmed correct pin by the
+// team) — shows the business card, not a bare address pin.
 const GOOGLE_EMBED =
-  "https://maps.google.com/maps?q=445-457%20Tapleys%20Hill%20Road%20Fulham%20Gardens%20SA%205024&z=16&output=embed";
+  "https://maps.google.com/maps?q=Grech%20Jewellers%20-%20Manufacturing%20Fulham%20Gardens%20SA&z=17&output=embed";
 
 // `short` is the mobile artboard's own wording — it drops "Map" from the
 // middle tab so all three fit one row at 390px.

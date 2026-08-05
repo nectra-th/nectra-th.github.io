@@ -8,10 +8,10 @@ import LaunchNavigationButton from "./LaunchNavigationButton";
 
 const PHONE_DISPLAY = "(08) 8356 7764";
 const PHONE_HREF = "tel:+61883567764";
-// Address-based destination (not the store name): the Google Business
-// Profile currently carries a wrong address, so a name query can resolve to
-// nothing / the wrong pin — the street address works regardless.
-const MAPS_DIR = "https://www.google.com/maps/dir/?api=1&destination=445-457+Tapleys+Hill+Road,+Fulham+Gardens+SA+5024";
+// Targets the store's actual Google Maps listing ("Grech Jewellers -
+// Manufacturing", confirmed by the team as the correct pin) — customers get
+// the business card + reviews, not a bare address pin.
+const MAPS_DIR = "https://www.google.com/maps/dir/?api=1&destination=Grech+Jewellers+-+Manufacturing,+Fulham+Gardens+SA+5024";
 
 // Matches the routes shown on the animated centre map (arrows approach from
 // several entrances, not just the northern one).
