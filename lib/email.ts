@@ -15,6 +15,9 @@ const SMTP_PASS = process.env.SMTP_PASS ?? "";
 // Gmail rewrites From to the authenticated user, so default the From to SMTP_USER.
 const SMTP_FROM = process.env.SMTP_FROM || (SMTP_USER ? `Grech Jewellers <${SMTP_USER}>` : "");
 const SMTP_OK = !!(SMTP_HOST && SMTP_USER && SMTP_PASS);
+// Customers hit Reply on the automated emails — send those to the mailbox
+// the store actually reads, not the send-only bookings account.
+const REPLY_TO = process.env.REPLY_TO || "jeweller@grechjewellers.com.au";
 
 /** Replace every {{var}} token; unknown tokens collapse to "". */
 export function render(tpl: string, vars: Partial<TemplateVars>): string {
@@ -77,7 +80,7 @@ export async function deliver(args: {
         host: SMTP_HOST, port: SMTP_PORT, secure: SMTP_PORT === 465,
         auth: { user: SMTP_USER, pass: SMTP_PASS },
       });
-      await transport.sendMail({ from: SMTP_FROM, to: args.to, subject: args.subject, html: args.html });
+      await transport.sendMail({ from: SMTP_FROM, replyTo: REPLY_TO, to: args.to, subject: args.subject, html: args.html });
     } catch (e) {
       status = "error"; error = e instanceof Error ? e.message : "smtp send failed";
     }
