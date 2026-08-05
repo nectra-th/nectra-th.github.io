@@ -66,7 +66,9 @@ export async function deliver(args: {
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ from: EMAIL_FROM, to: [args.to], subject: args.subject, html: args.html }),
+        // `to` may be a comma-separated list (e.g. the store-notification
+        // recipients) — Resend wants an array of individual addresses.
+        body: JSON.stringify({ from: EMAIL_FROM, to: args.to.split(",").map((s) => s.trim()).filter(Boolean), subject: args.subject, html: args.html }),
       });
       if (!res.ok) { status = "error"; error = `Resend ${res.status}: ${(await res.text()).slice(0, 200)}`; }
     } catch (e) {
@@ -90,9 +92,10 @@ export async function deliver(args: {
   return { ok: status !== "error", provider, status, error };
 }
 
-// Internal notification to the store for every new customer request (per
+// Internal notification recipients for every new customer request (per
 // request from the store — they shouldn't have to poll the admin page).
-const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL ?? "jeweller@grechjewellers.com.au";
+// Comma-separated; David (the owner) gets a copy alongside the store inbox.
+const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL ?? "jeweller@grechjewellers.com.au, david@grechjewellers.com.au";
 const ADMIN_URL = process.env.ADMIN_URL ?? "https://grech-jewellers.vercel.app/admin";
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
