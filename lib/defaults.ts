@@ -31,13 +31,8 @@ const shell = (inner: string) => `<!doctype html><html><body style="margin:0;pad
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0f0e0d;padding:32px 0;font-family:Georgia,'Times New Roman',serif;">
 <tr><td align="center">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:92%;background:#161412;border:1px solid #2a2622;border-radius:14px;overflow:hidden;">
-<tr><td style="padding:42px 44px 10px;text-align:center;">
+<tr><td style="padding:42px 44px 14px;text-align:center;">
   <img src="${A}/grech-email-logo.png" width="170" alt="Grech Jewellers — Est 1978" style="display:inline-block;border:0;max-width:170px;height:auto;">
-  <table role="presentation" width="100%" style="margin-top:22px;"><tr>
-    <td style="height:1px;background:linear-gradient(90deg,transparent,#8a6a34);"></td>
-    <td width="10" style="text-align:center;"><span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#b88c46;"></span></td>
-    <td style="height:1px;background:linear-gradient(90deg,#8a6a34,transparent);"></td>
-  </tr></table>
 </td></tr>
 ${inner}
 <tr><td style="padding:22px 44px 38px;border-top:1px solid #2a2622;font-family:Arial,sans-serif;">
