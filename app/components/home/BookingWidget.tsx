@@ -407,7 +407,7 @@ export default function BookingWidget({ stacked = false, compact = false, cardWi
         {/* Calendar */}
         <div style={{ textAlign: "center" }}>
           <h3 style={{ ...H3, fontWeight: 700 }}>Choose Your Date</h3>
-          <p style={SUB}>Appointments require a minimum of 48 hours&rsquo; notice.</p>
+          <p style={SUB}>Appointments require a<br />minimum of 48 hours&rsquo; notice.</p>
           <div style={{ marginTop: stacked ? 16 : compact ? 33 : 48 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: compact ? "center" : "space-between", gap: compact ? 38 : undefined, maxWidth: compact ? undefined : 252, margin: "0 auto", height: compact ? 24 : 32 }}>
               <button aria-label="Previous month" onClick={() => setView((v) => (v ? (v.m === 0 ? { y: v.y - 1, m: 11 } : { y: v.y, m: v.m - 1 }) : v))} className="gj-navarrow" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: compact ? 24 : 32, height: compact ? 24 : 32, borderRadius: 0, border: "1px solid var(--color-divider)", background: "var(--color-cream-light)", color: "var(--color-gold-dark)", cursor: "pointer", flex: "0 0 auto" }}><ArrowLeft style={{ width: compact ? 11 : 15, height: compact ? 11 : 15 }} /></button>
